@@ -1,3 +1,24 @@
 .signUp {
     padding: 10px 60px;
+    background-color: #33aaff;
 }
+
+.signUpForm {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    grid-row-gap: 20px;
+  }
+
+  .signUp .notSignedUpClass{
+    display: none;
+  }
+
+  .signUp .signedUpClass {
+    text-align: center;
+    margin-top: 20px;
+    color: green;
+    font-style: italic;
+    font-size: 20px;
+  }

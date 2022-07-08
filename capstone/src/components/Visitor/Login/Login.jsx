@@ -14,13 +14,14 @@ export default function Login() {
   function handleOnLoginChange(inputName, value) {
     setLogin({ ...loginForm, [inputName]: value });
   }
-  // const loginObject = useContext(LoginContext);
   return (
     <div className="login">
       <h2>Log In</h2>
-      <input name="username" type="text" placeholder="username" value={loginForm.username} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
-      <input name="password" type="password" placeholder="password" value={loginForm.password} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
-      <button type="submit">Login</button>
+      <div className="loginForm">
+        <input name="username" type="text" placeholder="Username" value={loginForm.username} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
+        <input name="password" type="password" placeholder="Password" value={loginForm.password} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
+      </div>
+      <button className="submit" type="submit">Login</button>
     </div>
   );
 }

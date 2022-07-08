@@ -1,0 +1,41 @@
+.visitor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.visitor .signUp, .visitor .login {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.visitor h2 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.visitor input {
+  width: 200px;
+  padding-left: 20px;
+  border-radius: 5px;
+  background-color: #EEEEEE;
+  border: none;
+  height: 40px;
+}
+
+.visitor .submit {
+  border-radius: 10px;
+  width: 100px;
+  height: 40px;
+  margin-top: 20px;
+  line-height: 38px;
+  text-align: center;
+  border: none;
+  transition: 0.5s;
+  justify-self: center;
+}
+
+.visitor .submit:hover {
+  cursor: pointer;
+  background-color: blue;
+  color: white;
+}
