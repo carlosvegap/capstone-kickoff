@@ -1,47 +1,45 @@
 import './App.css';
-import Home from "../Visitor/Home/Home"
+import { useState } from 'react';
+import axios from 'axios';
+import Visitor from '../Visitor/Visitor';
 
 // CONTEXTS
-import LoginContext from '../Contexts/LoginContext';
-import SignUpContext from '../Contexts/SignUpContext';
-
-import {useState} from "react";
-import SignUp from '../Visitor/Home/SignUp/SignUp';
+// import LoginContext from '../Contexts/LoginContext';
+// import SignUpContext from '../Contexts/SignUpContext';
 
 export default function App() {
-  // STATES
-  const [loginForm, setLogin] = useState({
-    username: '',
-    password: '',
-  })
-  const [signUpForm, setSignUp] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    password: '',
-    email: '',
-    age: -1,
-    about: '',
-    profilePhoto: ''
-  })
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('current_user_id') !== null);
 
-  // HANDLERS
-  function handleOnLoginChange(inputName, value){
-    setLogin({...loginForm, [inputName]: value})
-  }
-  function handleOnSignUpChange(inputName, value) {
-    setSignUp({...signUpForm, [inputName]: value})
-  }
+  const addAuthenticationHeader = () => {
+    const currentUserId = localStorage.getItem('current_user_id');
+    if (currentUserId !== null) {
+      axios.defaults.headers.common = {
+        current_user_id: currentUserId,
+      };
+    }
+  };
+  addAuthenticationHeader();
+
+  // const handleLogout = () => {
+  //   localStorage.removeItem('current_user_id')
+  //   axios.defaults.headers.common = {};
+  //   setIsLoggedIn(false);
+  // };
+
+  // const handleLogin = (user) => {
+  //   console.log(user);
+  //   localStorage.setItem('current_user_id', user.objectId);
+  //   addAuthenticationHeader();
+
+  //   setIsLoggedIn(true);
+  // };
 
   return (
     <div className="App">
       <main>
-        <LoginContext.Provider value={{loginForm, handleOnLoginChange}}>
-          <SignUpContext.Provider value={{signUpForm, handleOnSignUpChange}}>
-
-            <Home />
-          </SignUpContext.Provider>
-        </LoginContext.Provider>
+        {isLoggedIn
+          ? <h2>You are looged in</h2>
+          : <Visitor /> }
       </main>
 
     </div>
