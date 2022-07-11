@@ -26,7 +26,6 @@ app.use(morgan('tiny'));
 app.use('/visitor', visitorRouter)
 app.get('/', (req, res) => {
   res.status(201).send({ ping: 'pong' })
-  console.log(process.env.PORT)
   console.log('response received')
 })
 

@@ -39,3 +39,20 @@
   background-color: blue;
   color: white;
 }
+
+.successMessage {
+  color: green;
+}
+
+.errorMessage {
+  color: red;
+}
+
+.visitor span {
+  text-align: center;
+  margin-top: 20px;
+  background-color: #EEEEEE;
+  font-style: italic;
+  font-size: 20px;
+  transition: 3s;
+}

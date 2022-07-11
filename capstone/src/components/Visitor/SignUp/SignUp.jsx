@@ -60,7 +60,6 @@ export default function SignUp() {
       setIsSignedUp(true);
       console.log(res);
       resetForm(setSignUp);
-      // handleLogin(res.data.user)
     } catch (err) {
       setSignedUpError(err.response.data.error);
     }
