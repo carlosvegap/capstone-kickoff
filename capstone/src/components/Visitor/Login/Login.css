@@ -1,0 +1,10 @@
+.login {
+    padding: 10px 60px;
+}
+
+.loginForm {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    grid-row-gap: 20px;
+}

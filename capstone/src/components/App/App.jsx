@@ -1,27 +1,26 @@
 import './App.css';
-import Home from "../Visitor/Home/Home"
-import LoginContext from '../Contexts/LoginContext';
+import { useState } from 'react';
+import Visitor from '../Visitor/Visitor';
 
-import {useState} from "react";
+// CONTEXTS
+// import LoginContext from '../Contexts/LoginContext';
+// import SignUpContext from '../Contexts/SignUpContext';
 
 export default function App() {
-  // STATES
-  const [loginForm, setLogin] = useState({
-    username: '',
-    password: '',
-  })
-
-  // HANDLERS
-  function handleOnLoginFormChange(inputName, value){
-    setLogin({...loginForm, [inputName]: value})
-  }
+  // TODO: Handle state with useContext and useMemo
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('current_user_id') !== null);
 
   return (
     <div className="App">
       <main>
-        <LoginContext.Provider value={{loginForm, handleOnLoginFormChange}}>
-          <Home />
-        </LoginContext.Provider>
+        {isLoggedIn
+          ? <h2>You are logged in</h2>
+          : (
+            <Visitor
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+            />
+          )}
       </main>
 
     </div>

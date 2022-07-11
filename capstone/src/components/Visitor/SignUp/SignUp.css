@@ -1,0 +1,12 @@
+.signUp {
+    padding: 10px 60px;
+    background-color: #33aaff;
+}
+
+.signUpForm {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    grid-row-gap: 20px;
+  }
