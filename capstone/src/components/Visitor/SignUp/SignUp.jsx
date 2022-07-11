@@ -18,6 +18,19 @@ export function signUp(formValues) {
   return axios.post(`${baseURL}/visitor/signUp`, values);
 }
 
+export function resetForm(setSignUp) {
+  setSignUp({
+    firstName: '',
+    lastName: '',
+    username: '',
+    password: '',
+    email: '',
+    age: '',
+    profilePhoto: '',
+    userType: 'adventurer',
+  });
+}
+
 export default function SignUp() {
   // STATES
   const [isSignedUp, setIsSignedUp] = useState(false);
@@ -46,6 +59,7 @@ export default function SignUp() {
       const res = await signUp(signUpForm);
       setIsSignedUp(true);
       console.log(res);
+      resetForm(setSignUp);
       // handleLogin(res.data.user)
     } catch (err) {
       setSignedUpError(err.response.data.error);
