@@ -3,61 +3,60 @@ import { useState } from 'react';
 import axios from 'axios';
 import UserDecision from './UserDecision/UserDecision';
 
-export default function SignUp() {
+export function signUp(formValues) {
   const baseURL = 'http://localhost:3001';
+  const values = {
+    firstName: formValues.firstName,
+    lastName: formValues.lastName,
+    username: formValues.username,
+    password: formValues.password,
+    email: formValues.email,
+    age: formValues.age,
+    userType: formValues.userType,
+    // TODO: DONT FORGET WORK ON PROFILE PICTURE!
+  };
+  return axios.post(`${baseURL}/visitor/signUp`, values);
+}
+
+export default function SignUp() {
   // STATES
-  const [signUpUser, setSignUpUser] = useState('adventurer');
-  const [isSignedUp, setIsSignUp] = useState(false);
+  const [isSignedUp, setIsSignedUp] = useState(false);
+  const [signedUpError, setSignedUpError] = useState('');
   const [signUpForm, setSignUp] = useState({
     firstName: '',
     lastName: '',
     username: '',
     password: '',
     email: '',
-    age: null,
-    about: '',
+    age: '',
     profilePhoto: '',
-    userType: '',
+    userType: 'adventurer',
   });
   // HANDLERS
-  function handleOnClickUserButton(buttonName) {
-    setSignUpUser(buttonName);
-  }
   function handleOnSignUpChange(inputName, value) {
+    setIsSignedUp(false);
     if (inputName === 'age') {
-      if (value === '') setSignUp({ ...signUpForm, [inputName]: null });
+      if (value === '') setSignUp({ ...signUpForm, [inputName]: '' });
       else setSignUp({ ...signUpForm, [inputName]: Number(value) });
     } else setSignUp({ ...signUpForm, [inputName]: value });
   }
   async function handleSubmitSignUp() {
-    console.log('signing up');
+    setSignedUpError('');
     try {
-      const res = await axios.post(`${baseURL}/visitor/signUp`, {
-        firstName: signUpForm.firstName,
-        lastName: signUpForm.lastName,
-        username: signUpForm.username,
-        password: signUpForm.password,
-        email: signUpForm.email,
-        age: signUpForm.age,
-        about: signUpForm.about,
-        userType: signUpUser,
-        // DONT FORGET WORK ON PROFILE PICTURE!
-      });
-      setIsSignUp(true);
+      const res = await signUp(signUpForm);
+      setIsSignedUp(true);
       console.log(res);
       // handleLogin(res.data.user)
     } catch (err) {
-      // alert(err);
+      setSignedUpError(err.response.data.error);
     }
   }
-  let successSignUpClass = 'notSignedUpClass';
-  if (isSignedUp) successSignUpClass = 'signedUpClass';
   return (
     <div className="signUp">
       <h2>Sign Up</h2>
       <UserDecision
-        signUpUser={signUpUser}
-        handleOnClickUserButton={handleOnClickUserButton}
+        signUpUser={signUpForm.userType}
+        handleOnSignUpChange={handleOnSignUpChange}
       />
       <div className="signUpForm">
         <input
@@ -115,7 +114,14 @@ export default function SignUp() {
               }
         />
       </div>
-      <span className={successSignUpClass}> Successfully signed up! </span>
+      {signedUpError !== ''
+        ? (
+          <span className="errorMessage">
+            {signedUpError.message}
+          </span>
+        )
+        : null}
+      {isSignedUp ? <span className="successMessage"> Successfully signed up! </span> : null}
       <button type="submit" className="submit" onClick={handleSubmitSignUp}>Sign Up</button>
     </div>
   );

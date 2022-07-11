@@ -12,7 +12,7 @@ export default function App() {
 
   const addAuthenticationHeader = () => {
     const currentUserId = localStorage.getItem('current_user_id');
-    if (currentUserId !== null) {
+    if (currentUserId != null) {
       axios.defaults.headers.common = {
         current_user_id: currentUserId,
       };

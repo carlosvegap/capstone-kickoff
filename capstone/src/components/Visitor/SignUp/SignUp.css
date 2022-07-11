@@ -11,14 +11,19 @@
     grid-row-gap: 20px;
   }
 
-  .signUp .notSignedUpClass{
-    display: none;
-  }
-
-  .signUp .signedUpClass {
+  .signUp span {
     text-align: center;
     margin-top: 20px;
-    color: green;
+    background-color: #EEEEEE;
     font-style: italic;
     font-size: 20px;
+    transition: 3s;
+  }
+
+  .signUp .successMessage {
+    color: green;
+  }
+
+  .signUp .errorMessage {
+    color: red;
   }
