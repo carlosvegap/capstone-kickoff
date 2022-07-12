@@ -9,12 +9,19 @@ Parse.serverURL = 'http://parseapi.back4app.com';
 
 // Log In
 router.post('/logIn', async (req, res) => {
-  try {
-    const user = await Parse.User.logIn(req.body.username, req.body.password);
-    res.send({ user });
-  } catch (error) {
+  console.log(req.body)
+  if (req.body.username === '' || req.body.password === '') {
     res.status(400);
-    res.send({ error });
+    res.send( {error: {message: "Fill all fields"} })
+  }
+  else {
+    try {
+      const user = await Parse.User.logIn(req.body.username, req.body.password);
+      res.send({ user });
+    } catch (error) {
+      res.status(400);
+      res.send({ error });
+    }
   }
 });
 
@@ -39,6 +46,19 @@ router.post('/signUp', async (req, res) => {
   else {
     res.status(400);
     res.send({ error: {message: 'Complete all fields to sign up'}})
+  }
+});
+
+// User information
+router.post('/user', async (req, res) => {
+  try {
+    const query = new Parse.Query("User");
+    query.get(req.body.objectId);
+    user = await query.find();
+    res.send(user[0])
+  } catch(error) {
+    res.status(400)
+    res.send(error)
   }
 });
 
