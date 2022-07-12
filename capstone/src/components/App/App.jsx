@@ -18,7 +18,7 @@ export async function getUserInfo(userId) {
 export default function App() {
   // TODO: Handle state with useContext and useMemo
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('current_user_id') != null);
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState(null);
   async function retrieveUserData() {
     try {
       const data = await getUserInfo(localStorage.getItem('current_user_id'));
@@ -29,32 +29,32 @@ export default function App() {
   }
   // runs on first load and anytime something changes
   useEffect(() => {
+    console.log('hey');
     if (isLoggedIn) {
       retrieveUserData();
-    }
-    else {
-      setUserData({});
+    } else {
+      setUserData(null);
     }
   }, [isLoggedIn]);
   return (
     <div className="App">
-      <BrowserRouter>
-        <main>
-          {isLoggedIn
-            ? (
-              <UserContext.Provider value={userData}>
+      <UserContext.Provider value={userData}>
+        <BrowserRouter>
+          <main>
+            {isLoggedIn
+              ? (
                 <User setIsLoggedIn={setIsLoggedIn} />
-              </UserContext.Provider>
-            )
-            : (
-              <Visitor
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-              />
-            )}
-        </main>
+              )
+              : (
+                <Visitor
+                  isLoggedIn={isLoggedIn}
+                  setIsLoggedIn={setIsLoggedIn}
+                />
+              )}
+          </main>
 
-      </BrowserRouter>
+        </BrowserRouter>
+      </UserContext.Provider>
     </div>
   );
 }
