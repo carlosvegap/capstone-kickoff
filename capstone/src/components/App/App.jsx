@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 import Visitor from '../Visitor/Visitor';
 import User from '../User/User';
+
 // CONTEXTS
 import UserContext from '../../Contexts/UserContext';
 // import SignUpContext from '../Contexts/SignUpContext';
@@ -30,6 +31,9 @@ export default function App() {
   useEffect(() => {
     if (isLoggedIn) {
       retrieveUserData();
+    }
+    else {
+      setUserData({});
     }
   }, [isLoggedIn]);
   return (

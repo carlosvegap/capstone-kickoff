@@ -6,7 +6,7 @@ export function logIn(formValues) {
   const baseURL = 'http://localhost:3001';
   const values = {
     username: formValues.username,
-    password: formValues.username,
+    password: formValues.password,
   };
   return axios.post(`${baseURL}/visitor/logIn`, values);
 }
@@ -32,9 +32,6 @@ export default function Login({ setIsLoggedIn }) {
     setLogin({ ...loginForm, [inputName]: value });
   }
   async function handleSubmitLogIn() {
-    console.log('front');
-    console.log(loginForm.username);
-    console.log(loginForm.password);
     setLoginError('');
     try {
       const res = await logIn(loginForm);
