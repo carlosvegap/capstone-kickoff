@@ -52,7 +52,7 @@ export default function App() {
               />
               <Route
                 path="/adventurer"
-                element={<Adventurer />}
+                element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
               />
               {/* <Route path="/experience">
                 <Experience></Experience>
