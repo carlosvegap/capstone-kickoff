@@ -1,3 +1,4 @@
+import './FindAdventure.css';
 import { useState } from 'react';
 import Map from './Map/Map';
 

@@ -7,7 +7,7 @@ export default function Map() {
   const center = { lat: 48.8584, lng: 2.2945 };
   // returns if isLoaded when you call the API
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyDdD2ubG53w9Pcd-G3Nv3rjbBrHk-26PU8',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
   if (!isLoaded) return (<h3>Map is loading...</h3>);
   return (

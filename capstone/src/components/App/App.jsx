@@ -1,13 +1,13 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { Routes } from 'react-router';
 import axios from 'axios';
 import Visitor from '../Visitor/Visitor';
-import User from '../User/User';
+import Adventurer from '../User/Adventurer/Adventurer';
 
 // CONTEXTS
 import UserContext from '../../Contexts/UserContext';
-// import SignUpContext from '../Contexts/SignUpContext';
 
 export async function getUserInfo(userId) {
   const values = { objectId: userId };
@@ -41,18 +41,25 @@ export default function App() {
       <UserContext.Provider value={userData}>
         <BrowserRouter>
           <main>
-            {isLoggedIn
-              ? (
-                <User setIsLoggedIn={setIsLoggedIn} />
-              )
-              : (
-                <Visitor
-                  isLoggedIn={isLoggedIn}
-                  setIsLoggedIn={setIsLoggedIn}
-                />
-              )}
+            <Routes>
+              <Route
+                path="/"
+                element={(
+                  <Visitor
+                    isLoggedIn={isLoggedIn}
+                    setIsLoggedIn={setIsLoggedIn}
+                  />
+                )}
+              />
+              <Route
+                path="/adventurer"
+                element={<Adventurer />}
+              />
+              {/* <Route path="/experience">
+                <Experience></Experience>
+              </Route> */}
+            </Routes>
           </main>
-
         </BrowserRouter>
       </UserContext.Provider>
     </div>

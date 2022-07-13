@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 export function logIn(formValues) {
@@ -20,6 +21,7 @@ export function resetForm(setLogIn) {
 }
 
 export default function Login({ setIsLoggedIn }) {
+  const navigate = useNavigate();
   // STATES
   const [loginError, setLoginError] = useState('');
   const [loginForm, setLogin] = useState({
@@ -41,6 +43,13 @@ export default function Login({ setIsLoggedIn }) {
       localStorage.setItem('current_user_id', res.data.user.objectId);
       axios.defaults.headers.common = { current_user_id: res.data.user.objectId };
       setIsLoggedIn(true);
+      const { userType } = res.data.user;
+      if (userType === 'adventurer') {
+        navigate('/adventurer');
+      }
+      if (userType === 'experienceMaker') {
+        navigate('/experience');
+      }
     } catch (err) {
       setLoginError(err.response.data.error);
       resetForm(setLogin);
