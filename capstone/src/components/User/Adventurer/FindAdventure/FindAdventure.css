@@ -1,0 +1,15 @@
+.adventure .findAdventure { 
+  width: 100%;
+  border: 1px solid blue;
+}
+
+.adventure .findAdventure h2 {
+  text-align: center;
+  font-style: italic;
+  font-size: 25px;
+}
+
+.adventure .experienceDisplayer {
+  display: flex;
+  justify-content: center;
+}
