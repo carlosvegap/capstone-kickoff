@@ -29,7 +29,6 @@ export default function App() {
   }
   // runs on first load and anytime something changes
   useEffect(() => {
-    console.log('hey');
     if (isLoggedIn) {
       retrieveUserData();
     } else {

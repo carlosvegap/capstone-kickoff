@@ -6,7 +6,7 @@ export default function FindAdventure() {
   const [displayExperience, setDisplayExperience] = useState('map');
   return (
     <div className="findAdventure">
-      <h2>Find your next adventure</h2>
+      <h2>Find your next adventure:</h2>
       <ExperienceDisplayer
         displayExperience={displayExperience}
         setDisplayExperience={setDisplayExperience}

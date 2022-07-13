@@ -11,6 +11,11 @@ export default function Header({ setIsLoggedIn }) {
     navigate('/', { replace: true });
   }
   return (
-    <button onClick={handleLogOut} type="button">Log Out</button>
+    <header>
+      <button type="button">Logo</button>
+      <button type="button">Explore an adventure</button>
+      <button type="button">Settings</button>
+      <button onClick={handleLogOut} type="button">Log Out</button>
+    </header>
   );
 }
