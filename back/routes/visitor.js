@@ -11,7 +11,7 @@ Parse.serverURL = 'http://parseapi.back4app.com';
 router.post('/logIn', async (req, res) => {
   if (req.body.username === '' || req.body.password === '') {
     res.status(400);
-    res.send( {error: {message: "Fill all fields"} })
+    res.send( {error: {message: "Fill all fields"} });
   }
   else {
     try {
