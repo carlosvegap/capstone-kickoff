@@ -2,7 +2,7 @@ import './FindAdventure.css';
 import { useState } from 'react';
 import Map from './Map/Map';
 
-export default function FindAdventure() {
+export default function FindAdventure({ isLoggedIn }) {
   const [displayExperience, setDisplayExperience] = useState('map');
   return (
     <div className="findAdventure">
@@ -11,7 +11,7 @@ export default function FindAdventure() {
         displayExperience={displayExperience}
         setDisplayExperience={setDisplayExperience}
       />
-      <Map />
+      <Map isLoggedIn={isLoggedIn} />
     </div>
   );
 }

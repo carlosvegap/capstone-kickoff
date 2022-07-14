@@ -15,7 +15,9 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     <div className="user">
       <Header setIsLoggedIn={setIsLoggedIn} />
       <div className="adventure">
-        <FindAdventure />
+        <FindAdventure
+          isLoggedIn={isLoggedIn}
+        />
         <div className="profile">
           <h2>History</h2>
         </div>

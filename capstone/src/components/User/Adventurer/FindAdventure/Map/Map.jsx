@@ -1,27 +1,40 @@
+import './Map.css';
 import { useState, useRef, useEffect } from 'react';
-import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
+import { useLoadScript, GoogleMap, MarkerF } from '@react-google-maps/api';
 
-// process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-export default function Map() {
+export default function Map({ isLoggedIn }) {
+  // const libraries = ['places'];
   // TODO: change center
-  const center = { lat: 48.8584, lng: 2.2945 };
+  const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    navigator.geolocation.getCurrentPosition((position) => {
+      setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
+    });
+  }, [isLoggedIn]);
   // returns if isLoaded when you call the API
-  console.log(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    // libraries,
   });
   if (!isLoaded) return (<h3>Map is loading...</h3>);
   return (
     <GoogleMap
-      center={center}
+      center={currentPosition}
       zoom={15}
-      mapContainerStyle={{ width: '100%', height: '500px' }}
+      mapContainerClassName="mapContainer"
       options={{
         mapTypeControl: false,
         streetViewControl: false,
         maxZoom: 17,
         minZoom: 14,
       }}
-    />
+    >
+      <MarkerF
+        icon="https://www.robotwoods.com/dev/misc/bluecircle.png"
+        position={currentPosition}
+      />
+    </GoogleMap>
+
   );
 }
