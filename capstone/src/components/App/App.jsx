@@ -9,6 +9,10 @@ import Adventurer from '../User/Adventurer/Adventurer';
 // CONTEXTS
 import UserContext from '../../Contexts/UserContext';
 
+function getCurrentUserID() {
+  return localStorage.getItem(process.env.REACT_APP_USER_KEY);
+}
+
 export async function getUserInfo(userId) {
   const values = { objectId: userId };
   const baseURL = 'http://localhost:3001';
@@ -17,20 +21,17 @@ export async function getUserInfo(userId) {
 
 export default function App() {
   // TODO: Handle state with useContext and useMemo
-  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('current_user_id') != null);
+  const [isLoggedIn, setIsLoggedIn] = useState(getCurrentUserID() != null);
   const [userData, setUserData] = useState({});
-  async function retrieveUserData() {
-    try {
-      const data = await getUserInfo(localStorage.getItem('current_user_id'));
-      setUserData(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
   // runs on first load and anytime something changes
   useEffect(() => {
+    const retrieveUserData = async () => {
+      const data = await getUserInfo(getCurrentUserID);
+      setUserData(data);
+    };
     if (isLoggedIn) {
-      retrieveUserData();
+      retrieveUserData()
+        .catch(console.error);
     } else {
       setUserData({});
     }

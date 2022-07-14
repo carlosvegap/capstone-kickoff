@@ -40,7 +40,7 @@ export default function Login({ setIsLoggedIn }) {
       // Note: This isn't a secure practice, but is convenient for prototyping.
       // In production, you would add an access token instead of (or in addition to)
       // the user id, in order to authenticate the request
-      localStorage.setItem('current_user_id', res.data.user.objectId);
+      localStorage.setItem(process.env.REACT_APP_USER_KEY, res.data.user.objectId);
       axios.defaults.headers.common = { current_user_id: res.data.user.objectId };
       setIsLoggedIn(true);
       const { userType } = res.data.user;

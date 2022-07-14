@@ -1,16 +1,16 @@
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 export default function Header({ setIsLoggedIn }) {
+  const navigate = useNavigate();
   function handleLogOut() {
-    localStorage.removeItem('current_user_id');
+    localStorage.removeItem(process.env.REACT_APP_USER_KEY);
     axios.defaults.headers.common = {};
     setIsLoggedIn(false);
+    navigate('/');
   }
   return (
-    <Link to="/home">
-      <button onClick={handleLogOut} type="button">Log Out</button>
-    </Link>
+    <button onClick={handleLogOut} type="button">Log Out</button>
   );
 }
