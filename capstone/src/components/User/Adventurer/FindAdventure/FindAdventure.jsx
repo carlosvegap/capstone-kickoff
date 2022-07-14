@@ -7,28 +7,18 @@ export default function FindAdventure({ isLoggedIn }) {
   return (
     <div className="findAdventure">
       <h2>Find your next adventure:</h2>
-      <ExperienceDisplayer
-        displayExperience={displayExperience}
-        setDisplayExperience={setDisplayExperience}
-      />
+      <div className="experienceDisplayer">
+        <ExperienceViewButton value="map" displayExperience={displayExperience} setDisplayExperience={setDisplayExperience} />
+        <ExperienceViewButton value="list" displayExperience={displayExperience} setDisplayExperience={setDisplayExperience} />
+      </div>
       <Map isLoggedIn={isLoggedIn} />
     </div>
   );
 }
 
-export function ExperienceDisplayer({ displayExperience, setDisplayExperience }) {
-  if (displayExperience === 'map') {
-    return (
-      <div className="experienceDisplayer">
-        <button type="button" value="map" className="chosenDisplay" disabled>Map</button>
-        <button type="button" value="list" className="notChosenDisplay" onClick={(e) => setDisplayExperience(e.target.value)}>List</button>
-      </div>
-    );
+function ExperienceViewButton({ value, displayExperience, setDisplayExperience }) {
+  if (displayExperience === value) {
+    return <button type="button" value={value} className="chosenDisplay" disabled>{value}</button>;
   }
-  return (
-    <div className="experienceDisplayer">
-      <button type="button" value="map" className="notChosenDisplay" onClick={(e) => setDisplayExperience(e.target.value)}>Map</button>
-      <button type="button" value="list" className="chosenDisplay" disabled>List</button>
-    </div>
-  );
+  return <button type="button" value={value} className="notChosenDisplay" onClick={() => setDisplayExperience(value)}>{value}</button>;
 }

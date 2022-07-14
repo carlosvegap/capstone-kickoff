@@ -10,7 +10,6 @@ Parse.serverURL = 'http://parseapi.back4app.com';
 // Log In
 router.post('/logIn', async (req, res) => {
   if (req.body.username === '' || req.body.password === '') {
-    console.log('here')
     res.status(400);
     res.send( {error: {message: "Fill all fields"} })
   }
@@ -33,7 +32,6 @@ router.post('/signUp', async (req, res) => {
   }, true);
   if (hasAllFields) {
     const user = new Parse.User(req.body);
-    console.log({user: user})
     try {
       await user.signUp();
       res.status(201);
