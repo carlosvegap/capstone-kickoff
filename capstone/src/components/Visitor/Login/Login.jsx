@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 export function logIn(formValues) {
-  const baseURL = 'http://localhost:3001';
+  const baseURL = process.env.REACT_APP_BASE_URL;
   const values = {
     username: formValues.username,
     password: formValues.password,

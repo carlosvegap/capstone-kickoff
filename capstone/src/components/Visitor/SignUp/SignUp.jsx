@@ -4,7 +4,7 @@ import axios from 'axios';
 import UserDecision from './UserDecision/UserDecision';
 
 export function signUp(formValues) {
-  const baseURL = 'http://localhost:3001';
+  const baseURL = process.env.REACT_APP_BASE_URL;
   const values = {
     firstName: formValues.firstName,
     lastName: formValues.lastName,

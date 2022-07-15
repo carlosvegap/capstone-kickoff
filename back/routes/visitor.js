@@ -57,7 +57,7 @@ router.post('/user', async (req, res) => {
     try {
       const query = new Parse.Query("User");
       query.get(req.body.objectId);
-      user = await query.find();
+      const user = await query.find();
       res.send(user[0])
     } catch(error) {
       res.status(400)

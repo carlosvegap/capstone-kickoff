@@ -15,7 +15,7 @@ function getCurrentUserID() {
 
 export async function getUserInfo(userId) {
   const values = { objectId: userId };
-  const baseURL = 'http://localhost:3001';
+  const baseURL = process.env.REACT_APP_BASE_URL;
   return axios.post(`${baseURL}/visitor/user`, values);
 }
 
@@ -30,7 +30,8 @@ export default function App() {
       setUserData(data);
     };
     if (isLoggedIn) {
-      retrieveUserData()
+      getUserInfo(getCurrentUserID)
+        .then(setUserData)
         .catch(console.error);
     } else {
       setUserData({});
