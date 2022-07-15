@@ -5,6 +5,7 @@ var router = express.Router();
 
 
 Parse.initialize('syA4xlmOFpvn380vlkhyAHhG3vKzXRbMkhtqTga9', 'pw3zWl5Nu8zxYuGKOU2I6DvLiCVVVeJ3PtGsIiW4');
+// Parse.initialize(process.env.NODE_ENV_ID_PROJECT, process.env.NODE_ENV_PROJECT_KEY);
 Parse.serverURL = 'http://parseapi.back4app.com';
 
 // Log In

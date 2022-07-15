@@ -1,5 +1,5 @@
 .adventure .findAdventure { 
-  width: 100%;
+  border: 1px solid green;
 }
 
 .adventure .findAdventure h2 {
