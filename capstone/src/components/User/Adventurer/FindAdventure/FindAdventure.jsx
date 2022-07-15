@@ -2,33 +2,23 @@ import './FindAdventure.css';
 import { useState } from 'react';
 import Map from './Map/Map';
 
-export default function FindAdventure() {
-  const [displayExperience, setDisplayExperience] = useState('map');
+export default function FindAdventure({ isLoggedIn }) {
+  const [displayExperience, onSelectDisplay] = useState('map');
   return (
     <div className="findAdventure">
-      <h2>Find your next adventure</h2>
-      <ExperienceDisplayer
-        displayExperience={displayExperience}
-        setDisplayExperience={setDisplayExperience}
-      />
-      <Map />
+      <h2>Find your next adventure:</h2>
+      <div className="experienceDisplayer">
+        <ExperienceViewButton value="map" display="Map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
+        <ExperienceViewButton value="list" display="List" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
+      </div>
+      <Map isLoggedIn={isLoggedIn} />
     </div>
   );
 }
 
-export function ExperienceDisplayer({ displayExperience, setDisplayExperience }) {
-  if (displayExperience === 'map') {
-    return (
-      <div className="experienceDisplayer">
-        <button type="button" value="map" className="chosenDisplay" disabled>Map</button>
-        <button type="button" value="list" className="notChosenDisplay" onClick={(e) => setDisplayExperience(e.target.value)}>List</button>
-      </div>
-    );
+function ExperienceViewButton({ value, displayExperience, onSelectDisplay, display }) {
+  if (displayExperience === value) {
+    return <button type="button" value={value} className="chosenDisplay" disabled>{display}</button>;
   }
-  return (
-    <div className="experienceDisplayer">
-      <button type="button" value="map" className="notChosenDisplay" onClick={(e) => setDisplayExperience(e.target.value)}>Map</button>
-      <button type="button" value="list" className="chosenDisplay" disabled>List</button>
-    </div>
-  );
+  return <button type="button" value={value} className="notChosenDisplay" onClick={() => onSelectDisplay(value)}>{display}</button>;
 }

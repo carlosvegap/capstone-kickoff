@@ -1,23 +1,25 @@
 import './Adventurer.css';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import FindAdventure from './FindAdventure/FindAdventure';
 import Header from '../Header/Header';
 
 export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const navigate = useNavigate();
-  if (!isLoggedIn) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn]);
   return (
     <div className="user">
-      <div className="header">
-        <Header onLogOutClick={setIsLoggedIn} />
-      </div>
+      <Header onLogOutClick={setIsLoggedIn} />
       <div className="adventure">
-        <FindAdventure />
+        <FindAdventure
+          isLoggedIn={isLoggedIn}
+        />
         <div className="profile">
-          <h2>information</h2>
+          <h2>History</h2>
         </div>
       </div>
     </div>

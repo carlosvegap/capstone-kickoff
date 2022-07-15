@@ -8,6 +8,9 @@ back/.env
 package.json/
 package-lock.json/
 node_modules/
+back/package-lock.json
+back/.env
+package-lock.json
 .pnp.js
 
 # testing
@@ -15,6 +18,7 @@ node_modules/
 
 # production
 /build
+/capstone/.env
 
 # misc
 .DS_Store

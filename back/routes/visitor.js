@@ -1,14 +1,15 @@
+require('dotenv/config')
 var express = require('express');
-
 const Parse = require('parse/node');
 var router = express.Router();
 
-
-Parse.initialize('syA4xlmOFpvn380vlkhyAHhG3vKzXRbMkhtqTga9', 'pw3zWl5Nu8zxYuGKOU2I6DvLiCVVVeJ3PtGsIiW4');
+Parse.initialize(process.env.NODE_ENV_ID_PROJECT, process.env.NODE_ENV_PROJECT_KEY);
 Parse.serverURL = 'http://parseapi.back4app.com';
 
 // Log In
 router.post('/logIn', async (req, res) => {
+  console.log(process.env.NODE_ENV_ID_PROJECT)
+  console.log(process.env.NODE_ENV_PROJECT_KEY)
   if (req.body.username === '' || req.body.password === '') {
     res.status(400);
     res.send( {error: {message: "Fill all fields"} });

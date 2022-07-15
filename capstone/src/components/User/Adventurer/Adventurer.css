@@ -1,5 +1,9 @@
 .adventure {
   border: 1px solid red;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
+}
+
+.adventure .profile {
+  text-align: center;
 }

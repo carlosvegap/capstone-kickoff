@@ -1,0 +1,6 @@
+.user header {
+  background-color: grey;
+  display: flex;
+  justify-content: space-around;
+  height: 30px;
+}
