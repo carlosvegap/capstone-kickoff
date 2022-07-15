@@ -12,7 +12,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   return (
     <div className="user">
       <div className="header">
-        <Header setIsLoggedIn={setIsLoggedIn} />
+        <Header onLogOutClick={setIsLoggedIn} />
       </div>
       <div className="adventure">
         <FindAdventure />

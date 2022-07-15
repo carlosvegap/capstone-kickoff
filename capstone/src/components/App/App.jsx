@@ -25,10 +25,6 @@ export default function App() {
   const [userData, setUserData] = useState({});
   // runs on first load and anytime something changes
   useEffect(() => {
-    const retrieveUserData = async () => {
-      const data = await getUserInfo(getCurrentUserID);
-      setUserData(data);
-    };
     if (isLoggedIn) {
       getUserInfo(getCurrentUserID)
         .then(setUserData)
@@ -36,7 +32,7 @@ export default function App() {
     } else {
       setUserData({});
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, setUserData]);
   return (
     <div className="App">
       <UserContext.Provider value={userData}>
