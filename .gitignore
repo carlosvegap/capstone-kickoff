@@ -5,6 +5,7 @@
 back/node_modules
 node_modules/
 back/package-lock.json
+back/.env
 package-lock.json
 .pnp.js
 
