@@ -8,17 +8,17 @@ export default function FindAdventure({ isLoggedIn }) {
     <div className="findAdventure">
       <h2>Find your next adventure:</h2>
       <div className="experienceDisplayer">
-        <ExperienceViewButton value="map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
-        <ExperienceViewButton value="list" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
+        <ExperienceViewButton value="map" display="Map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
+        <ExperienceViewButton value="list" display="List" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
       </div>
       <Map isLoggedIn={isLoggedIn} />
     </div>
   );
 }
 
-function ExperienceViewButton({ value, displayExperience, onSelectDisplay }) {
+function ExperienceViewButton({ value, displayExperience, onSelectDisplay, display }) {
   if (displayExperience === value) {
-    return <button type="button" value={value} className="chosenDisplay" disabled>{value}</button>;
+    return <button type="button" value={value} className="chosenDisplay" disabled>{display}</button>;
   }
-  return <button type="button" value={value} className="notChosenDisplay" onClick={() => onSelectDisplay(value)}>{value}</button>;
+  return <button type="button" value={value} className="notChosenDisplay" onClick={() => onSelectDisplay(value)}>{display}</button>;
 }
