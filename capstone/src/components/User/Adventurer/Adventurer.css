@@ -1,0 +1,5 @@
+.adventure {
+  border: 1px solid red;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}

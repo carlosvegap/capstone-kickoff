@@ -3,7 +3,11 @@
 # dependencies
 /capstone/node_modules
 /back/node_modules
-/.pnp
+/back/package-lock.json
+back/.env
+package.json/
+package-lock.json/
+node_modules/
 .pnp.js
 
 # testing
