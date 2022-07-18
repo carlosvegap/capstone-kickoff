@@ -10,12 +10,30 @@ export default function Header({ onLogOutClick }) {
     onLogOutClick(false);
     navigate('/');
   }
+  const headerValues = [
+    { id: 'logo', displayText: 'Logo', onClick: null },
+    { id: 'explore', displayText: 'Explore an Adventure', onClick: null },
+    { id: 'preferences', displayText: 'Preferences', onClick: null },
+    { id: 'logOut', displayText: 'Log Out', onClick: () => handleLogOut(onLogOutClick) }];
   return (
     <header>
-      <button type="button">Logo</button>
+      {headerValues.map((button) => (
+        <HeaderButton
+          key={button.id}
+          displayText={button.displayText}
+          onClickHandler={button.onClick}
+        />
+      ))}
+      {/* <button type="button">Logo</button>
       <button type="button">Explore an adventure</button>
       <button type="button">Settings</button>
-      <button onClick={handleLogOut} type="button">Log Out</button>
+      <button onClick={handleLogOut} type="button">Log Out</button> */}
     </header>
+  );
+}
+
+function HeaderButton({ displayText, onClickHandler }) {
+  return (
+    <button type="button" onClick={onClickHandler}>{displayText}</button>
   );
 }
