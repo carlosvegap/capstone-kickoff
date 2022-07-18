@@ -1,11 +1,10 @@
-// const app = require('./app');
-
 const express = require('express');
 
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
 const visitorRouter = require('./routes/visitor');
+const adventurerRouter = require('./routes/adventure');
 
 // MIDDLEWARE
 app.use(cors());
@@ -14,6 +13,7 @@ app.use(morgan('tiny'));
 
 // ENDPOINTS
 
+app.use('/adventure', adventurerRouter)
 app.use('/visitor', visitorRouter)
 app.get('/', (req, res) => {
   res.status(201).send({ ping: 'pong' })
