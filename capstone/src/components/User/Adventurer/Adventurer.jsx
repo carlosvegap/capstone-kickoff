@@ -1,7 +1,7 @@
 import './Adventurer.css';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
-import { axios } from 'axios';
+import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
 import Header from '../Header/Header';
 
@@ -24,9 +24,11 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   // MEMO VALUES
-  const memoPosition = useMemo(() => ({ value: currentPosition }), [currentPosition]);
-  const memoDataFetched = useMemo(() => ({ value: isDataFetched }), [isDataFetched]);
-  const memoRestaurants = useMemo(() => ({ value: restaurants }), [restaurants]);
+  const mapData = useMemo(() => ({
+    currentPosition,
+    isDataFetched,
+    restaurants,
+  }), [currentPosition, isDataFetched, restaurants]);
 
   // Check if user is logged in
   const navigate = useNavigate();
@@ -56,11 +58,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     <div className="user">
       <Header onLogOutClick={setIsLoggedIn} />
       <AdventurerContext.Provider
-        value={{
-          currentPosition: memoPosition,
-          isDataFetched: memoDataFetched,
-          restaurants: memoRestaurants,
-        }}
+        value={mapData}
       >
         <div className="adventure">
           <FindAdventure />
