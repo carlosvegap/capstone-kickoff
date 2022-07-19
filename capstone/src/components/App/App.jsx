@@ -49,12 +49,13 @@ export default function App() {
                 )}
               />
               <Route
-                path="/adventurer"
+                path="/adventurer/:page"
                 element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
               />
               {/* <Route path="/experience">
                 <Experience></Experience>
               </Route> */}
+              {/* <Route path="*" element={<NotFound/>} /> */}
             </Routes>
           </main>
         </BrowserRouter>

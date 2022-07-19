@@ -45,10 +45,10 @@ export default function Login({ setIsLoggedIn }) {
       setIsLoggedIn(true);
       const { userType } = res.data.user;
       if (userType === 'adventurer') {
-        navigate('/adventurer');
+        navigate('/adventurer/home');
       }
       if (userType === 'experienceMaker') {
-        navigate('/experience');
+        navigate('/experience/home');
       }
     } catch (err) {
       setLoginError(err.response.data.error);
