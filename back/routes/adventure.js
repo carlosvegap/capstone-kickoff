@@ -7,12 +7,13 @@ const { Console } = require("console");
 // Get restaurants
 router.post('/restaurants', async(req, res) => {
   const comma = "%2C"
-  const location = `${req.body.lat}${comma}${req.body.lng}`;
   const query = "restaurant";
+  const location = `${req.body.lat},${req.body.lng}`;
   const radius = 1000;
+  const url = encodeURI(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${process.env.NODE_ENV_GOOGLE_MAPS_API_KEY}`)
   var config = {
     method: 'get',
-    url: `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${process.env.NODE_ENV_GOOGLE_MAPS_API_KEY}`,
+    url: url,
     headers: { }
   };
   axios(config)
