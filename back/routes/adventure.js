@@ -1,22 +1,25 @@
+require("dotenv/config")
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-
-const api = "AIzaSyCOE5i7_2ohB9yGCmgAjR4LrQZ3hzwCY10"
+const { Console } = require("console");
 
 // Get restaurants
 router.post('/restaurants', async(req, res) => {
-  const input = "restaurant"
+  const comma = "%2C"
+  const query = "restaurant";
+  const location = `${req.body.lat},${req.body.lng}`;
+  const radius = 1000;
+  const url = encodeURI(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${process.env.NODE_ENV_GOOGLE_MAPS_API_KEY}`)
   var config = {
     method: 'get',
-    url: `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${input}&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&key=${api}`,
+    url: url,
     headers: { }
   };
-  
   axios(config)
   .then(function (response) {
     res.status(200);
-    res.send(response.data);
+    res.send(response.data.results);
   })
   .catch(function (error) {
     res.status(400);

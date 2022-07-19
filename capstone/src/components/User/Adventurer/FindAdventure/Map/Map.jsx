@@ -1,35 +1,40 @@
 import './Map.css';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
 import { useLoadScript, GoogleMap, MarkerF } from '@react-google-maps/api';
+import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
-export default function Map({ isLoggedIn }) {
-  // const libraries = ['places'];
+export default function Map() {
+  const { currentPosition, isDataFetched, restaurants } = useContext(AdventurerContext);
   // TODO: change center
-  const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    navigator.geolocation.getCurrentPosition((position) => {
-      setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
-    });
-  }, [isLoggedIn]);
+
   // returns if isLoaded when you call the API
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    // libraries,
   });
-  if (!isLoaded) return (<h3>Map is loading...</h3>);
+  if (!isLoaded || !isDataFetched) return (<h3>Map is loading...</h3>);
   return (
     <GoogleMap
       center={currentPosition}
-      zoom={15}
+      zoom={12}
       mapContainerClassName="mapContainer"
+      styles={[{
+        featureType: 'poi',
+        elementType: 'all',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      }]}
       options={{
         mapTypeControl: false,
         streetViewControl: false,
-        maxZoom: 17,
-        minZoom: 14,
+        maxZoom: 20,
+        minZoom: 15,
       }}
     >
+      {(restaurants).map((restaurant) => <MarkerF position={restaurant.geometry.location} />)}
       <MarkerF
         icon="https://www.robotwoods.com/dev/misc/bluecircle.png"
         position={currentPosition}
