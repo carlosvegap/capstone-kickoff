@@ -3,7 +3,7 @@ var router = express.Router();
 const Parse = require('parse/node')
 var axios = require('axios');
 
-const api = "AIzaSyCOE5i7_2ohB9yGCmgAjR4LrQZ3hzwCY10"
+const api = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
 
 // Get restaurants
 router.post('/restaurants', async(req, res) => {
