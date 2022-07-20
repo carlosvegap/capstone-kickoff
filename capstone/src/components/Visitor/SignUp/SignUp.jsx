@@ -56,9 +56,8 @@ export default function SignUp() {
   async function handleSubmitSignUp() {
     setSignedUpError('');
     try {
-      const res = await signUp(signUpForm);
+      await signUp(signUpForm);
       setIsSignedUp(true);
-      console.log(res);
       resetForm(setSignUp);
     } catch (err) {
       setSignedUpError(err.response.data.error);

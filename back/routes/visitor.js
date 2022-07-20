@@ -30,9 +30,21 @@ router.post('/signUp', async (req, res) => {
     return hasAllFields
   }, true);
   if (hasAllFields) {
+    // Create User in Parse
     const user = new Parse.User(req.body);
+    // Create User Preferences (default) in Parse
+    const prioritize = false;
+    const username = req.body.username;
+    const activePreferences = [];
+    var UserPreference = new Parse.Object('UserPreference');
+    UserPreference.set('prioritize', prioritize);
+    UserPreference.set('username', username);
+    UserPreference.set('activePreferences', activePreferences);
     try {
+      // Save user information in Parse
       await user.signUp();
+      // Save user preferences (default) in Parse
+      await UserPreference.save();
       res.status(201);
       res.send({ user });
     } catch (error) {
