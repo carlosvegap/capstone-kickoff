@@ -2,6 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Routes } from 'react-router';
+import { ChakraProvider } from '@chakra-ui/react';
 import axios from 'axios';
 import Visitor from '../Visitor/Visitor';
 import Adventurer from '../User/Adventurer/Adventurer';
@@ -35,31 +36,33 @@ export default function App() {
   }, [isLoggedIn, setUserData]);
   return (
     <div className="App">
-      <UserContext.Provider value={userData}>
-        <BrowserRouter>
-          <main>
-            <Routes>
-              <Route
-                path="/"
-                element={(
-                  <Visitor
-                    isLoggedIn={isLoggedIn}
-                    setIsLoggedIn={setIsLoggedIn}
-                  />
-                )}
-              />
-              <Route
-                path="/adventurer/:page"
-                element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-              />
-              {/* <Route path="/experience">
-                <Experience></Experience>
-              </Route> */}
-              {/* <Route path="*" element={<NotFound/>} /> */}
-            </Routes>
-          </main>
-        </BrowserRouter>
-      </UserContext.Provider>
+      <ChakraProvider>
+        <UserContext.Provider value={userData}>
+          <BrowserRouter>
+            <main>
+              <Routes>
+                <Route
+                  path="/"
+                  element={(
+                    <Visitor
+                      isLoggedIn={isLoggedIn}
+                      setIsLoggedIn={setIsLoggedIn}
+                    />
+                    )}
+                />
+                <Route
+                  path="/adventurer/:page"
+                  element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                />
+                {/* <Route path="/experience">
+                    <Experience></Experience>
+                  </Route> */}
+                {/* <Route path="*" element={<NotFound/>} /> */}
+              </Routes>
+            </main>
+          </BrowserRouter>
+        </UserContext.Provider>
+      </ChakraProvider>
     </div>
   );
 }
