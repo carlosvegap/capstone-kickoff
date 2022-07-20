@@ -62,34 +62,20 @@ router.post('/preferences/inactive', async(req, res) => {
   const getUserPreferenceQuery = new Parse.Query('UserPreference');
   getUserPreferenceQuery.equalTo("username", username)
   let activePreferences = [];
-  try {
-    let userPreferences = await getUserPreferenceQuery.first();
+  let userPreferences = await getUserPreferenceQuery.first();
+  if (userPreferences != null) {
     activePreferences = userPreferences.toJSON().activePreferences;
-  } catch(error) {
-    res.status(400);
-    res.send(error);
-    return null
-  }
-  // Get all possible preferences
-  const allPreferencesQuery = new Parse.Query('Preference');
-  let allPreferences = null;
-  try {
+  
+    // Get all possible preferences
+    const allPreferencesQuery = new Parse.Query('Preference');
+    let allPreferences = null;
     allPreferences = await allPreferencesQuery.find();
-  } catch(error) {
-    res.status(400);
-    res.send(error);
-    return null
-  }
-  // Find inactive preferences
-  let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
-  const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON())
-  try {
+  
+    // Find inactive preferences
+    let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
+    const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON())
     res.status(201);
     res.send(inactivePreferencesJSON);
-  } catch(error) {
-    res.status(400);
-    res.send(error);
-    return null
   }
 })
 
@@ -121,8 +107,8 @@ router.post('/preferences/update', async(req, res) => {
   // Define changing elements
   let differentPriority = false;
   let differentActivePrefences = false;
-  if (req.body.prioritize !== null) differentPriority = true;
-  if (req.body.activePreferences !== null) differentActivePrefences = true;
+  if (req.body.prioritize != null) differentPriority = true;
+  if (req.body.activePreferences != null) differentActivePrefences = true;
   // Find objectId of the current user preference
   const findQuery = new Parse.Query('UserPreference');
   findQuery.equalTo("username", username)

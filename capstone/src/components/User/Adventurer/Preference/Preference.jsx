@@ -15,7 +15,7 @@ async function getInactivePreferences(username) {
 }
 
 // array with object id of the active preferences
-async function getActivePreferences(username) {
+async function getActivePreferencesIDs(username) {
   const values = {
     username,
   };
@@ -35,7 +35,7 @@ export default function Preference() {
     firstName, lastName, username, age, userType, createdAt, updatedAt, ACL, objectId,
   } = useContext(UserContext);
   // contains only object Id
-  const [activePreferencesId, setActivePreferencesId] = useState([]);
+  const [activePreferencesId, setActivePreferencesIDs] = useState([]);
   // contains all information for active preferences
   const [activePreferences, setActivePreferences] = useState([]);
   // contains all information for inactive preferences
@@ -43,20 +43,19 @@ export default function Preference() {
 
   // get all information for inactive preferences and current objectId of active preferences
   useEffect(() => {
-    getActivePreferences(username)
-      .then((res) => setActivePreferencesId(res.data))
-      .catch(console.error);
-    getInactivePreferences(username)
-      .then((res) => setInactivePreferences(res.data))
-      .catch(console.error);
-  // activePreferences, setActivePreferences, inactivePreferences, setInactivePreferences
-  }, [activePreferencesId]);
+    if (username != null) {
+      getActivePreferencesIDs(username)
+        .then((res) => setActivePreferencesIDs(res.data));
+      getInactivePreferences(username)
+        .then((res) => setInactivePreferences(res.data));
+    }
+  }, [username, setActivePreferencesIDs, setInactivePreferences]);
 
   // Find all the information of the active preferences
   useEffect(() => {
     getPreferenceInfo(activePreferencesId)
       .then((res) => setActivePreferences(res.data));
-  }, [activePreferencesId]);
+  }, [activePreferencesId, setActivePreferences]);
 
   return (
     <div className="filterExperience">
