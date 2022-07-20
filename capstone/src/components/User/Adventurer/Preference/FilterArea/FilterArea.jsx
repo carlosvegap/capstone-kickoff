@@ -1,5 +1,6 @@
 import {
-  Box, Checkbox, Badge, HStack, Slider, SliderMark, SliderTrack, SliderFilledTrack, Tooltip, SliderThumb,
+  Box, Checkbox, Badge, HStack, Slider, SliderMark, SliderTrack, SliderFilledTrack,
+  Tooltip, SliderThumb,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ export default function FilterArea({
   if (showMinimumValues === false) {
     return (
       <Box>
-        <HStack spacing="40px">
+        <HStack spacing="40px" mb="20px">
           <Checkbox ml="45px" onChange={(e) => setShowMinimumValues(e.target.checked)} />
           <Badge> {priority} {displayText} </Badge>
         </HStack>
@@ -36,12 +37,12 @@ export default function FilterArea({
         width="80%"
         ml="10%"
         mt="20px"
+        mb="20px"
         id={id}
         defaultValue={defaultValue !== sliderValue ? sliderValue : defaultValue}
         min={minValue}
         max={maxValue}
         step={step}
-        mb="10px"
         colorScheme="yellow"
         onChange={(v) => setSliderValue(v)}
         onMouseEnter={() => setShowTooltip(true)}

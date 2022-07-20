@@ -27,8 +27,8 @@ export default function App() {
   // runs on first load and anytime something changes
   useEffect(() => {
     if (isLoggedIn) {
-      getUserInfo(getCurrentUserID)
-        .then(setUserData)
+      getUserInfo(getCurrentUserID())
+        .then((res) => setUserData(res.data))
         .catch(console.error);
     } else {
       setUserData({});

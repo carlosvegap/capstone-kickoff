@@ -27,8 +27,8 @@ router.post('/restaurants', async(req, res) => {
 Parse.initialize(process.env.NODE_ENV_ID_PROJECT, process.env.NODE_ENV_PROJECT_KEY);
 Parse.serverURL = 'http://parseapi.back4app.com';
 
-// ----- Get current user's preferences -----
-router.post('/preferences/current', async(req, res) => {
+// ----- Get active user's preferences -----
+router.post('/preferences/active', async(req, res) => {
   const query = new Parse.Query('UserPreference');
   query.equalTo("username", req.body.username)
   try {
@@ -61,13 +61,14 @@ router.post('/preferences/inactive', async(req, res) => {
   // Find current preferences
   const getUserPreferenceQuery = new Parse.Query('UserPreference');
   getUserPreferenceQuery.equalTo("username", username)
-  let activePreferences = null;
+  let activePreferences = [];
   try {
-    let userPreferences = await getUserPreferenceQuery.find();
-    activePreferences = userPreferences[0].toJSON().activePreferences;
+    let userPreferences = await getUserPreferenceQuery.first();
+    activePreferences = userPreferences.toJSON().activePreferences;
   } catch(error) {
     res.status(400);
     res.send(error);
+    return null
   }
   // Get all possible preferences
   const allPreferencesQuery = new Parse.Query('Preference');
@@ -77,16 +78,38 @@ router.post('/preferences/inactive', async(req, res) => {
   } catch(error) {
     res.status(400);
     res.send(error);
+    return null
   }
   // Find inactive preferences
   let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
+  const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON())
   try {
     res.status(201);
-    res.send(inactivePreferences);
+    res.send(inactivePreferencesJSON);
+  } catch(error) {
+    res.status(400);
+    res.send(error);
+    return null
+  }
+})
+
+// ----- Get preferences information of a given array -----
+router.post('/preferences/find', async(req, res) => {
+  // req.body elements
+  const objectIdArray = req.body.objectIdArray;
+  let preferenceInformation = []
+  const query = new Parse.Query("Preference");
+  let allPreferences = [];
+  try {
+    allPreferences = await query.find()
   } catch(error) {
     res.status(400);
     res.send(error);
   }
+  preferenceInformation = allPreferences.filter((preference) => objectIdArray.includes(preference.toJSON().objectId))
+  preferenceInformationJSON = preferenceInformation.map((preference) => preference.toJSON())
+  res.status(200);
+  res.send(preferenceInformationJSON);
 })
 
 // ----- Update user's preferences ------

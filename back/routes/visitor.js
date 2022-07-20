@@ -61,7 +61,7 @@ router.post('/signUp', async (req, res) => {
 // User information
 router.post('/user', async (req, res) => {
   if (Object.keys(req.body).length === 0) {
-    res.status(200)
+    res.status(400)
     res.send({error : {message: 'No objectId provided'}})
   }
   else {
