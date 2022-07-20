@@ -42,7 +42,6 @@ router.get('/preferences/all', async(req, res) => {
 
 // ----- Get all inactive preferences -----
 router.post('/preferences/inactive', async(req, res) => {
-  // req.body elements
   const username = req.body.username
   // Find current preferences
   const getUserPreferenceQuery = new Parse.Query('UserPreference');
@@ -67,7 +66,6 @@ router.post('/preferences/inactive', async(req, res) => {
 
 // ----- Get preferences information of a given array -----
 router.post('/preferences/find', async(req, res) => {
-  // req.body elements
   const objectIdArray = req.body.objectIdArray;
   let preferenceInformation = []
   const query = new Parse.Query("Preference");
@@ -81,7 +79,6 @@ router.post('/preferences/find', async(req, res) => {
 
 // ----- Update user's preferences ------
 router.post('/preferences/update', async(req, res) => {
-  // req.body elements
   const prioritize = req.body.prioritize;
   const activePreferences = req.body.activePreferences;
   const username = req.body.username;
