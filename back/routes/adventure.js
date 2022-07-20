@@ -34,7 +34,7 @@ router.post('/preferences/current', async(req, res) => {
   try {
     let currentPreferences = await query.find();
     res.status(200);
-    res.send(currentPreferences[0].toJSON());
+    res.send(currentPreferences[0].toJSON().activePreferences);
   } catch(error) {
     res.status(400);
     res.send(error);
@@ -48,6 +48,41 @@ router.get('/preferences/all', async(req, res) => {
     let preferences = await query.find();
     res.status(200);
     res.send(preferences);
+  } catch(error) {
+    res.status(400);
+    res.send(error);
+  }
+})
+
+// ----- Get all inactive preferences -----
+router.post('/preferences/inactive', async(req, res) => {
+  // req.body elements
+  const username = req.body.username
+  // Find current preferences
+  const getUserPreferenceQuery = new Parse.Query('UserPreference');
+  getUserPreferenceQuery.equalTo("username", username)
+  let activePreferences = null;
+  try {
+    let userPreferences = await getUserPreferenceQuery.find();
+    activePreferences = userPreferences[0].toJSON().activePreferences;
+  } catch(error) {
+    res.status(400);
+    res.send(error);
+  }
+  // Get all possible preferences
+  const allPreferencesQuery = new Parse.Query('Preference');
+  let allPreferences = null;
+  try {
+    allPreferences = await allPreferencesQuery.find();
+  } catch(error) {
+    res.status(400);
+    res.send(error);
+  }
+  // Find inactive preferences
+  let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
+  try {
+    res.status(201);
+    res.send(inactivePreferences);
   } catch(error) {
     res.status(400);
     res.send(error);
