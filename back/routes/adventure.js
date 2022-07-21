@@ -32,9 +32,9 @@ Parse.serverURL = 'http://parseapi.back4app.com';
 router.post('/preferences/active', async(req, res) => {
   const query = new Parse.Query('UserPreference');
   query.equalTo("username", req.body.username)
-  let currentPreferences = await query.find();
+  let currentPreferences = await query.first();
   res.status(200);
-  res.send(currentPreferences[0].toJSON().activePreferences);
+  res.send(currentPreferences.toJSON().activePreferences);
 })
 
 // ----- Get all existing Preferences -----
