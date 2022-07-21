@@ -1,10 +1,7 @@
 require('dotenv/config')
 var express = require('express');
-const Parse = require('parse/node');
+const {Parse} = require('./../parse')
 var router = express.Router();
-
-Parse.initialize(process.env.NODE_ENV_ID_PROJECT, process.env.NODE_ENV_PROJECT_KEY);
-Parse.serverURL = 'http://parseapi.back4app.com';
 
 // Log In
 router.post('/logIn', async (req, res) => {
