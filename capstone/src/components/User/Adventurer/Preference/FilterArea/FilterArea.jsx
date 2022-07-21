@@ -8,11 +8,7 @@ import { useState } from 'react';
 export default function FilterArea({
   id, displayText, priority, minValue, maxValue, defaultValue, step, units,
 }) {
-  // Locating marks within slider
   const markSpace = maxValue / 5;
-  const mark2 = markSpace * 2;
-  const mark3 = markSpace * 3;
-  const mark4 = markSpace * 4;
   const [sliderValue, setSliderValue] = useState(0);
   const [showToolTip, setShowTooltip] = useState(false);
   const [showMinimumValues, setShowMinimumValues] = useState(false);
@@ -48,21 +44,9 @@ export default function FilterArea({
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        <SliderMark value={markSpace} mt="1" ml="-2.5" fontSize="sm" textAlign="center">
-          {Math.round(markSpace)}
-        </SliderMark>
-        <SliderMark value={mark2} mt="1" ml="-2.5" fontSize="sm" textAlign="center">
-          {Math.round(mark2)}
-        </SliderMark>
-        <SliderMark value={mark3} mt="1" ml="-2.5" fontSize="sm" textAlign="center">
-          {Math.round(mark3)}
-        </SliderMark>
-        <SliderMark value={mark4} mt="1" ml="-2.5" fontSize="sm" textAlign="center">
-          {Math.round(mark4)}
-        </SliderMark>
-        <SliderMark value={maxValue} mt="1" ml="-2.5" fontSize="sm" textAlign="center">
-          {maxValue}
-        </SliderMark>
+        {[markSpace, 2 * markSpace, 3 * markSpace, 4 * markSpace].map((interval) => (
+          <SliderMark value={interval} mt="1" ml="-2.5" fontSize="sm" textAlign="center">{Math.round(interval)} </SliderMark>
+        ))}
         <SliderTrack>
           <SliderFilledTrack />
         </SliderTrack>

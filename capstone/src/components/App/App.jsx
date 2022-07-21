@@ -28,8 +28,7 @@ export default function App() {
   useEffect(() => {
     if (isLoggedIn) {
       getUserInfo(getCurrentUserID())
-        .then((res) => setUserData(res.data))
-        .catch(console.error);
+        .then((res) => setUserData(res.data));
     } else {
       setUserData({});
     }

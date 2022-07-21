@@ -82,11 +82,6 @@ router.post('/preferences/update', async(req, res) => {
   const prioritize = req.body.prioritize;
   const activePreferences = req.body.activePreferences;
   const username = req.body.username;
-  // Define changing elements
-  let differentPriority = false;
-  let differentActivePrefences = false;
-  if (req.body.prioritize != null) differentPriority = true;
-  if (req.body.activePreferences != null) differentActivePrefences = true;
   // Find objectId of the current user preference
   const findQuery = new Parse.Query('UserPreference');
   findQuery.equalTo("username", username)
@@ -96,8 +91,9 @@ router.post('/preferences/update', async(req, res) => {
   // Update information for that user
   let updateQuery = new Parse.Object('UserPreference');
   updateQuery.set('objectId', objectId)
-  if (differentPriority) updateQuery.set('prioritize', prioritize)
-  if (differentActivePrefences) updateQuery.set('activePreferences', activePreferences)
+  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
+  if (req.body.prioritize != null) updateQuery.set('prioritize', prioritize)
+  if (req.body.activePreferences != null) updateQuery.set('activePreferences', activePreferences)
   await updateQuery.save();
   res.status(200);
   res.send('Success');
