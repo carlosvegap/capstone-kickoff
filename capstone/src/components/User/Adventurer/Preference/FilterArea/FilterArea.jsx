@@ -1,8 +1,8 @@
 import {
   Box, Checkbox, Badge, HStack, Slider, SliderMark, SliderTrack, SliderFilledTrack,
-  Tooltip, SliderThumb,
+  Tooltip, SliderThumb, Button,
 } from '@chakra-ui/react';
-import { StarIcon } from '@chakra-ui/icons';
+import { StarIcon, DeleteIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 
 export default function FilterArea({
@@ -18,6 +18,7 @@ export default function FilterArea({
         <HStack spacing="40px" mb="20px">
           <Checkbox ml="45px" onChange={(e) => setShowMinimumValues(e.target.checked)} />
           <Badge> {priority} {displayText} </Badge>
+          <Button rightIcon={<DeleteIcon />} colorScheme="red" variant="outline" alignSelf="right">Delete</Button>
         </HStack>
       </Box>
     );
@@ -28,6 +29,7 @@ export default function FilterArea({
         <Checkbox ml="45px" onChange={(e) => setShowMinimumValues(e.target.checked)} />
         <Badge> {priority} {displayText} </Badge>
         <Badge colorScheme="yellow"> {sliderValue} <DefineIcon units={units} />  or Higher </Badge>
+        <Button rightIcon={<DeleteIcon />} colorScheme="red" variant="outline">Delete</Button>
       </HStack>
       <Slider
         width="80%"

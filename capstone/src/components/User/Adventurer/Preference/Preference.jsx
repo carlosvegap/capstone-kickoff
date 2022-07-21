@@ -3,6 +3,7 @@ import { Box } from '@chakra-ui/react';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import FilterArea from './FilterArea/FilterArea';
+import FilterMenu from './FilterMenu/FilterMenu';
 import UserContext from '../../../../Contexts/UserContext';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -35,7 +36,7 @@ export default function Preference() {
     firstName, lastName, username, age, userType, createdAt, updatedAt, ACL, objectId,
   } = useContext(UserContext);
   // contains only object Id
-  const [activePreferencesId, setActivePreferencesIDs] = useState([]);
+  const [activePreferencesIDs, setActivePreferencesIDs] = useState([]);
   // contains all information for active preferences
   const [activePreferences, setActivePreferences] = useState([]);
   // contains all information for inactive preferences
@@ -53,9 +54,9 @@ export default function Preference() {
 
   // Find all the information of the active preferences
   useEffect(() => {
-    getPreferenceInfo(activePreferencesId)
+    getPreferenceInfo(activePreferencesIDs)
       .then((res) => setActivePreferences(res.data));
-  }, [activePreferencesId, setActivePreferences]);
+  }, [activePreferencesIDs, setActivePreferences]);
 
   return (
     <div className="filterExperience">
@@ -79,7 +80,12 @@ export default function Preference() {
             />
           ))}
         </Box>
-        <button type="button" value="add" className="addFilter">Add preferences</button>
+        <FilterMenu
+          inactivePreferences={inactivePreferences}
+          setInactivePreferences={setInactivePreferences}
+          activePreferencesIDs={activePreferencesIDs}
+          setActivePreferencesIDs={setActivePreferencesIDs}
+        />
       </div>
       <div className="profile">
         <h2>Define your adventurer profile</h2>
