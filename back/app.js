@@ -1,12 +1,10 @@
-// const app = require('./app');
-
 const express = require('express');
 
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
 const visitorRouter = require('./routes/visitor');
-const adventurerRouter = require('./routes/adventure')
+const adventurerRouter = require('./routes/adventure');
 
 // MIDDLEWARE
 app.use(cors());
