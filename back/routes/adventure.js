@@ -8,7 +8,6 @@ const api = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
 
 // ----- Get restaurants ------
 router.post('/restaurants', async(req, res) => {
-  const comma = "%2C"
   const query = "restaurant";
   const location = `${req.body.lat},${req.body.lng}`;
   const radius = 1000;
