@@ -12,3 +12,8 @@ router.get('/experience', async(req, res) => {
   res.status(200);
   res.send(experienceInfo.toJSON());
 })
+
+// Submit experience information
+router.post('/myExperience', async(req, res) => {
+  
+})
