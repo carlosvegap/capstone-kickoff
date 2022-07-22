@@ -57,7 +57,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   if (params.page === 'home') {
     return (
       <div className="user">
-        <Header onLogOutClick={setIsLoggedIn} />
+        <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
         <AdventurerContext.Provider
           value={mapData}
         >
