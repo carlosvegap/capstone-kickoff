@@ -24,7 +24,7 @@ router.post('/restaurants', async(req, res) => {
   })
 })
 
-// ----- Get active user's preferences -----
+// ----- Get active user's preferences IDs -----
 router.post('/preferences/active', async(req, res) => {
   const query = new Parse.Query('UserPreference');
   query.equalTo("username", req.body.username)
@@ -34,19 +34,18 @@ router.post('/preferences/active', async(req, res) => {
 })
 
 // ----- Get all existing Preferences -----
-router.get('/preferences/all', async(req, res) => {
+router.post('/preferences/all', async(req, res) => {
   const query = new Parse.Query('Preference');
   let preferences = await query.find();
   res.status(200);
   res.send(preferences);
 })
 
-// ----- Get all inactive preferences -----
+// ----- Get all inactive preferences IDS -----
 router.post('/preferences/inactive', async(req, res) => {
-  const username = req.body.username
   // Find current preferences
   const getUserPreferenceQuery = new Parse.Query('UserPreference');
-  getUserPreferenceQuery.equalTo("username", username)
+  getUserPreferenceQuery.equalTo("username", req.body.username)
   let activePreferences = [];
   let userPreferences = await getUserPreferenceQuery.first();
   if (userPreferences != null) {
@@ -55,10 +54,10 @@ router.post('/preferences/inactive', async(req, res) => {
     const allPreferencesQuery = new Parse.Query('Preference');
     let allPreferences = null;
     allPreferences = await allPreferencesQuery.find();
-    // Find inactive preferences
+    // Find inactive preferences IDS
     let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
-    const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON())
-    res.status(201);
+    const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON().objectId)
+    res.status(200);
     res.send(inactivePreferencesJSON);
   }
 })
