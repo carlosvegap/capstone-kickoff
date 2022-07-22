@@ -6,6 +6,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import axios from 'axios';
 import Visitor from '../Visitor/Visitor';
 import Adventurer from '../User/Adventurer/Adventurer';
+import Experience from '../User/Experience/Experience';
 
 // CONTEXTS
 import UserContext from '../../Contexts/UserContext';
@@ -52,6 +53,10 @@ export default function App() {
                 <Route
                   path="/adventurer/:page"
                   element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                />
+                <Route
+                  path="/experience/:page"
+                  element={<Experience isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
                 />
                 {/* <Route path="/experience">
                     <Experience></Experience>

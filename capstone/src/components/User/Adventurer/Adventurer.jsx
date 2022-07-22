@@ -74,7 +74,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   if (params.page === 'preferences') {
     return (
       <div className="user">
-        <Header onLogOutClick={setIsLoggedIn} />
+        <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
         <div className="filters">
           <Preference />
         </div>

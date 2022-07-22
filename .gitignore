@@ -13,6 +13,7 @@ node_modules/
 back/package-lock.json
 capstone/.env
 package-lock.json
+/jsconfig.json
 .pnp.js
 
 # testing

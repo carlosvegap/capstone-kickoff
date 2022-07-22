@@ -1,7 +1,7 @@
-require("dotenv/config")
+require("dotenv/config");
+const {Parse} = require('./../parse');
 var express = require('express');
 var router = express.Router();
-const Parse = require('parse/node')
 var axios = require('axios');
 
 const api = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
@@ -25,16 +25,13 @@ router.post('/restaurants', async(req, res) => {
   })
 })
 
-Parse.initialize(process.env.NODE_ENV_ID_PROJECT, process.env.NODE_ENV_PROJECT_KEY);
-Parse.serverURL = 'http://parseapi.back4app.com';
-
 // ----- Get active user's preferences -----
 router.post('/preferences/active', async(req, res) => {
   const query = new Parse.Query('UserPreference');
   query.equalTo("username", req.body.username)
-  let currentPreferences = await query.find();
+  let currentPreferences = await query.first();
   res.status(200);
-  res.send(currentPreferences[0].toJSON().activePreferences);
+  res.send(currentPreferences.toJSON().activePreferences);
 })
 
 // ----- Get all existing Preferences -----
@@ -55,12 +52,10 @@ router.post('/preferences/inactive', async(req, res) => {
   let userPreferences = await getUserPreferenceQuery.first();
   if (userPreferences != null) {
     activePreferences = userPreferences.toJSON().activePreferences;
-  
     // Get all possible preferences
     const allPreferencesQuery = new Parse.Query('Preference');
     let allPreferences = null;
     allPreferences = await allPreferencesQuery.find();
-  
     // Find inactive preferences
     let inactivePreferences = allPreferences.filter((preference) => !activePreferences.includes(preference.toJSON().objectId));
     const inactivePreferencesJSON = inactivePreferences.map((preference) => preference.toJSON())
