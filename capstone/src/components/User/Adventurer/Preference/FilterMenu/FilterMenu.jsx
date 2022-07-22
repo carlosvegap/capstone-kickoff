@@ -3,15 +3,7 @@ import {
   Menu, MenuButton, Button, MenuList, MenuItem,
 } from '@chakra-ui/react';
 
-export default function FilterMenu({
-  inactivePreferences, setInactivePreferences, activePreferencesIDs, setActivePreferencesIDs,
-}) {
-  function handleAddition(objectId) {
-    setActivePreferencesIDs([...activePreferencesIDs, objectId]);
-    setInactivePreferences(
-      inactivePreferences.filter((preferences) => preferences.objectId !== objectId),
-    );
-  }
+export default function FilterMenu({ inactivePreferences, handleAddition }) {
   return (
     <Menu>
       <MenuButton as={Button} rightIcon={<ChevronDownIcon />} width="1000px">
