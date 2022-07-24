@@ -24,7 +24,7 @@ async function submitExperience(formValues, username) {
       description: formValues.description,
     },
   };
-  return axios.post(`${baseURL}/experience/myExperience`, values);
+  return axios.post(`${baseURL}/experience/submit`, values);
 }
 
 export default function RegisterExperience() {

@@ -6,16 +6,15 @@ const {Parse} = require('./../parse');
 const { query } = require("express");
 
 // ----- Get the experience the user owns -----
-router.get('/experience', async(req, res) => {
+router.post('/info', async(req, res) => {
   const query = new Parse.Query('Experience');
-  query.equalTo("objectId", req.body.experienceId);
+  query.equalTo("username", req.body.username);
   let experienceInfo = await query.first();
-  res.status(200);
-  res.send(experienceInfo.toJSON());
+  res.status(200).send(experienceInfo);
 })
 
 // Submit experience information
-router.post('/myExperience', async(req, res) => {
+router.post('/submit', async(req, res) => {
   const findOwnerQuery = new Parse.Query('Experience');
   findOwnerQuery.equalTo("username", req.body.username);
   let existingExperience = await findOwnerQuery.first();
