@@ -86,8 +86,8 @@ router.post('/preferences/update', async(req, res) => {
   const findQuery = new Parse.Query('UserPreference');
   findQuery.equalTo("username", username)
   let objectId = null;
-  let currentPreferences = await findQuery.find();
-  objectId = currentPreferences[0].toJSON().objectId
+  let currentPreferences = await findQuery.first();
+  objectId = currentPreferences.toJSON().objectId
   // Update information for that user
   let updateQuery = new Parse.Object('UserPreference');
   updateQuery.set('objectId', objectId)

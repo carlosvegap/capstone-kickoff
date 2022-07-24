@@ -42,7 +42,7 @@ router.post('/signUp', async (req, res) => {
       await user.signUp();
       // Save user preferences (default) in Parse
       await UserPreference.save();
-      res.status(201);
+      res.status(200);
       res.send({ user });
     } catch (error) {
       res.status(400);
