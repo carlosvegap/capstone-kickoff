@@ -1,5 +1,5 @@
 import {
-  Box, Heading, FormControl, FormLabel, Input, Textarea, ButtonGroup, Button,
+  Box, Heading, FormControl, FormLabel, Input, Textarea, ButtonGroup, Button, Badge,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext } from 'react';
@@ -39,24 +39,25 @@ export default function RegisterExperience() {
     name: '',
     location: '',
     email: '',
-    description: '',
   });
+
   const fields = [
     {
-      id: 'name', value: experienceValues.name, displayText: 'Name', placeholder: 'Your amazing business', isRequired: true, type: 'text', input: 'input',
+      id: 'name', value: experienceValues.name, displayText: 'Name', placeholder: 'Your amazing business', isRequired: true, type: 'text', input: 'input', error: error.name,
     },
     {
-      id: 'location', value: experienceValues.location, displayText: 'Business Location', placeholder: '123 Stewart Drive', isRequired: true, type: 'text', input: 'input',
+      id: 'location', value: experienceValues.location, displayText: 'Business Location', placeholder: '123 Stewart Drive', isRequired: true, type: 'text', input: 'input', error: error.location,
     },
     {
-      id: 'email', value: experienceValues.email, displayText: 'Email', placeholder: 'yourbusiness@ext.org', isRequired: true, type: 'email', input: 'input',
+      id: 'email', value: experienceValues.email, displayText: 'Email', placeholder: 'yourbusiness@ext.org', isRequired: true, type: 'email', input: 'input', error: error.email,
     },
     {
-      id: 'description', value: experienceValues.description, displayText: 'Description', placeholder: 'Let people know your value in here!', isRequired: false, type: 'text', input: 'textArea',
+      id: 'description', value: experienceValues.description, displayText: 'Description', placeholder: 'Let people know your value in here!', isRequired: false, type: 'text', input: 'textArea', error: error.description,
     },
   ];
   function onRegistryChange(inputName, value) {
     setExperienceValues({ ...experienceValues, [inputName]: value });
+    setError({ ...error, [inputName]: '' });
   }
   function onRegistrySubmission(form) {
     let hasError = false;
@@ -64,10 +65,9 @@ export default function RegisterExperience() {
       if (key === 'email') {
         if (!(validateEmail(form[key]))) {
           setError({ ...error, [key]: 'Not a valid email' });
-          console.log(`error in ${key}: ${form[key]}`);
           hasError = true;
         }
-      } else if (!(form[key])) {
+      } else if (!(form[key]) && key !== 'description') {
         setError({ ...error, [key]: 'Not a valid value' });
         hasError = true;
       }
@@ -82,7 +82,9 @@ export default function RegisterExperience() {
       </Heading>
       {fields.map((inputField) => (
         <FormControl isRequired={inputField.isRequired} key={inputField.id} p="20px">
-          <FormLabel>{inputField.displayText}</FormLabel>
+          <FormLabel>
+            {inputField.displayText}
+          </FormLabel>
           {inputField.input === 'input'
             ? (
               <Input
@@ -100,6 +102,7 @@ export default function RegisterExperience() {
                 onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
               />
             )}
+          <Badge colorScheme="red">{inputField.error}</Badge>
         </FormControl>
       ))}
       <ButtonGroup variant="outline" spacing="6" border="1px solid grey" padding="20px" margin="auto">
