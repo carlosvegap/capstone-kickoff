@@ -13,11 +13,9 @@ export default function InputLocation({ address, placeholder, onSelect }) {
   function onChooseAddress(place) {
     // QUESTION: Only the last setState is being respected
     setSearch(place);
-    onSelect('address', place);
     geocodeByAddress(place)
       .then((res) => getLatLng(res[0])
-        .then((coord) => onSelect('lng', coord.lng)
-          .then(onSelect('lat', coord.lat))));
+        .then((coord) => onSelect(place, coord.lat, coord.lng)));
   }
   if (isLoaded) {
     return (

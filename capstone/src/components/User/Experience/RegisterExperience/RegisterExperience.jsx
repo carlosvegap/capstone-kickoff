@@ -48,6 +48,15 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
     setExperienceValues({ ...experienceValues, [inputName]: value });
     setError({ ...error, [inputName]: '' });
   }
+  function onRegistryAddressChange(addressValue, latValue, lngValue) {
+    setExperienceValues({
+      ...experienceValues,
+      address: addressValue,
+      lat: latValue,
+      lng: lngValue,
+    });
+    setError({ ...error, address: '' });
+  }
   // used to display success message in the following function
   const toast = useToast();
   function onRegistrySubmission(form) {
@@ -116,7 +125,7 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
             <InputLocation
               address={inputField.value}
               placeholder={inputField.placeholder}
-              onSelect={onRegistryChange}
+              onSelect={onRegistryAddressChange}
             />
           )}
           <Badge colorScheme="red">{inputField.error}</Badge>
