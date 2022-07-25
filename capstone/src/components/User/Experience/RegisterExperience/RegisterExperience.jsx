@@ -27,14 +27,9 @@ async function submitExperience(formValues, username) {
   return axios.post(`${baseURL}/experience/submit`, values);
 }
 
-export default function RegisterExperience() {
+export default function RegisterExperience({ experienceData, onNewExperienceData }) {
   const { username } = useContext(UserContext);
-  const [experienceValues, setExperienceValues] = useState({
-    name: '',
-    location: { lat: 0, lng: 0 },
-    email: '',
-    description: '',
-  });
+  const [experienceValues, setExperienceValues] = useState(experienceData);
   const [error, setError] = useState({
     name: '',
     location: '',
@@ -77,7 +72,9 @@ export default function RegisterExperience() {
       return hasError;
     });
     if (!hasError) {
+      // upload values to the database
       if (submitExperience(form, username)) {
+        // display success message
         toast({
           title: 'Experience created!',
           description: 'Start preparing for new adventurers to arrive soon',
@@ -85,6 +82,8 @@ export default function RegisterExperience() {
           duration: 5000,
           isClosable: true,
         });
+        // store locally the values
+        onNewExperienceData(form);
       }
     }
   }

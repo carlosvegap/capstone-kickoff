@@ -12,8 +12,13 @@ async function getExperienceInfo(username) {
 }
 
 export default function Experience({ setIsLoggedIn, isLoggedIn }) {
-  // Get user's information
   const { firstName, username, userType } = useContext(UserContext);
+  const [experienceData, setExperienceData] = useState({
+    name: '',
+    location: { lat: 0, lng: 0 },
+    email: '',
+    description: '',
+  });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   // Check if user is logged in or if is missing to complete their profile
@@ -25,11 +30,13 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
         .then((res) => {
           if (Object.keys(res.data).length === 0) {
             navigate('/experience/myExperience', { replace: true });
+          } else {
+            setExperienceData(res.data);
           }
           setIsLoading(false);
         });
     }
-  }, [isLoggedIn, username, setIsLoading]);
+  }, [isLoggedIn, username, setIsLoading, setExperienceData]);
 
   // store the value after experience/ route in params
   const params = useParams();
@@ -45,7 +52,10 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
     return (
       <>
         <Header userType={userType} onLogOutClick={setIsLoggedIn} />
-        <RegisterExperience />
+        <RegisterExperience
+          experienceData={experienceData}
+          onNewExperienceData={setExperienceData}
+        />
       </>
     );
   }
