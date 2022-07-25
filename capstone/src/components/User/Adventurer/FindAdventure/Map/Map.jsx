@@ -18,15 +18,6 @@ export default function Map() {
       center={currentPosition}
       zoom={12}
       mapContainerClassName="mapContainer"
-      styles={[{
-        featureType: 'poi',
-        elementType: 'all',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      }]}
       options={{
         mapTypeControl: false,
         streetViewControl: false,
