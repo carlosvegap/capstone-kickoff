@@ -24,7 +24,9 @@ export default function Map() {
         minZoom: 15,
       }}
     >
-      {(restaurants).map((restaurant) => <MarkerF position={restaurant.geometry.location} />)}
+      {(restaurants).map((restaurant, index) =>
+        <MarkerF key={index} position={restaurant.geometry.location}
+      />)}
       <MarkerF
         icon="https://www.robotwoods.com/dev/misc/bluecircle.png"
         position={currentPosition}
