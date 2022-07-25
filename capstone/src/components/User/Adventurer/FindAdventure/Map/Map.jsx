@@ -1,6 +1,5 @@
 import './Map.css';
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { useContext } from 'react';
 import { useLoadScript, GoogleMap, MarkerF } from '@react-google-maps/api';
 import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
