@@ -46,9 +46,9 @@ router.post('/preferences/inactive', async(req, res) => {
   // Find current preferences
   const getUserPreferenceQuery = new Parse.Query('UserPreference');
   getUserPreferenceQuery.equalTo("username", req.body.username)
-  let activePreferences = [];
   let userPreferences = await getUserPreferenceQuery.first();
   if (userPreferences != null) {
+    let activePreferences = [];
     activePreferences = userPreferences.toJSON().activePreferences;
     // Get all possible preferences
     const allPreferencesQuery = new Parse.Query('Preference');
@@ -64,12 +64,15 @@ router.post('/preferences/inactive', async(req, res) => {
 
 // ----- Get preferences information of a given array -----
 router.post('/preferences/find', async(req, res) => {
-  const objectIdArray = req.body.objectIdArray;
   let preferenceInformation = []
   const query = new Parse.Query("Preference");
   let allPreferences = [];
   allPreferences = await query.find()
-  preferenceInformation = allPreferences.filter((preference) => objectIdArray.includes(preference.toJSON().objectId))
+  allPreferences.map((preference) => console.log(preference.toJSON()))
+  preferenceInformation = req.body.objectIdArray.map((id) => 
+      allPreferences.find((preference) => 
+        preference.toJSON().objectId === id)
+  )
   preferenceInformationJSON = preferenceInformation.map((preference) => preference.toJSON())
   res.status(200);
   res.send(preferenceInformationJSON);

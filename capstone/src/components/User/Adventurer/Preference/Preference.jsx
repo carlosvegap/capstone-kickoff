@@ -1,5 +1,5 @@
 import './Preference.css';
-import { Box } from '@chakra-ui/react';
+import { Box, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import FilterArea from './FilterArea/FilterArea';
@@ -32,9 +32,7 @@ async function getPreferenceInfo(objectIdArray) {
 
 export default function Preference() {
   // TODO: Change contextprovider so you only receive what you REALLY need
-  const {
-    firstName, lastName, username, age, userType, createdAt, updatedAt, ACL, objectId,
-  } = useContext(UserContext);
+  const { username } = useContext(UserContext);
 
   // contains only object Ids referencing that preference, gotten from Parse
   // will change according to user interaction, and activePreferencesIDs 
@@ -77,19 +75,31 @@ export default function Preference() {
       activePreferencesIDs.filter((preferenceID) => preferenceID !== id),
     );
   }
+  const [prioritize, setPrioritize] = useState(false);
+  function onSwitchChange() {
+    setPrioritize(!prioritize);
+  }
   return (
     <div className="filterExperience">
       <div className="filterOptions">
         <h2>Define your adventure path</h2>
         <Box p="10px" overflow="auto">
-          <Box width="100px" textAlign="center" mb="20px">
-            Set minimum value
-          </Box>
+          <HStack>
+            <Box width="100px" textAlign="center" mb="20px" border="1px solid green">
+              Set minimum value
+            </Box>
+            <FormControl display="flex" justifyContent="center">
+              <FormLabel htmlFor="prioritize">
+                Prioritize preferences by order?
+              </FormLabel>
+              <Switch id="prioritize" onChange={onSwitchChange} />
+            </FormControl>
+          </HStack>
           {activePreferences.map((preference, index) => (
             <FilterArea
               key={preference.objectId}
               id={preference.objectId}
-              priority={index + 1}
+              priority={prioritize ? index + 1 : null}
               displayText={preference.displayText}
               minValue={preference.minValue}
               maxValue={preference.maxValue}
