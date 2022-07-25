@@ -4,6 +4,7 @@ import {
 import axios from 'axios';
 import { useState, useContext } from 'react';
 import UserContext from '../../../../Contexts/UserContext';
+import InputLocation from './InputLocation';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
@@ -15,39 +16,32 @@ function validateEmail(email) {
 async function submitExperience(formValues, username) {
   const values = {
     username,
-    // TODO: Change later to formValues, this format because of location change
-    formValues: {
-      name: formValues.name,
-      // TODO: USE GOOGLE TO FIND A LOCATION BY ADDRESS AND RETRIEVE ITS VALUES
-      location: { lat: 5, lng: 10 },
-      email: formValues.email,
-      description: formValues.description,
-    },
+    formValues,
   };
   return axios.post(`${baseURL}/experience/submit`, values);
 }
 
-export default function RegisterExperience({ experienceData, onNewExperienceData }) {
+export default function RegisterExperience({ experienceValues, setExperienceValues }) {
   const { username } = useContext(UserContext);
-  const [experienceValues, setExperienceValues] = useState(experienceData);
+  // const [experienceValues, setExperienceValues] = useState(experienceData);
   const [error, setError] = useState({
     name: '',
-    location: '',
+    address: '',
     email: '',
   });
 
   const fields = [
     {
-      id: 'name', value: experienceValues.name, displayText: 'Name', placeholder: 'Your amazing business', isRequired: true, type: 'text', input: 'input', error: error.name,
+      id: 'name', value: experienceValues.name, displayText: 'Name', placeholder: 'Your amazing business', isRequired: true, type: 'text', error: error.name,
     },
     {
-      id: 'location', value: experienceValues.location, displayText: 'Business Location', placeholder: '123 Stewart Drive', isRequired: true, type: 'text', input: 'input', error: error.location,
+      id: 'address', value: experienceValues.address, displayText: 'Business Address', placeholder: '123 Stewart Drive', isRequired: true, type: 'address', error: error.address,
     },
     {
-      id: 'email', value: experienceValues.email, displayText: 'Email', placeholder: 'yourbusiness@ext.org', isRequired: true, type: 'email', input: 'input', error: error.email,
+      id: 'email', value: experienceValues.email, displayText: 'Email', placeholder: 'yourbusiness@ext.org', isRequired: true, type: 'text', error: error.email,
     },
     {
-      id: 'description', value: experienceValues.description, displayText: 'Description', placeholder: 'Let people know your value in here!', isRequired: false, type: 'text', input: 'textArea', error: error.description,
+      id: 'description', value: experienceValues.description, displayText: 'Description', placeholder: 'Let people know your value in here!', isRequired: false, type: 'textArea', error: error.description,
     },
   ];
   function onRegistryChange(inputName, value) {
@@ -65,8 +59,13 @@ export default function RegisterExperience({ experienceData, onNewExperienceData
           setError({ ...error, [key]: 'Not a valid email' });
           hasError = true;
         }
+      } else if (key === 'lat' || key === 'lng') {
+        if (form[key] === 0) {
+          setError({ ...error, address: 'Not a valid address' });
+          hasError = true;
+        }
       } else if (!(form[key]) && key !== 'description') {
-        setError({ ...error, [key]: 'Not a valid value' });
+        setError({ ...error, [key]: `Not a valid ${key}` });
         hasError = true;
       }
       return hasError;
@@ -83,7 +82,7 @@ export default function RegisterExperience({ experienceData, onNewExperienceData
           isClosable: true,
         });
         // store locally the values
-        onNewExperienceData(form);
+        setExperienceValues(form);
       }
     }
   }
@@ -97,23 +96,29 @@ export default function RegisterExperience({ experienceData, onNewExperienceData
           <FormLabel>
             {inputField.displayText}
           </FormLabel>
-          {inputField.input === 'input'
-            ? (
-              <Input
-                value={inputField.value}
-                type={inputField.type}
-                placeholder={inputField.placeholder}
-                onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-              />
-            )
-            : (
-              <Textarea
-                value={inputField.value}
-                type={inputField.type}
-                placeholder={inputField.placeholder}
-                onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-              />
-            )}
+          {/* QUESTION: How to refactor that code? */}
+          {inputField.type === 'text' && (
+          <Input
+            value={inputField.value}
+            placeholder={inputField.placeholder}
+            // QUESTION: Mandatory to use e.target.value?
+            onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
+          />
+          )}
+          {inputField.type === 'textArea' && (
+          <Textarea
+            value={inputField.value}
+            placeholder={inputField.placeholder}
+            onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
+          />
+          )}
+          {inputField.type === 'address' && (
+            <InputLocation
+              address={inputField.value}
+              placeholder={inputField.placeholder}
+              onSelect={onRegistryChange}
+            />
+          )}
           <Badge colorScheme="red">{inputField.error}</Badge>
         </FormControl>
       ))}

@@ -15,7 +15,9 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   const { firstName, username, userType } = useContext(UserContext);
   const [experienceData, setExperienceData] = useState({
     name: '',
-    location: { lat: 0, lng: 0 },
+    address: '',
+    lat: 0,
+    lng: 0,
     email: '',
     description: '',
   });
@@ -53,8 +55,8 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
       <>
         <Header userType={userType} onLogOutClick={setIsLoggedIn} />
         <RegisterExperience
-          experienceData={experienceData}
-          onNewExperienceData={setExperienceData}
+          experienceValues={experienceData}
+          setExperienceValues={setExperienceData}
         />
       </>
     );
