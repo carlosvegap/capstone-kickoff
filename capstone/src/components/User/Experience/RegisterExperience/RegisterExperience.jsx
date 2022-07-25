@@ -1,5 +1,5 @@
 import {
-  Box, Heading, FormControl, FormLabel, Input, Textarea, ButtonGroup, Button, Badge,
+  Box, Heading, FormControl, FormLabel, Input, Textarea, ButtonGroup, Button, Badge, useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext } from 'react';
@@ -59,7 +59,10 @@ export default function RegisterExperience() {
     setExperienceValues({ ...experienceValues, [inputName]: value });
     setError({ ...error, [inputName]: '' });
   }
+  // used to display success message in the following function
+  const toast = useToast();
   function onRegistrySubmission(form) {
+    // Check for errors
     let hasError = false;
     Object.keys(form).map((key) => {
       if (key === 'email') {
@@ -73,7 +76,17 @@ export default function RegisterExperience() {
       }
       return hasError;
     });
-    if (!hasError) submitExperience(form, username);
+    if (!hasError) {
+      if (submitExperience(form, username)) {
+        toast({
+          title: 'Experience created!',
+          description: 'Start preparing for new adventurers to arrive soon',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    }
   }
   return (
     <Box>
