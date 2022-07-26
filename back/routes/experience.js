@@ -60,6 +60,12 @@ router.post('/feedback/inactive', async(req, res) => {
 router.post('/feedback/find', async(req, res) => {
   let allFeedback = await allFeedbackQuery();
   // let feedbackInfo = allFeedback.filter(())
+  let feedbackInfo = req.body.objectIdArray.map((id) => 
+    allFeedback.find((feedback) =>
+      feedback.toJSON().objectId === id)
+  )
+  let feedbackInfoJSON = feedbackInfo.map((feedback) => feedback.toJSON())
+  res.status(200).send(feedbackInfoJSON)
 })
 
 module.exports = router;
