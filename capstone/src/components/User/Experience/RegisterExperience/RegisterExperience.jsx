@@ -97,12 +97,10 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
           <FormLabel>
             {inputField.displayText}
           </FormLabel>
-          {/* QUESTION: How to refactor that code? */}
           {inputField.type === 'text' && (
           <Input
             value={inputField.value}
             placeholder={inputField.placeholder}
-            // QUESTION: Mandatory to use e.target.value?
             onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
           />
           )}
