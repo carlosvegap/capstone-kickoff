@@ -58,9 +58,6 @@ export default function App() {
                   path="/experience/:page"
                   element={<Experience isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
                 />
-                {/* <Route path="/experience">
-                    <Experience></Experience>
-                  </Route> */}
                 {/* <Route path="*" element={<NotFound/>} /> */}
               </Routes>
             </main>
