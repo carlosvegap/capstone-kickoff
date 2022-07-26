@@ -10,12 +10,13 @@ export default function InputLocation({ address, placeholder, onSelect }) {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
   });
-  function onChooseAddress(place) {
-    // QUESTION: Only the last setState is being respected
+  async function onChooseAddress(place) {
     setSearch(place);
-    geocodeByAddress(place)
-      .then((res) => getLatLng(res[0])
-        .then((coord) => onSelect(place, coord.lat, coord.lng)));
+    const res = await geocodeByAddress(place);
+    const coord = await getLatLng(res[0]);
+    onSelect('address', place);
+    onSelect('lat', coord.lat);
+    onSelect('lng', coord.lng);
   }
   if (isLoaded) {
     return (
