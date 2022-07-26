@@ -1,5 +1,6 @@
-import './Preference.css';
-import { Box } from '@chakra-ui/react';
+import {
+  Box, HStack, FormControl, FormLabel, Switch, Button, useToast,
+} from '@chakra-ui/react';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import FilterArea from './FilterArea/FilterArea';
@@ -8,6 +9,7 @@ import UserContext from '../../../../Contexts/UserContext';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
+// array with object id of the inactive preferences
 async function getInactivePreferencesIDs(username) {
   const values = {
     username,
@@ -23,6 +25,7 @@ async function getActivePreferencesIDs(username) {
   return axios.post(`${baseURL}/adventure/preferences/active`, values);
 }
 
+// array with objects with the preference information
 async function getPreferenceInfo(objectIdArray) {
   const values = {
     objectIdArray,
@@ -30,17 +33,29 @@ async function getPreferenceInfo(objectIdArray) {
   return axios.post(`${baseURL}/adventure/preferences/find`, values);
 }
 
-export default function Preference() {
-  // TODO: Change contextprovider so you only receive what you REALLY need
-  const {
-    firstName, lastName, username, age, userType, createdAt, updatedAt, ACL, objectId,
-  } = useContext(UserContext);
+// bool with the user preference about priorization
+async function getPriorization(username) {
+  const values = {
+    username,
+  };
+  return axios.post(`${baseURL}/adventure/preferences/prioritize`, values);
+}
 
+async function uploadPreferences(form) {
+  return axios.post(`${baseURL}/adventure/preferences/update`, form);
+}
+
+export default function Preference() {
+  const { username } = useContext(UserContext);
   // contains only object Ids referencing that preference, gotten from Parse
   // will change according to user interaction, and activePreferencesIDs
   // will be updated to Parse
   const [activePreferencesIDs, setActivePreferencesIDs] = useState([]);
   const [inactivePreferencesIDs, setInactivePreferencesIDs] = useState([]);
+  const [prioritize, setPrioritize] = useState(false);
+  function onSwitchChange() {
+    setPrioritize(!prioritize);
+  }
   // get all objectId of active/inactive preferences
   useEffect(() => {
     if (username != null) {
@@ -48,6 +63,8 @@ export default function Preference() {
         .then((res) => setActivePreferencesIDs(res.data));
       getInactivePreferencesIDs(username)
         .then((res) => setInactivePreferencesIDs(res.data));
+      getPriorization(username)
+        .then((res) => setPrioritize(res.data));
     }
   }, [username, setActivePreferencesIDs, setInactivePreferencesIDs]);
 
@@ -77,19 +94,54 @@ export default function Preference() {
       activePreferencesIDs.filter((preferenceID) => preferenceID !== id),
     );
   }
+  const toast = useToast();
+  function toastMessage(isSubmitted) {
+    if (isSubmitted) {
+      return (
+        toast({
+          title: 'Preferences updated!',
+          description: 'You can go back and find new adventures',
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+        })
+      );
+    }
+    return (
+      toast({
+        title: 'An error has ocurred',
+        description: 'Please try again later',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
+    );
+  }
+  function onSubmission() {
+    uploadPreferences({ username, prioritize, activePreferencesIDs })
+      .then((res) => (res.data ? toastMessage(true) : toastMessage(false)));
+  }
   return (
     <div className="filterExperience">
       <div className="filterOptions">
         <h2>Define your adventure path</h2>
         <Box p="10px" overflow="auto">
-          <Box width="100px" textAlign="center" mb="20px">
-            Set minimum value
-          </Box>
+          <HStack>
+            <Box width="100px" textAlign="center" mb="20px" border="1px solid green">
+              Set minimum value
+            </Box>
+            <FormControl display="flex" justifyContent="center">
+              <FormLabel htmlFor="prioritize">
+                Prioritize preferences by order?
+              </FormLabel>
+              <Switch id="prioritize" onChange={onSwitchChange} isChecked={prioritize} />
+            </FormControl>
+          </HStack>
           {activePreferences.map((preference, index) => (
             <FilterArea
               key={preference.objectId}
               id={preference.objectId}
-              priority={index + 1}
+              priority={prioritize ? index + 1 : null}
               displayText={preference.displayText}
               minValue={preference.minValue}
               maxValue={preference.maxValue}
@@ -100,11 +152,13 @@ export default function Preference() {
             />
           ))}
         </Box>
-        <FilterMenu
-          // to display information
-          inactivePreferences={inactivePreferences}
-          handleAddition={handleAddition}
-        />
+        <HStack justifyContent="center">
+          <FilterMenu
+            inactivePreferences={inactivePreferences}
+            handleAddition={handleAddition}
+          />
+          <Button colorScheme="blue" width="100px" onClick={onSubmission}>Save</Button>
+        </HStack>
       </div>
       <div className="profile">
         <h2>Define your adventurer profile</h2>
