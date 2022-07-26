@@ -68,4 +68,21 @@ router.post('/feedback/find', async(req, res) => {
   res.status(200).send(feedbackInfoJSON)
 })
 
+// ----- Submit feedback preferences to db -----
+router.post('/feedback/update', async(req, res) => {
+  const findQuery = new Parse.Query('Experience');
+  findQuery.equalTo("username", req.body.username);
+  let currentExperience = await findQuery.first();
+  let objectId = currentExperience.toJSON().objectId;
+  const updateQuery = new Parse.Query('Experience');
+  updateQuery.set('objectId', objectId);
+  updateQuery.set('activeFeedback', req.body.activeFeedback);
+  try {
+    await updateQuery.save();
+    res.status(200).send(true);
+  } catch (error) {
+    res.status(400).send(false);
+  }
+})
+
 module.exports = router;

@@ -37,7 +37,7 @@ export default function Preference() {
   } = useContext(UserContext);
 
   // contains only object Ids referencing that preference, gotten from Parse
-  // will change according to user interaction, and activePreferencesIDs 
+  // will change according to user interaction, and activePreferencesIDs
   // will be updated to Parse
   const [activePreferencesIDs, setActivePreferencesIDs] = useState([]);
   const [inactivePreferencesIDs, setInactivePreferencesIDs] = useState([]);
