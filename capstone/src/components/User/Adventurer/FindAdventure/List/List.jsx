@@ -6,9 +6,9 @@ export default function List() {
   const { isDataFetched, restaurants } = useContext(AdventurerContext);
   if (isDataFetched) {
     return (
-      <VStack>
+      <VStack spacing="20px">
         {restaurants.map((restaurant, index) => (
-          <Box key={index} shadow="md" width="60%" m="10px !important" display="flex">
+          <Box key={index} shadow="md" width="60%" display="flex">
             <Badge height="100%" mr="20px" colorScheme="teal">
               {index + 1}
             </Badge>
