@@ -24,10 +24,18 @@ router.post('/restaurants', async(req, res) => {
   })
 })
 
+// ----- Get priorization preferences -----
+router.post('/preferences/prioritize', async(req, res) => {
+  const query = new Parse.Query('UserPreference');
+  query.equalTo("username", req.body.username);
+  let currentPreference = await query.first();
+  res.status(200).send(currentPreference.toJSON().prioritize);
+})
+
 // ----- Get active user's preferences IDs -----
 router.post('/preferences/active', async(req, res) => {
   const query = new Parse.Query('UserPreference');
-  query.equalTo("username", req.body.username)
+  query.equalTo("username", req.body.username);
   let currentPreferences = await query.first();
   res.status(200);
   res.send(currentPreferences.toJSON().activePreferences);
@@ -68,7 +76,6 @@ router.post('/preferences/find', async(req, res) => {
   const query = new Parse.Query("Preference");
   let allPreferences = [];
   allPreferences = await query.find()
-  allPreferences.map((preference) => console.log(preference.toJSON()))
   preferenceInformation = req.body.objectIdArray.map((id) => 
       allPreferences.find((preference) => 
         preference.toJSON().objectId === id)
@@ -81,23 +88,27 @@ router.post('/preferences/find', async(req, res) => {
 // ----- Update user's preferences ------
 router.post('/preferences/update', async(req, res) => {
   const prioritize = req.body.prioritize;
-  const activePreferences = req.body.activePreferences;
+  const activePreferences = req.body.activePreferencesIDs;
   const username = req.body.username;
   // Find objectId of the current user preference
   const findQuery = new Parse.Query('UserPreference');
   findQuery.equalTo("username", username)
   let objectId = null;
-  let currentPreferences = await findQuery.find();
-  objectId = currentPreferences[0].toJSON().objectId
+  let currentPreferences = await findQuery.first();
+  objectId = currentPreferences.toJSON().objectId
   // Update information for that user
   let updateQuery = new Parse.Object('UserPreference');
   updateQuery.set('objectId', objectId)
   // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
-  if (req.body.prioritize != null) updateQuery.set('prioritize', prioritize)
-  if (req.body.activePreferences != null) updateQuery.set('activePreferences', activePreferences)
-  await updateQuery.save();
-  res.status(200);
-  res.send('Success');
+  updateQuery.set('prioritize', prioritize)
+  updateQuery.set('activePreferences', activePreferences)
+  try {
+    await updateQuery.save();
+    res.status(200);
+    res.send(true);
+  } catch(error) {
+    res.send(false).status(400);
+  }
 })
 
 module.exports = router;
