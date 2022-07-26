@@ -8,7 +8,7 @@ export default function List() {
     return (
       <VStack>
         {restaurants.map((restaurant, index) => (
-          <Box key={index} shadow="md" width="60%" m="10px" display="flex">
+          <Box key={index} shadow="md" width="60%" m="10px !important" display="flex">
             <Badge height="100%" mr="20px" colorScheme="teal">
               {index + 1}
             </Badge>

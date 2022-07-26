@@ -24,8 +24,8 @@ router.post('/logIn', async (req, res) => {
 router.post('/signUp', async (req, res) => {
   const hasAllFields = Object.keys(req.body).reduce( function (hasAllFields, inputKey) {
     if (req.body[inputKey] === '') return false
-    return hasAllFields
-  }, true);
+      return hasAllFields
+    }, true);
   if (hasAllFields) {
     // Create User in Parse
     const user = new Parse.User(req.body);
@@ -33,25 +33,19 @@ router.post('/signUp', async (req, res) => {
     const prioritize = false;
     const username = req.body.username;
     const activePreferences = [];
-    var UserPreference = new Parse.Object('UserPreference');
-    UserPreference.set('prioritize', prioritize);
-    UserPreference.set('username', username);
-    UserPreference.set('activePreferences', activePreferences);
-    try {
-      // Save user information in Parse
-      await user.signUp();
+    if (req.body.userType === 'adventurer') {
+      let UserPreference = new Parse.Object('UserPreference');
+      UserPreference.set('prioritize', prioritize);
+      UserPreference.set('username', username);
+      UserPreference.set('activePreferences', activePreferences);
       // Save user preferences (default) in Parse
-      await UserPreference.save();
-      res.status(201);
-      res.send({ user });
-    } catch (error) {
-      res.status(400);
-      res.send({ error });
-    }
-  }
-  else {
-    res.status(400);
-    res.send({ error: {message: 'Complete all fields to sign up'}})
+      await UserPreference.save();  
+    } 
+    // Save user information in Parse
+    await user.signUp();
+    res.status(200).send({ user });
+  } else {
+    res.status(400).send({ error: {message: 'Complete all fields to sign up'}})
   }
 });
 
