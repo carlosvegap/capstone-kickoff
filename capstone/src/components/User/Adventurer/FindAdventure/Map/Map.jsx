@@ -1,6 +1,5 @@
 import './Map.css';
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { useContext } from 'react';
 import { useLoadScript, GoogleMap, MarkerF } from '@react-google-maps/api';
 import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
@@ -18,15 +17,6 @@ export default function Map() {
       center={currentPosition}
       zoom={12}
       mapContainerClassName="mapContainer"
-      styles={[{
-        featureType: 'poi',
-        elementType: 'all',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      }]}
       options={{
         mapTypeControl: false,
         streetViewControl: false,
@@ -34,7 +24,9 @@ export default function Map() {
         minZoom: 15,
       }}
     >
-      {(restaurants).map((restaurant) => <MarkerF position={restaurant.geometry.location} />)}
+      {(restaurants).map((restaurant, index) =>
+        <MarkerF key={index} position={restaurant.geometry.location}
+      />)}
       <MarkerF
         icon="https://www.robotwoods.com/dev/misc/bluecircle.png"
         position={currentPosition}

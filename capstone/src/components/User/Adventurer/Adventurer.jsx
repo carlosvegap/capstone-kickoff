@@ -5,6 +5,7 @@ import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
 import Preference from './Preference/Preference';
 import Header from '../Header/Header';
+import ExperienceInfo from './ExperienceInfo/ExperienceInfo';
 
 // CONTEXTS
 import AdventurerContext from '../../../Contexts/AdventurerContext';
@@ -20,6 +21,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
+
   // MEMO VALUES
   const mapData = useMemo(() => ({
     currentPosition,
@@ -63,9 +65,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
         >
           <div className="adventure">
             <FindAdventure />
-            <div className="experienceInfo">
-              <h2>Experience Information</h2>
-            </div>
+            <ExperienceInfo restaurants={restaurants} />
           </div>
         </AdventurerContext.Provider>
       </div>
