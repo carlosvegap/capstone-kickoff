@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Box, HStack, FormLabel, Button, Heading, VStack } from '@chakra-ui/react';
+import { Box, HStack, Badge, Button, Heading, VStack } from '@chakra-ui/react';
 import UserContext from '../../../../Contexts/UserContext';
 import useSettings from '../../useSettings';
 import SelectMenu from '../../SelectMenu';
@@ -10,10 +10,15 @@ export default function Feedback() {
   if (username == null || userType == null) return <h2>Loading...</h2>;
   const { activeInfo, inactiveInfo, onAdd, onDelete, onSubmission } =
     useSettings(userType, username);
-
+  const hasMinFeedback = Object.keys(activeInfo).length >= 5;
   return (
-    <Box>
+    <Box justifyItems="center">
       <Heading> Why do you want to be remembered? </Heading>
+      {!hasMinFeedback && (
+        <Badge colorScheme="red" alignSelf="center">
+          You need to choose at least 5
+        </Badge>
+      )}
       <VStack>
         {activeInfo.map((feedback, index) => (
           <SettingsControls
@@ -28,8 +33,17 @@ export default function Feedback() {
         ))}
       </VStack>
       <HStack justifyContent="center">
-        <SelectMenu inactiveItems={inactiveInfo} onAdd={onAdd} />
-        <Button colorScheme="blue" width="100px" onClick={onSubmission}>
+        <SelectMenu
+          inactiveItems={inactiveInfo}
+          onAdd={onAdd}
+          margin-right="10px"
+        />
+        <Button
+          colorScheme="blue"
+          width="100px"
+          onClick={onSubmission}
+          isDisabled={!hasMinFeedback}
+        >
           Save
         </Button>
       </HStack>
