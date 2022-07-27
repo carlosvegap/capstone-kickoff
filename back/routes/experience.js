@@ -70,10 +70,10 @@ router.post('/feedback/inactive', async(req, res) => {
 })
 
 // ----- Get feedback information of a given array -----
-router.post('/feedback/find', async(req, res) => {
+router.post('/feedback/info', async(req, res) => {
   let allFeedback = await allFeedbackQuery();
   // let feedbackInfo = allFeedback.filter(())
-  let feedbackInfo = req.body.objectIdArray.map((id) => 
+  let feedbackInfo = req.body.IDs.map((id) => 
     allFeedback.find((feedback) =>
       feedback.toJSON().objectId === id)
   )
@@ -89,7 +89,7 @@ router.post('/feedback/update', async(req, res) => {
   let objectId = currentExperience.toJSON().objectId;
   const updateQuery = new Parse.Query('Experience');
   updateQuery.set('objectId', objectId);
-  updateQuery.set('activeFeedback', req.body.activeFeedback);
+  updateQuery.set('activeFeedback', req.body.activeIDs);
   try {
     await updateQuery.save();
     res.status(200).send(true);

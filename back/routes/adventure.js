@@ -71,12 +71,12 @@ router.post('/preferences/inactive', async(req, res) => {
 })
 
 // ----- Get preferences information of a given array -----
-router.post('/preferences/find', async(req, res) => {
+router.post('/preferences/info', async(req, res) => {
   let preferenceInformation = []
   const query = new Parse.Query("Preference");
   let allPreferences = [];
   allPreferences = await query.find()
-  preferenceInformation = req.body.objectIdArray.map((id) => 
+  preferenceInformation = req.body.IDs.map((id) => 
       allPreferences.find((preference) => 
         preference.toJSON().objectId === id)
   )
@@ -87,12 +87,9 @@ router.post('/preferences/find', async(req, res) => {
 
 // ----- Update user's preferences ------
 router.post('/preferences/update', async(req, res) => {
-  const prioritize = req.body.prioritize;
-  const activePreferences = req.body.activePreferencesIDs;
-  const username = req.body.username;
   // Find objectId of the current user preference
   const findQuery = new Parse.Query('UserPreference');
-  findQuery.equalTo("username", username)
+  findQuery.equalTo("username", req.body.username)
   let objectId = null;
   let currentPreferences = await findQuery.first();
   objectId = currentPreferences.toJSON().objectId
@@ -100,8 +97,8 @@ router.post('/preferences/update', async(req, res) => {
   let updateQuery = new Parse.Object('UserPreference');
   updateQuery.set('objectId', objectId)
   // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
-  updateQuery.set('prioritize', prioritize)
-  updateQuery.set('activePreferences', activePreferences)
+  updateQuery.set('prioritize', req.body.prioritize)
+  updateQuery.set('activePreferences', req.body.activeIDs)
   try {
     await updateQuery.save();
     res.status(200);
