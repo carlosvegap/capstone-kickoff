@@ -1,7 +1,6 @@
 require("dotenv/config")
 var express = require('express');
 var router = express.Router();
-var axios = require('axios');
 const { Parse } = require('./../parse')
 
 // ----- Get Reviews for an Experience -----
@@ -36,8 +35,8 @@ router.post('/rate', async(req, res) => {
   await Promise.all((req.body.reviews).map(async (adventurerReview) => {
     const review = new Parse.Object('Review');
     review.set('feedbackId', adventurerReview.feedbackId)
-    review.set('adventurerUsername', adventurerReview.username)
-    review.set('experienceId', adventurerReview.experienceId)
+    review.set('adventurerUsername', req.body.username)
+    review.set('experienceId', req.body.experienceId)
     review.set('score', adventurerReview.score)
     review.set('comment', adventurerReview.comment)
     try {
@@ -82,6 +81,19 @@ async function activeFeedbackQuery(objectId){
   return allFeedbackIDs;
 }
 
+// ----- Get feedback areas of an experience -----
+router.post('/active/info', async(req, res) => {
+  const activeFeedbackIDs = await activeFeedbackQuery(req.body.experienceId);
+  const allFeedbackQuery = new Parse.Query('Feedback');
+  const allFeedback = await allFeedbackQuery.find();
+  const activeFeedbackInfo = activeFeedbackIDs.map((idActive) => 
+    allFeedback.find((feedback) => 
+      feedback.toJSON().objectId === idActive
+    )
+  )
+  res.status(200).send(activeFeedbackInfo);
+})
+   
 // ----- Receive only reviews where the experience has declared they want feedback -----
 router.post('/active', async(req, res) => {
   const reviews = await getReviews(req.body.experienceId)

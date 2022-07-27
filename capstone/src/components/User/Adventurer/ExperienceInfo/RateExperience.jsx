@@ -6,30 +6,61 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Text,
   Button,
 } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/hooks';
-import RateSlider from './RateSlider';
+import RateInput from './RateInput';
 
-export default function RateExperience({ name }) {
+export default function RateExperience({
+  name,
+  feedbackAreas,
+  onChange,
+  onReset,
+  onSubmit,
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   if (!isOpen) {
-    return <Button onClick={onOpen}>Rate!</Button>;
+    return (
+      <Button onClick={onOpen} colorScheme="green">
+        Rate Me!
+      </Button>
+    );
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{name} review</ModalHeader>
+        <ModalHeader padding="20px 24px" textAlign="center">
+          {name}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <RateSlider />
+          {feedbackAreas.map((feedback) => (
+            <RateInput
+              key={feedback.objectId}
+              id={feedback.objectId}
+              minValue={feedback.minValue}
+              maxValue={feedback.maxValue}
+              step={feedback.step}
+              defaultValue={feedback.defaultValue}
+              feedbackName={feedback.displayText}
+              onChange={onChange}
+            />
+          ))}
         </ModalBody>
-
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}> Submit</Button>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button colorScheme="blue" mr={3} onClick={onSubmit}>
+            Submit
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              onClose();
+              onReset();
+            }}
+          >
+            Cancel
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
