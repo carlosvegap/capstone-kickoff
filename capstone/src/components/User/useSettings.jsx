@@ -88,6 +88,7 @@ export default function useSettings(userType, username) {
     setInactiveIDs([...inactiveIDs, id]);
     setActiveIDs(activeIDs.filter((activeID) => activeID !== id));
   }
+  // Show success/error message after submission
   const toast = useToast();
   function submissionMessage(isSubmitted) {
     const adventurerTitle = 'Preferences updated!';
@@ -115,13 +116,9 @@ export default function useSettings(userType, username) {
   }
   function onSubmission() {
     if (isAdventurer) {
-      update({ username, prioritize, activeIDs }, URL).then((res) =>
-        submissionMessage(res.data),
-      );
+      update({ username, prioritize, activeIDs }, URL).then((res) => submissionMessage(res.data));
     } else {
-      update({ username, activeIDs }, URL).then((res) =>
-        submissionMessage(res.data),
-      );
+      update({ username, activeIDs }, URL).then((res) => submissionMessage(res.data));
     }
   }
   if (isAdventurer) {

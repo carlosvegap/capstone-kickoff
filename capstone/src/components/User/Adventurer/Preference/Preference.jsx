@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { useContext } from 'react';
 import FilterArea from './FilterArea/FilterArea';
-import FilterMenu from './FilterMenu/FilterMenu';
+import SelectMenu from '../../SelectMenu';
 import UserContext from '../../../../Contexts/UserContext';
 import useSettings from '../../useSettings';
 
@@ -66,9 +66,9 @@ export default function Preference() {
           ))}
         </Box>
         <HStack justifyContent="center">
-          <FilterMenu
-            inactivePreferences={inactiveInfo}
-            handleAddition={onAdd}
+          <SelectMenu
+            inactiveItems={inactiveInfo}
+            onAdd={onAdd}
           />
           <Button colorScheme="blue" width="100px" onClick={onSubmission}>
             Save

@@ -1,52 +1,38 @@
-import axios from 'axios';
-import { useContext, useState, useEffect } from 'react';
-import { Heading, Box } from '@chakra-ui/react';
-import UserContext from './../../../../Contexts/UserContext';
-
-const baseURL = process.env.REACT_APP_BASE_URL;
-
-// TODO: Same functions as in Preference.jsx, take a look to refactor
-async function getInactiveFeedbackIDs(username) {
-  const values = {
-    username,
-  };
-  return axios.post(`${baseURL}/experience/feedback/inactive`, values);
-}
-
-async function getActiveFeedbackIDs(username) {
-  const values = {
-    username,
-  };
-  return axios.post(`${baseURL}/experience/feedback/active`, values);
-}
-
-async function getFeedbackInfo(objectIdArray) {
-  const values = {
-    objectIdArray,
-  };
-  return axios.post(`${baseURL}/experience/feedback/find`, values);
-}
+import { useContext } from 'react';
+import { Box, HStack, FormLabel, Button, Heading, VStack } from '@chakra-ui/react';
+import UserContext from '../../../../Contexts/UserContext';
+import useSettings from '../../useSettings';
+import SelectMenu from '../../SelectMenu';
+import SettingsControls from '../../SettingsControls';
 
 export default function Feedback() {
-  const { username } = useContext(UserContext);
-
-  const [activeFeedbackIDs, setActiveFeedbackIDs] = useState([]);
-  const [inactivePreferencesIDs, setInactivePreferencesIDs] = useState([]);
-
-  useEffect(() => {
-    if (username != null) {
-      getActiveFeedbackIDs(username).then((res) =>
-        setActiveFeedbackIDs(res.data),
-      );
-      getInactiveFeedbackIDs(username).then((res) =>
-        setInactivePreferencesIDs(res.data),
-      );
-    }
-  });
+  const { username, userType } = useContext(UserContext);
+  if (username == null || userType == null) return <h2>Loading...</h2>;
+  const { activeInfo, inactiveInfo, onAdd, onDelete, onSubmission } =
+    useSettings(userType, username);
 
   return (
     <Box>
-      <Heading> How do you want to be remembered? </Heading>
+      <Heading> Why do you want to be remembered? </Heading>
+      <VStack>
+        {activeInfo.map((feedback, index) => (
+          <SettingsControls
+            setShowMinimumValues={false}
+            key={feedback.objectId}
+            id={feedback.objectId}
+            priority={index}
+            displayText={feedback.displayText}
+            handleDelete={onDelete}
+            isAdventurer={false}
+          />
+        ))}
+      </VStack>
+      <HStack justifyContent="center">
+        <SelectMenu inactiveItems={inactiveInfo} onAdd={onAdd} />
+        <Button colorScheme="blue" width="100px" onClick={onSubmission}>
+          Save
+        </Button>
+      </HStack>
     </Box>
   );
 }

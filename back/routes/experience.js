@@ -87,7 +87,7 @@ router.post('/feedback/update', async(req, res) => {
   findQuery.equalTo("username", req.body.username);
   let currentExperience = await findQuery.first();
   let objectId = currentExperience.toJSON().objectId;
-  const updateQuery = new Parse.Query('Experience');
+  const updateQuery = new Parse.Object('Experience');
   updateQuery.set('objectId', objectId);
   updateQuery.set('activeFeedback', req.body.activeIDs);
   try {
