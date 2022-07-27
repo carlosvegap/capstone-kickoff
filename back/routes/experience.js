@@ -1,7 +1,6 @@
 require("dotenv/config")
 var express = require('express');
 var router = express.Router();
-var axios = require('axios');
 const { Parse } = require('./../parse')
 
 // ----- Get the experience the user owns -----
