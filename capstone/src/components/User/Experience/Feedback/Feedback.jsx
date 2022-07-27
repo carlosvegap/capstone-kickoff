@@ -12,8 +12,8 @@ export default function Feedback() {
     useSettings(userType, username);
   const hasMinFeedback = Object.keys(activeInfo).length >= 5;
   return (
-    <Box justifyItems="center">
-      <Heading> Why do you want to be remembered? </Heading>
+    <Box justifyContent="center" width="50%" textAlign="center">
+      <Heading mb="20px"> Why do you want to be remembered? </Heading>
       {!hasMinFeedback && (
         <Badge colorScheme="red" alignSelf="center">
           You need to choose at least 5

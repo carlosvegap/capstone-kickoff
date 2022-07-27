@@ -88,12 +88,12 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
     }
   }
   return (
-    <Box>
-      <Heading as="h2">
+    <Box width="50%">
+      <Heading as="h2" mb="20px" textAlign="center">
         Let the world find your talent
       </Heading>
       {fields.map((inputField) => (
-        <FormControl isRequired={inputField.isRequired} key={inputField.id} p="20px">
+        <FormControl isRequired={inputField.isRequired} key={inputField.id} p="0px 20px">
           <FormLabel>
             {inputField.displayText}
           </FormLabel>

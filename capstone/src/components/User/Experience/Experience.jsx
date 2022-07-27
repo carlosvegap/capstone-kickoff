@@ -56,7 +56,7 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
     return (
       <Box>
         <Header userType={userType} onLogOutClick={setIsLoggedIn} />
-        <HStack>
+        <HStack alignItems="flex-start">
           <RegisterExperience
             experienceValues={experienceData}
             setExperienceValues={setExperienceData}
