@@ -86,7 +86,6 @@ async function activeFeedbackQuery(objectId){
 router.post('/active', async(req, res) => {
   const reviews = await getReviews(req.body.experienceId)
   const activeFeedback = await activeFeedbackQuery(req.body.experienceId)
-  console.log(activeFeedback)
   const activeReviews = reviews.filter((review) => activeFeedback.includes(review.feedbackId))
   res.status(200).send(activeReviews)
 })
