@@ -3,16 +3,9 @@
 # dependencies
 /capstone/node_modules
 /back/node_modules
-/back/package-lock.json
-/capstone/package-lock.json
-/capstone/package.json
 back/.env
-package.json/
-package-lock.json/
 node_modules/
-back/package-lock.json
 capstone/.env
-package-lock.json
 /jsconfig.json
 .pnp.js
 
