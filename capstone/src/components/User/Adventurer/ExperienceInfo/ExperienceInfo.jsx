@@ -1,28 +1,29 @@
 import {
-  Heading, Badge, Button, HStack, Image, VStack,
+  Heading,
+  Badge,
+  Button,
+  HStack,
+  Image,
+  VStack,
 } from '@chakra-ui/react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 function getPhotoReference(restaurant) {
-  return restaurant.photos[0].photo_reference;
+  return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
 export default function ExperienceInfo({ restaurants }) {
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   // Get the restaurant viewing now
-  const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
-  // const currentRestaurant = useMemo (
-  //   (restaurants.length > 0 )
-  //   ? (() => restaurants[indexRestaurant], [indexRestaurant, restaurants])
-  //   : null
-  // );
+  const currentRestaurant =
+    restaurants.length > 0 ? restaurants[indexRestaurant] : null;
+
   // find the photo reference of that restaurant
-  const photoReference = currentRestaurant ? getPhotoReference(currentRestaurant) : null;
-  // const photoReference = useMemo (
-  //   () => getPhotoReference(currentRestaurant), [currentRestaurant]
-  // )
+  const photoReference = currentRestaurant
+    ? getPhotoReference(currentRestaurant)
+    : null;
 
   // fetch a photo from the place
   const photoCall = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoReference}&key=${API_KEY}`;

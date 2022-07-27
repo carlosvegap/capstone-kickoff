@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const visitorRouter = require('./routes/visitor');
 const adventurerRouter = require('./routes/adventure');
-const experienceRouter = require('./routes/experience')
+const experienceRouter = require('./routes/experience');
 
 // MIDDLEWARE
 app.use(cors());

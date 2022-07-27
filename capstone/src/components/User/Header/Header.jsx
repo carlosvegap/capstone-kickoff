@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Header.css';
+import { HStack, Button } from '@chakra-ui/react';
 
 export default function Header({ userType, onLogOutClick }) {
   const navigate = useNavigate();
@@ -8,6 +8,8 @@ export default function Header({ userType, onLogOutClick }) {
   function handleLogOut() {
     localStorage.removeItem(process.env.REACT_APP_USER_KEY);
     axios.defaults.headers.common = {};
+    // QUESTION: Do I need to set login status to false?
+    // Will App.jsx 26 trigger default status again?
     onLogOutClick(false);
     navigate('/');
   }
@@ -36,7 +38,7 @@ export default function Header({ userType, onLogOutClick }) {
   ];
   if (userType === 'adventurer') {
     return (
-      <header>
+      <HStack display="flex" justifyContent="space-around" bgColor="cyan.600" padding="10px">
         {headerAdventurer.map((button) => (
           <HeaderButton
             key={button.id}
@@ -44,11 +46,11 @@ export default function Header({ userType, onLogOutClick }) {
             onClickHandler={button.onClick}
           />
         ))}
-      </header>
+      </HStack>
     );
   }
   return (
-    <header>
+    <HStack display="flex" justifyContent="space-around" bgColor="cyan.600" padding="10px">
       {headerExperience.map((button) => (
         <HeaderButton
           key={button.id}
@@ -56,12 +58,12 @@ export default function Header({ userType, onLogOutClick }) {
           onClickHandler={button.onClick}
         />
       ))}
-    </header>
+    </HStack>
   );
 }
 
 function HeaderButton({ displayText, onClickHandler }) {
   return (
-    <button type="button" onClick={onClickHandler}>{displayText}</button>
+    <Button onClick={onClickHandler}>{displayText}</Button>
   );
 }

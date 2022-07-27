@@ -1,9 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
+import { Box, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 import UserContext from '../../../Contexts/UserContext';
 import Header from '../Header/Header';
 import RegisterExperience from './RegisterExperience/RegisterExperience';
+import Feedback from './Feedback/Feedback';
 
 async function getExperienceInfo(username) {
   const values = { username };
@@ -52,13 +54,16 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   }
   if (params.page === 'myExperience' && !isLoading) {
     return (
-      <>
+      <Box>
         <Header userType={userType} onLogOutClick={setIsLoggedIn} />
-        <RegisterExperience
-          experienceValues={experienceData}
-          setExperienceValues={setExperienceData}
-        />
-      </>
+        <HStack alignItems="flex-start">
+          <RegisterExperience
+            experienceValues={experienceData}
+            setExperienceValues={setExperienceData}
+          />
+          <Feedback />
+        </HStack>
+      </Box>
     );
   }
 }

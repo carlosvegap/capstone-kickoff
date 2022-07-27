@@ -1,143 +1,56 @@
 import {
-  Box, HStack, FormControl, FormLabel, Switch, Button, useToast,
+  Box,
+  HStack,
+  FormControl,
+  FormLabel,
+  Switch,
+  Button,
+  Heading,
 } from '@chakra-ui/react';
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { useContext } from 'react';
 import FilterArea from './FilterArea/FilterArea';
-import FilterMenu from './FilterMenu/FilterMenu';
+import SelectMenu from '../../SelectMenu';
 import UserContext from '../../../../Contexts/UserContext';
-
-const baseURL = process.env.REACT_APP_BASE_URL;
-
-// array with object id of the inactive preferences
-async function getInactivePreferencesIDs(username) {
-  const values = {
-    username,
-  };
-  return axios.post(`${baseURL}/adventure/preferences/inactive`, values);
-}
-
-// array with object id of the active preferences
-async function getActivePreferencesIDs(username) {
-  const values = {
-    username,
-  };
-  return axios.post(`${baseURL}/adventure/preferences/active`, values);
-}
-
-// array with objects with the preference information
-async function getPreferenceInfo(objectIdArray) {
-  const values = {
-    objectIdArray,
-  };
-  return axios.post(`${baseURL}/adventure/preferences/find`, values);
-}
-
-// bool with the user preference about priorization
-async function getPriorization(username) {
-  const values = {
-    username,
-  };
-  return axios.post(`${baseURL}/adventure/preferences/prioritize`, values);
-}
-
-async function uploadPreferences(form) {
-  return axios.post(`${baseURL}/adventure/preferences/update`, form);
-}
+import useSettings from '../../useSettings';
 
 export default function Preference() {
-  const { username } = useContext(UserContext);
-  // contains only object Ids referencing that preference, gotten from Parse
-  // will change according to user interaction, and activePreferencesIDs
-  // will be updated to Parse
-  const [activePreferencesIDs, setActivePreferencesIDs] = useState([]);
-  const [inactivePreferencesIDs, setInactivePreferencesIDs] = useState([]);
-  const [prioritize, setPrioritize] = useState(false);
-  function onSwitchChange() {
-    setPrioritize(!prioritize);
-  }
-  // get all objectId of active/inactive preferences
-  useEffect(() => {
-    if (username != null) {
-      getActivePreferencesIDs(username)
-        .then((res) => setActivePreferencesIDs(res.data));
-      getInactivePreferencesIDs(username)
-        .then((res) => setInactivePreferencesIDs(res.data));
-      getPriorization(username)
-        .then((res) => setPrioritize(res.data));
-    }
-  }, [username, setActivePreferencesIDs, setInactivePreferencesIDs]);
-
-  // contains all information about that preference
-  // calculated from endpoint
-  const [activePreferences, setActivePreferences] = useState([]);
-  const [inactivePreferences, setInactivePreferences] = useState([]);
-  // Find all the information of the active/inactive preferences
-  useEffect(() => {
-    getPreferenceInfo(activePreferencesIDs)
-      .then((res) => setActivePreferences(res.data));
-  }, [activePreferencesIDs, setActivePreferences]);
-  useEffect(() => {
-    getPreferenceInfo(inactivePreferencesIDs)
-      .then((res) => setInactivePreferences(res.data));
-  }, [inactivePreferencesIDs, setInactivePreferences]);
-
-  function handleAddition(id) {
-    setActivePreferencesIDs([...activePreferencesIDs, id]);
-    setInactivePreferencesIDs(
-      inactivePreferencesIDs.filter((preferenceID) => preferenceID !== id),
-    );
-  }
-  function handleDelete(id) {
-    setInactivePreferencesIDs([...inactivePreferencesIDs, id]);
-    setActivePreferencesIDs(
-      activePreferencesIDs.filter((preferenceID) => preferenceID !== id),
-    );
-  }
-  const toast = useToast();
-  function toastMessage(isSubmitted) {
-    if (isSubmitted) {
-      return (
-        toast({
-          title: 'Preferences updated!',
-          description: 'You can go back and find new adventures',
-          status: 'success',
-          duration: 9000,
-          isClosable: true,
-        })
-      );
-    }
-    return (
-      toast({
-        title: 'An error has ocurred',
-        description: 'Please try again later',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-    );
-  }
-  function onSubmission() {
-    uploadPreferences({ username, prioritize, activePreferencesIDs })
-      .then((res) => (res.data ? toastMessage(true) : toastMessage(false)));
-  }
+  const { username, userType } = useContext(UserContext);
+  if (username == null || userType == null) return <h2>Loading...</h2>;
+  const {
+    activeInfo,
+    inactiveInfo,
+    onSwitchChange,
+    prioritize,
+    onAdd,
+    onDelete,
+    onSubmission,
+  } = useSettings(userType, username);
   return (
-    <div className="filterExperience">
-      <div className="filterOptions">
-        <h2>Define your adventure path</h2>
+    <Box>
+      <Box>
+        <Heading>Define your adventure path</Heading>
         <Box p="10px" overflow="auto">
           <HStack>
-            <Box width="100px" textAlign="center" mb="20px" border="1px solid green">
+            <Box
+              width="100px"
+              textAlign="center"
+              mb="20px"
+              border="1px solid green"
+            >
               Set minimum value
             </Box>
             <FormControl display="flex" justifyContent="center">
               <FormLabel htmlFor="prioritize">
                 Prioritize preferences by order?
               </FormLabel>
-              <Switch id="prioritize" onChange={onSwitchChange} isChecked={prioritize} />
+              <Switch
+                id="prioritize"
+                onChange={onSwitchChange}
+                isChecked={prioritize}
+              />
             </FormControl>
           </HStack>
-          {activePreferences.map((preference, index) => (
+          {activeInfo.map((preference, index) => (
             <FilterArea
               key={preference.objectId}
               id={preference.objectId}
@@ -148,21 +61,23 @@ export default function Preference() {
               defaultValue={preference.defaultValue}
               step={preference.step}
               units={preference.units}
-              handleDelete={handleDelete}
+              handleDelete={onDelete}
             />
           ))}
         </Box>
         <HStack justifyContent="center">
-          <FilterMenu
-            inactivePreferences={inactivePreferences}
-            handleAddition={handleAddition}
+          <SelectMenu
+            inactiveItems={inactiveInfo}
+            onAdd={onAdd}
           />
-          <Button colorScheme="blue" width="100px" onClick={onSubmission}>Save</Button>
+          <Button colorScheme="blue" width="100px" onClick={onSubmission}>
+            Save
+          </Button>
         </HStack>
-      </div>
-      <div className="profile">
-        <h2>Define your adventurer profile</h2>
-      </div>
-    </div>
+      </Box>
+      <Box className="profile">
+        <Heading>Define your adventurer profile</Heading>
+      </Box>
+    </Box>
   );
 }
