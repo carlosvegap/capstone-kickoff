@@ -31,6 +31,7 @@ export default function InputLocation({ address, placeholder, onSelect }) {
           }) => (
             <div>
               <Input
+                bg="white"
                 {...getInputProps({
                   placeholder,
                 })}

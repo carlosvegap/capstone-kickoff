@@ -64,19 +64,22 @@ export default function ExperienceInfo({ restaurants }) {
   }, [setActiveFeedback, currentRestaurant, username, setIsRated]);
 
   function resetRatingForm() {
-    return activeFeedback.map((feedback) => ({
-      feedbackId: feedback.objectId,
-      score: 0,
-      comment: '',
-    }));
+    if (activeFeedback) {
+      return activeFeedback.map((feedback) => ({
+        feedbackId: feedback.objectId,
+        score: 0,
+        comment: '',
+      }));
+    }
+    return {};
   }
 
   // update State for the newReview, if is not rated
   useEffect(() => {
-    if (!isRated && activeFeedback) {
-      setNewReview(resetRatingForm(activeFeedback));
+    if (!isRated) {
+      setNewReview(resetRatingForm());
     }
-  }, [isRated, activeFeedback]);
+  }, [isRated]);
   function onNewReviewChange(feedbackId, input, value) {
     const array = newReview.map((review) => {
       if (review.feedbackId === feedbackId) {

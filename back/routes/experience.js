@@ -37,12 +37,14 @@ async function activeFeedbackQuery(username){
   const query = new Parse.Query('Experience');
   query.equalTo("username", username);
   const experienceInfo = await query.first();
-  return experienceInfo.toJSON().activeFeedback
+  if (experienceInfo) return experienceInfo.toJSON().activeFeedback
+  return []
 }
 
-// ----- Query for active feedback areas -----
+// ----- Query for all feedback areas -----
 async function allFeedbackQuery(){
-  const query = new Parse.Query('Feedback');
+  const query = new Parse.Query('Preference');
+  query.equalTo("forExperience", true);
   const feedbackInfo = await query.find();
   return feedbackInfo
 }

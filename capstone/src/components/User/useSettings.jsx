@@ -88,14 +88,16 @@ export default function useSettings(userType, username) {
       getPriorization(username, userType).then((res) =>
         setPrioritize(res.data),
       );
-      // ONLY FOR ADVENTURER
-      getActiveMinValues(username).then((res) =>
-        setMinPreferenceValues(res.data),
-      );
-      // ONLY FOR ADVENTURER
-      getBoolMinValues(username).then((res) =>
-        setHasMinValues(res.data),
-      );
+      if (isAdventurer) {
+        // ONLY FOR ADVENTURER
+        getActiveMinValues(username).then((res) =>
+          setMinPreferenceValues(res.data),
+        );
+        // ONLY FOR ADVENTURER
+        getBoolMinValues(username).then((res) =>
+          setHasMinValues(res.data),
+        );
+      }
     }
   }, [
     username,
