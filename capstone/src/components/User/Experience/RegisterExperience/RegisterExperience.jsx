@@ -88,41 +88,45 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
     }
   }
   return (
-    <Box width="50%">
-      <Heading as="h2" mb="20px" textAlign="center">
+    <Box width="50%" p="30px" bg="gray.100" display="flex" flexDirection="column" justifyContent="center">
+      <Heading as="h2" mb="20px" mt="10px" textAlign="center">
         Let the world find your talent
       </Heading>
-      {fields.map((inputField) => (
-        <FormControl isRequired={inputField.isRequired} key={inputField.id} p="0px 20px">
-          <FormLabel>
-            {inputField.displayText}
-          </FormLabel>
-          {inputField.type === 'text' && (
-          <Input
-            value={inputField.value}
-            placeholder={inputField.placeholder}
-            onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-          />
-          )}
-          {inputField.type === 'textArea' && (
-          <Textarea
-            value={inputField.value}
-            placeholder={inputField.placeholder}
-            onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-          />
-          )}
-          {inputField.type === 'address' && (
-            <InputLocation
-              address={inputField.value}
+      <Box width="70%" ml="15%">
+        {fields.map((inputField) => (
+          <FormControl isRequired={inputField.isRequired} key={inputField.id} p="0px 20px">
+            <FormLabel>
+              {inputField.displayText}
+            </FormLabel>
+            {inputField.type === 'text' && (
+            <Input
+              bg="white"
+              value={inputField.value}
               placeholder={inputField.placeholder}
-              onSelect={onRegistryChange}
+              onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
             />
-          )}
-          <Badge colorScheme="red">{inputField.error}</Badge>
-        </FormControl>
-      ))}
-      <ButtonGroup variant="outline" spacing="6" border="1px solid grey" padding="20px" margin="auto">
-        <Button colorScheme="blue" onClick={() => onRegistrySubmission(experienceValues)}>Save</Button>
+            )}
+            {inputField.type === 'textArea' && (
+            <Textarea
+              bg="white"
+              value={inputField.value}
+              placeholder={inputField.placeholder}
+              onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
+            />
+            )}
+            {inputField.type === 'address' && (
+              <InputLocation
+                address={inputField.value}
+                placeholder={inputField.placeholder}
+                onSelect={onRegistryChange}
+              />
+            )}
+            <Badge colorScheme="red">{inputField.error}</Badge>
+          </FormControl>
+        ))}
+      </Box>
+      <ButtonGroup spacing="6" margin="auto">
+        <Button colorScheme="blue" variant="solid" onClick={() => onRegistrySubmission(experienceValues)}>Save</Button>
       </ButtonGroup>
     </Box>
   );
