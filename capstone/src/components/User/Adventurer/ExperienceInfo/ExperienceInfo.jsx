@@ -72,8 +72,9 @@ export default function ExperienceInfo({ restaurants }) {
       ]
       )).then(([feedbackRes, ratedRes]) => {
         setActiveFeedback(feedbackRes.data);
-        const isRated = ratedRes.data;
-        if (!isRated) {
+        const rated = ratedRes.data;
+        setIsRated(rated);
+        if (!rated) {
           setNewReview(resetRatingForm);
         }
       });
