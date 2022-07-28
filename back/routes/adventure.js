@@ -19,26 +19,40 @@ router.post('/restaurants', async(req, res) => {
   };
   axios(config)
   .then(function (response) {
-    res.status(200);
-    res.send(response.data.results);
+    res.status(200).send(response.data.results);
   })
 })
 
+// Find an user's preference
+async function preferenceQuery(username){
+  const query = new Parse.Query('UserPreference');
+  query.equalTo("username", username);
+  const currentPreference = await query.first();
+  return currentPreference.toJSON()
+}
+
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async(req, res) => {
-  const query = new Parse.Query('UserPreference');
-  query.equalTo("username", req.body.username);
-  let currentPreference = await query.first();
-  res.status(200).send(currentPreference.toJSON().prioritize);
+  const preference = await preferenceQuery(req.body.username)
+  res.status(200).send(preference.prioritize);
 })
 
 // ----- Get active user's preferences IDs -----
 router.post('/preferences/active', async(req, res) => {
-  const query = new Parse.Query('UserPreference');
-  query.equalTo("username", req.body.username);
-  let currentPreferences = await query.first();
-  res.status(200);
-  res.send(currentPreferences.toJSON().activePreferences);
+  const preference = await preferenceQuery(req.body.username);
+  res.status(200).send(preference.activePreferences);
+})
+
+// ----- Get active preferences' minimum values -----
+router.post('/preferences/active/values', async(req, res) => {
+  const preference = await preferenceQuery(req.body.username)
+  res.status(200).send(preference.minValues)
+})
+
+// ----- Get validation for minimum values -----
+router.post('/preferences/active/hasMinimum', async(req, res) => {
+  const preference = await preferenceQuery(req.body.username);
+  res.status(200).send(preference.hasMinimumValue);
 })
 
 // ----- Get all existing Preferences -----
@@ -52,12 +66,10 @@ router.post('/preferences/all', async(req, res) => {
 // ----- Get all inactive preferences IDS -----
 router.post('/preferences/inactive', async(req, res) => {
   // Find current preferences
-  const getUserPreferenceQuery = new Parse.Query('UserPreference');
-  getUserPreferenceQuery.equalTo("username", req.body.username)
-  let userPreferences = await getUserPreferenceQuery.first();
+  let userPreferences = await preferenceQuery(req.body.username);
   if (userPreferences != null) {
     let activePreferences = [];
-    activePreferences = userPreferences.toJSON().activePreferences;
+    activePreferences = userPreferences.activePreferences;
     // Get all possible preferences
     const allPreferencesQuery = new Parse.Query('Preference');
     let allPreferences = null;
@@ -99,6 +111,8 @@ router.post('/preferences/update', async(req, res) => {
   // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
   updateQuery.set('prioritize', req.body.prioritize)
   updateQuery.set('activePreferences', req.body.activeIDs)
+  updateQuery.set('minValues', req.body.minValues)
+  updateQuery.set('hasMinimumValue', req.body.hasMinValues)
   try {
     await updateQuery.save();
     res.status(200);

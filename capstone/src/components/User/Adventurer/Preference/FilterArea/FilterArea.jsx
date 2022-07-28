@@ -1,35 +1,49 @@
 import { Box } from '@chakra-ui/react';
-import { useState } from 'react';
 import SettingsControls from '../../../SettingsControls';
 import SliderControls from './SliderControls';
 
 export default function FilterArea({
-  id, displayText, priority, minValue, maxValue, defaultValue, step, units, handleDelete,
+  id,
+  displayText,
+  priority,
+  index,
+  minValue,
+  maxValue,
+  defaultValue,
+  step,
+  units,
+  isDirectlyProportional,
+  handleDelete,
+  hasMinValue,
+  onChangeHasMinValue,
+  onChangeMinValue,
 }) {
-  const [showMinimumValues, setShowMinimumValues] = useState(false);
   return (
-    <Box>
+    <Box bg="white" overflow="auto" mt="10px" borderRadius="10px">
       <SettingsControls
-        setShowMinimumValues={setShowMinimumValues}
         id={id}
+        hasMinValue={hasMinValue}
+        index={index}
         priority={priority}
         displayText={displayText}
         handleDelete={handleDelete}
         isAdventurer
+        onChangeHasMinValue={onChangeHasMinValue}
       />
-      {showMinimumValues
-        && (
+      {hasMinValue && (
         <SliderControls
           key={id}
+          index={index}
           id={id}
           minValue={minValue}
           maxValue={maxValue}
           defaultValue={defaultValue}
+          isDirectlyProportional={isDirectlyProportional}
           step={step}
           units={units}
+          onChangeMinValue={onChangeMinValue}
         />
-        )}
-
+      )}
     </Box>
   );
 }
