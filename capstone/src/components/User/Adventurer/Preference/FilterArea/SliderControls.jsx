@@ -1,6 +1,12 @@
 import {
-  Badge, Slider, SliderMark, SliderTrack,
-  SliderFilledTrack, Tooltip, SliderThumb, VStack,
+  Badge,
+  Slider,
+  SliderMark,
+  SliderTrack,
+  SliderFilledTrack,
+  Tooltip,
+  SliderThumb,
+  VStack,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
@@ -12,18 +18,24 @@ function DefineIcon({ units }) {
 // Slider to control the minimum value for the preference
 export default function SliderControls({
   id,
+  index,
   minValue,
   maxValue,
   defaultValue,
   step,
   units,
+  isDirectlyProportional,
+  onChangeMinValue,
 }) {
   const markSpace = maxValue / 5;
   const [sliderValue, setSliderValue] = useState(defaultValue);
   const [showToolTip, setShowTooltip] = useState(false);
   return (
     <VStack mb="40px">
-      <Badge colorScheme="yellow"> {sliderValue} <DefineIcon units={units} /> or more </Badge>
+      <Badge colorScheme="yellow">
+        {sliderValue} <DefineIcon units={units} /> or{' '}
+        {isDirectlyProportional ? 'More' : 'Less'}
+      </Badge>
       <Slider
         width="80%"
         ml="10%"
@@ -35,7 +47,10 @@ export default function SliderControls({
         max={maxValue}
         step={step}
         colorScheme="yellow"
-        onChange={(v) => setSliderValue(v)}
+        onChange={(v) => {
+          setSliderValue(v);
+          onChangeMinValue(index, v);
+        }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >

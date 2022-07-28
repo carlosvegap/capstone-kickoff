@@ -6,7 +6,7 @@ import {
 export default function SelectMenu({ inactiveItems, onAdd }) {
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} width="150px">
+      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg="gray.300" width="150px">
         Add
       </MenuButton>
       <MenuList>

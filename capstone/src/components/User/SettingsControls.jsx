@@ -4,11 +4,13 @@ import { Box, Checkbox, Badge, HStack, Button } from '@chakra-ui/react';
 // Top part of the filter options: set a minimum value for preference, read its name and delete it
 export default function SettingsControls({
   id,
-  setShowMinimumValues,
+  index,
   priority,
   displayText,
   handleDelete,
   isAdventurer,
+  onChangeHasMinValue,
+  hasMinValue,
 }) {
   return (
     <Box>
@@ -16,8 +18,9 @@ export default function SettingsControls({
         {isAdventurer && (
           <>
             <Checkbox
-              ml="45px"
-              onChange={(e) => setShowMinimumValues(e.target.checked)}
+              isChecked={hasMinValue}
+              ml="60px"
+              onChange={() => onChangeHasMinValue(index)}
             />
             <Badge> {priority} </Badge>
           </>

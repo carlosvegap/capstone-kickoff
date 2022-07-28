@@ -1,6 +1,7 @@
 import {
   Box,
   HStack,
+  VStack,
   FormControl,
   FormLabel,
   Switch,
@@ -24,44 +25,50 @@ export default function Preference() {
     onAdd,
     onDelete,
     onSubmission,
+    minPreferenceValues,
+    hasMinValues,
+    onChangeHasMinValue,
+    onChangeMinValue,
   } = useSettings(userType, username);
   return (
-    <Box>
-      <Box>
-        <Heading>Define your adventure path</Heading>
+    <HStack>
+      <Box bg="gray.100" width="50%">
+        <Heading mt="20px" mb="20px" textAlign="center">Define your adventure path</Heading>
         <Box p="10px" overflow="auto">
-          <HStack>
-            <Box
-              width="100px"
-              textAlign="center"
-              mb="20px"
-              border="1px solid green"
-            >
+          <HStack mb="30px">
+            <Box marginLeft="20px" textAlign="center">
               Set minimum value
             </Box>
             <FormControl display="flex" justifyContent="center">
-              <FormLabel htmlFor="prioritize">
-                Prioritize preferences by order?
-              </FormLabel>
-              <Switch
-                id="prioritize"
-                onChange={onSwitchChange}
-                isChecked={prioritize}
-              />
+              <VStack spacing="0px">
+                <FormLabel htmlFor="prioritize">
+                  Prioritize preferences by order?
+                </FormLabel>
+                <Switch
+                  id="prioritize"
+                  onChange={onSwitchChange}
+                  isChecked={prioritize}
+                />
+              </VStack>
             </FormControl>
           </HStack>
           {activeInfo.map((preference, index) => (
             <FilterArea
               key={preference.objectId}
               id={preference.objectId}
+              index={index}
               priority={prioritize ? index + 1 : null}
               displayText={preference.displayText}
               minValue={preference.minValue}
               maxValue={preference.maxValue}
-              defaultValue={preference.defaultValue}
+              defaultValue={minPreferenceValues[index]}
+              hasMinValue={hasMinValues[index]}
               step={preference.step}
               units={preference.units}
+              isDirectlyProportional={preference.directlyProportional}
               handleDelete={onDelete}
+              onChangeHasMinValue={onChangeHasMinValue}
+              onChangeMinValue={onChangeMinValue}
             />
           ))}
         </Box>
@@ -75,9 +82,9 @@ export default function Preference() {
           </Button>
         </HStack>
       </Box>
-      <Box className="profile">
+      <Box width="50%" display="flex" alignItems="flex-start">
         <Heading>Define your adventurer profile</Heading>
       </Box>
-    </Box>
+    </HStack>
   );
 }
