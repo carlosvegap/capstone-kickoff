@@ -6,7 +6,6 @@ const visitorRouter = require('./routes/visitor');
 const adventurerRouter = require('./routes/adventure');
 const experienceRouter = require('./routes/experience');
 const reviewRouter = require('./routes/review')
-const feedbackRouter = require('./routes/feedback')
 
 // MIDDLEWARE
 app.use(cors());
@@ -18,7 +17,6 @@ app.use('/visitor', visitorRouter)
 app.use('/adventure', adventurerRouter)
 app.use('/experience', experienceRouter)
 app.use('/review', reviewRouter)
-app.use('/feedback', feedbackRouter)
 app.get('/', (req, res) => {
   res.status(201).send({ ping: 'pong' })
 })
