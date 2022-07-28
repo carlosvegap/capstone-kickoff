@@ -40,6 +40,7 @@ export default function ExperienceInfo({ restaurants }) {
   const { username } = useContext(UserContext);
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [activeFeedback, setActiveFeedback] = useState([]);
+  console.log(activeFeedback)
   const [newReview, setNewReview] = useState([]);
   const [isRated, setIsRated] = useState(false);
   // Get the restaurant viewing now
@@ -50,18 +51,6 @@ export default function ExperienceInfo({ restaurants }) {
   const photoReference = currentRestaurant
     ? getPhotoReference(currentRestaurant)
     : null;
-
-  // get active feedback information
-  useEffect(() => {
-    if (currentRestaurant) {
-      getActiveFeedback(currentRestaurant.place_id).then((res) =>
-        setActiveFeedback(res.data),
-      );
-      getIsRated(username, currentRestaurant.place_id).then((res) =>
-        setIsRated(res.data),
-      );
-    }
-  }, [setActiveFeedback, currentRestaurant, username, setIsRated]);
 
   function resetRatingForm() {
     if (activeFeedback) {
@@ -74,12 +63,23 @@ export default function ExperienceInfo({ restaurants }) {
     return {};
   }
 
-  // update State for the newReview, if is not rated
+  // get active feedback information
   useEffect(() => {
-    if (!isRated) {
-      setNewReview(resetRatingForm());
+    if (currentRestaurant) {
+      (Promise.all([
+        getActiveFeedback(currentRestaurant.place_id),
+        getIsRated(username, currentRestaurant.place_id),
+      ]
+      )).then(([feedbackRes, ratedRes]) => {
+        setActiveFeedback(feedbackRes.data);
+        const isRated = ratedRes.data;
+        if (!isRated) {
+          setNewReview(resetRatingForm);
+        }
+      });
     }
-  }, [isRated]);
+  }, [setActiveFeedback, currentRestaurant, username, setIsRated]);
+
   function onNewReviewChange(feedbackId, input, value) {
     const array = newReview.map((review) => {
       if (review.feedbackId === feedbackId) {
