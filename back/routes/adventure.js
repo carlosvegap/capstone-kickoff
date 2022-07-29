@@ -54,7 +54,6 @@ router.post('/restaurants', async (req, res) => {
     let index = userPreference.activePreferences.indexOf("FTmQoqHFVb")
     if (userPreference.hasMinimumValue[index]) distance = userPreference.minValues[index] * 1000
   }
-  console.log(distance)
   const allRestaurants = await getGoogleRestaurants(
     distance,
     req.body.lat,
