@@ -6,14 +6,14 @@ export default function List() {
   const { isDataFetched, restaurants } = useContext(AdventurerContext);
   if (isDataFetched) {
     return (
-      <VStack spacing="20px">
+      <VStack mt="20px" mb="20px" spacing="20px">
         {restaurants.map((restaurant, index) => (
-          <Box key={index} shadow="md" width="60%" display="flex">
+          <Box key={index} shadow="md" width="60%" display="flex" bg="white" borderRadius="10px">
             <Badge height="100%" mr="20px" colorScheme="teal">
               {index + 1}
             </Badge>
             <VStack>
-              <Heading size="xl">{restaurant.name}</Heading>
+              <Heading size="md">{restaurant.name}</Heading>
             </VStack>
           </Box>
         ))}
