@@ -49,29 +49,42 @@ async function getMean(experienceId, feedbackId) {
 // ----- Get filtered restaurants ------
 router.post('/restaurants', async (req, res) => {
   const userPreference = await preferenceQuery(req.body.username);
+  // TODO: Implement better algorithm for distance
   let distance = 1000;
   if (userPreference.activePreferences.includes("FTmQoqHFVb")) {
     let index = userPreference.activePreferences.indexOf("FTmQoqHFVb")
     if (userPreference.hasMinimumValue[index]) distance = userPreference.minValues[index] * 1000
   }
+
   const allRestaurants = await getGoogleRestaurants(
     distance,
     req.body.lat,
     req.body.lng,
   );
+  const priority = userPreference.prioritize
   const restaurants = [];
   for (const restaurant of allRestaurants) {
     let passesFilter = true;
     let indexPreference = 0;
+    let score = 0;
     for (const preferenceId of userPreference.activePreferences) {
-      const val = await getMean(restaurant.place_id, preferenceId);
-      if (userPreference.hasMinimumValue[indexPreference] && userPreference.minValues[indexPreference] > val) {
+      const meanReviewScore = await getMean(restaurant.place_id, preferenceId);
+      if (userPreference.hasMinimumValue[indexPreference] && userPreference.minValues[indexPreference] > meanReviewScore) {
         passesFilter = false;
         break;
+      } else if (priority) {
+        const feedbackMaxValue = await new Parse.Query('Preference').equalTo('objectId', preferenceId).select('maxValue').first();
+        score += ( meanReviewScore / feedbackMaxValue.toJSON().maxValue ) * ( userPreference.activePreferences.length - indexPreference )
       }
       indexPreference++;
     }
-    if (passesFilter) restaurants.push(restaurant);
+    if (passesFilter && priority) restaurants.push({...restaurant, matchScore: score});
+    else if (passesFilter) restaurants.push(restaurant);
+  }
+  if (priority) {
+    restaurants.sort((a, b) => {
+      return b.matchScore - a.matchScore;
+    })
   }
   res.send(restaurants).status(200);
 });
