@@ -17,8 +17,7 @@ export default function Map() {
     return (
       <VStack display="flex" flexDirection="column" justifyContent="center">
         <Heading size="lg">
-          Finding your adventure's start point {isLoaded ? '1' : '0'}{' '}
-          {isDataFetched ? '1' : '0'}
+          Finding your adventure's start point
         </Heading>
         <Spinner
           thickness="4px"

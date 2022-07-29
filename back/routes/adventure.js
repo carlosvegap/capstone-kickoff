@@ -48,13 +48,18 @@ async function getMean(experienceId, feedbackId) {
 
 // ----- Get filtered restaurants ------
 router.post('/restaurants', async (req, res) => {
-  const distance = req.body.distance ? req.body.distance : 1000;
+  const userPreference = await preferenceQuery(req.body.username);
+  let distance = 1000;
+  if (userPreference.activePreferences.includes("FTmQoqHFVb")) {
+    let index = userPreference.activePreferences.indexOf("FTmQoqHFVb")
+    if (userPreference.hasMinimumValue[index]) distance = userPreference.minValues[index] * 1000
+  }
+  console.log(distance)
   const allRestaurants = await getGoogleRestaurants(
     distance,
     req.body.lat,
     req.body.lng,
   );
-  const userPreference = await preferenceQuery(req.body.username);
   const restaurants = [];
   for (const restaurant of allRestaurants) {
     let passesFilter = true;
