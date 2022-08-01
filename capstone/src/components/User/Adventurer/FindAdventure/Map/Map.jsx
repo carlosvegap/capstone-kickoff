@@ -34,13 +34,6 @@ export default function Map() {
       </VStack>
     );
   }
-
-  function onHover(restaurant) {
-    setActiveRestaurant(restaurant);
-  }
-  function onLeave() {
-    setActiveRestaurant(null);
-  }
   return (
     <GoogleMap
       center={currentPosition}
@@ -54,11 +47,11 @@ export default function Map() {
       }}
     >
       {restaurants.map((restaurant) => (
-        <Fragment key={Math.random()}>
+        <Fragment key={restaurant.place_id}>
           <MarkerF
             position={restaurant.geometry.location}
-            onMouseOver={() => onHover(restaurant.place_id)}
-            onMouseOut={() => onLeave()}
+            onMouseOver={() => setActiveRestaurant(restaurant.place_id)}
+            onMouseOut={() => setActiveRestaurant(null)}
           >
             {activeRestaurant === restaurant.place_id ? (
               <InfoWindowF position={restaurant.geometry.location}>
