@@ -143,9 +143,7 @@ export default function useSettings(userType, username) {
     // Erase from activeIDs array
     setActiveIDs(activeIDs.filter((activeID) => activeID !== id));
     // ONLY FOR ADVENTURER
-    // QUESTION: How to do it with setter?
     minPreferenceValues.splice(activeIDIndex, 1);
-    // setMinPreferenceValues(newMinPreferencesValues);
     // ONLY FOR ADVENTURER
     hasMinValues.splice(activeIDIndex, 1);
   }

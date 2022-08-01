@@ -28,7 +28,6 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [restaurants, setRestaurants] = useState([]);
 
   // MEMO VALUES
-  // QUESTION: Is memo giving me troubles?
   const mapData = useMemo(() => ({
     currentPosition,
     isDataFetched,
