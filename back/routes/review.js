@@ -75,7 +75,7 @@ async function activeFeedbackQuery(objectId){
   if (experienceInfo) {
     return experienceInfo.toJSON().activeFeedback
   }
-  const allFeedbackQuery = new Parse.Query('Feedback');
+  const allFeedbackQuery = new Parse.Query('Preference').equalTo('forExperience', true);
   const allFeedback = await allFeedbackQuery.find();
   const allFeedbackIDs = allFeedback.map((feedback) => feedback.toJSON().objectId)
   return allFeedbackIDs;
@@ -84,7 +84,7 @@ async function activeFeedbackQuery(objectId){
 // ----- Get feedback areas of an experience -----
 router.post('/active/info', async(req, res) => {
   const activeFeedbackIDs = await activeFeedbackQuery(req.body.experienceId);
-  const allFeedbackQuery = new Parse.Query('Feedback');
+  const allFeedbackQuery = new Parse.Query('Preference').equalTo('forExperience', true);
   const allFeedback = await allFeedbackQuery.find();
   const activeFeedbackInfo = activeFeedbackIDs.map((idActive) => 
     allFeedback.find((feedback) => 

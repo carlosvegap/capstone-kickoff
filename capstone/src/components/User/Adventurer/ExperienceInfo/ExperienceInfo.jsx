@@ -5,6 +5,7 @@ import {
   HStack,
   Image,
   VStack,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext, useEffect } from 'react';
@@ -40,12 +41,10 @@ export default function ExperienceInfo({ restaurants }) {
   const { username } = useContext(UserContext);
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [activeFeedback, setActiveFeedback] = useState([]);
-  console.log(activeFeedback)
   const [newReview, setNewReview] = useState([]);
   const [isRated, setIsRated] = useState(false);
   // Get the restaurant viewing now
-  const currentRestaurant =
-    restaurants.length > 0 ? restaurants[indexRestaurant] : null;
+  const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
 
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
@@ -66,11 +65,10 @@ export default function ExperienceInfo({ restaurants }) {
   // get active feedback information
   useEffect(() => {
     if (currentRestaurant) {
-      (Promise.all([
+      Promise.all([
         getActiveFeedback(currentRestaurant.place_id),
         getIsRated(username, currentRestaurant.place_id),
-      ]
-      )).then(([feedbackRes, ratedRes]) => {
+      ]).then(([feedbackRes, ratedRes]) => {
         setActiveFeedback(feedbackRes.data);
         const rated = ratedRes.data;
         setIsRated(rated);
@@ -106,9 +104,26 @@ export default function ExperienceInfo({ restaurants }) {
     }
   }
 
+  const toast = useToast();
   function onSubmission() {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
-      if (res.data) setIsRated(true);
+      if (res.data) {
+        setIsRated(true);
+        return toast({
+          title: 'Successfully rated',
+          description: 'Thanks for rating!',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+      return toast({
+        title: 'An error happened',
+        description: 'Try again later',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     });
   }
 
@@ -124,9 +139,16 @@ export default function ExperienceInfo({ restaurants }) {
           alt="restaurant photo"
         />
         <HStack justifyContent="center">
-          <Button onClick={onPrevious}>Previous</Button>
+          <Button onClick={onPrevious} isDisabled={indexRestaurant === 0}>
+            Previous
+          </Button>
           <Badge>#{indexRestaurant + 1}</Badge>
-          <Button onClick={onNext}>Next</Button>
+          <Button
+            onClick={onNext}
+            isDisabled={indexRestaurant + 1 === restaurants.length}
+          >
+            Next
+          </Button>
         </HStack>
         <VStack justifyContent="center" display="flex">
           {!isRated ? (

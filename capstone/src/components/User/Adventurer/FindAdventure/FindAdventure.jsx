@@ -1,20 +1,19 @@
-import './FindAdventure.css';
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button, Heading, Box } from '@chakra-ui/react';
 import Map from './Map/Map';
 import List from './List/List';
 
 export default function FindAdventure() {
   const [displayExperience, onSelectDisplay] = useState('map');
   return (
-    <div className="findAdventure">
-      <h2>Find your next adventure:</h2>
-      <div className="experienceDisplayer">
+    <Box padding="20px" bg="gray.200">
+      <Heading as="h2" mt="10px" mb="10px" textAlign="center">Find your next adventure:</Heading>
+      <Box justifyContent="center" display="flex">
         <ExperienceViewButton value="map" display="Map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
         <ExperienceViewButton value="list" display="List" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
-      </div>
+      </Box>
       {displayExperience === 'map' ? <Map /> : <List />}
-    </div>
+    </Box>
   );
 }
 
