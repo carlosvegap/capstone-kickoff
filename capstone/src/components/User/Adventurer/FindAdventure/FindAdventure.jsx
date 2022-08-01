@@ -6,7 +6,7 @@ import List from './List/List';
 export default function FindAdventure() {
   const [displayExperience, onSelectDisplay] = useState('map');
   return (
-    <Box padding="20px" bg="gray.200">
+    <Box width="50%" height="100%" padding="20px" bg="gray.200">
       <Heading as="h2" mt="10px" mb="10px" textAlign="center">Find your next adventure:</Heading>
       <Box justifyContent="center" display="flex">
         <ExperienceViewButton value="map" display="Map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />

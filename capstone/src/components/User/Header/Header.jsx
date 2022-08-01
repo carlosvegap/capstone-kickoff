@@ -8,8 +8,6 @@ export default function Header({ userType, onLogOutClick }) {
   function handleLogOut() {
     localStorage.removeItem(process.env.REACT_APP_USER_KEY);
     axios.defaults.headers.common = {};
-    // QUESTION: Do I need to set login status to false?
-    // Will App.jsx 26 trigger default status again?
     onLogOutClick(false);
     navigate('/');
   }

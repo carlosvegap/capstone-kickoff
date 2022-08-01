@@ -129,7 +129,7 @@ export default function ExperienceInfo({ restaurants }) {
 
   if (currentRestaurant) {
     return (
-      <VStack>
+      <VStack width="50%">
         <Image
           height="300px"
           src={photoCall}
