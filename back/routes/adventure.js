@@ -24,6 +24,33 @@ async function getGoogleRestaurants(radius, lat, lng) {
   return results;
 }
 
+// ----- format to match google api values -----
+function formatRestaurant(restaurant) {
+  return (
+    {
+      name: restaurant.name,
+      formatted_address: restaurant.address,
+      geometry: {
+        location: {
+          lat: restaurant.lat,
+          lng: restaurant.lng,
+        }
+      },
+      place_id: restaurant.objectId,
+      description: restaurant.description,
+      username: restaurant.username,
+      email: restaurant.email,
+      activeFeedback: restaurant.activeFeedback,
+    }
+  )
+}
+
+// ----- Get back4app restaurants -----
+async function getDatabaseRestaurants() {
+  const experiences = await new Parse.Query('Experience').find();
+  return experiences.map((exp) => exp.toJSON());
+}
+
 // Find an user's preference
 async function preferenceQuery(username) {
   const query = new Parse.Query('UserPreference');
@@ -56,11 +83,16 @@ router.post('/restaurants', async (req, res) => {
     if (userPreference.hasMinimumValue[index]) distance = userPreference.minValues[index] * 1000
   }
 
-  const allRestaurants = await getGoogleRestaurants(
+  const googleRestaurants = await getGoogleRestaurants(
     distance,
     req.body.lat,
     req.body.lng,
   );
+  let databaseRestaurants = await getDatabaseRestaurants();
+  databaseRestaurants = databaseRestaurants.map((restaurant) => formatRestaurant(restaurant));
+
+  const allRestaurants = googleRestaurants.concat(databaseRestaurants)
+
   const priority = userPreference.prioritize
   const restaurants = [];
   for (const restaurant of allRestaurants) {

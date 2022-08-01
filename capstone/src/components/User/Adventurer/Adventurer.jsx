@@ -1,6 +1,8 @@
-import './Adventurer.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useMemo, useContext } from 'react';
+import {
+  Box, HStack,
+} from '@chakra-ui/react';
 import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
 import Preference from './Preference/Preference';
@@ -26,7 +28,6 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [restaurants, setRestaurants] = useState([]);
 
   // MEMO VALUES
-  // QUESTION: Is memo giving me troubles?
   const mapData = useMemo(() => ({
     currentPosition,
     isDataFetched,
@@ -62,17 +63,17 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
 
   if (params.page === 'home') {
     return (
-      <div className="user">
+      <Box height="55vw">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
         <AdventurerContext.Provider
           value={mapData}
         >
-          <div className="adventure">
+          <HStack height="100%">
             <FindAdventure />
             <ExperienceInfo restaurants={restaurants} />
-          </div>
+          </HStack>
         </AdventurerContext.Provider>
-      </div>
+      </Box>
     );
   }
   if (params.page === 'preferences') {
