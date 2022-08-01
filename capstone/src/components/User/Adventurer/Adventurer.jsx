@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useMemo, useContext } from 'react';
 import {
-  Box, HStack,
-} from '@chakra-ui/react';
+  useEffect, useState, useMemo, useContext,
+} from 'react';
+import { Box, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
 import Preference from './Preference/Preference';
@@ -28,11 +28,14 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [restaurants, setRestaurants] = useState([]);
 
   // MEMO VALUES
-  const mapData = useMemo(() => ({
-    currentPosition,
-    isDataFetched,
-    restaurants,
-  }), [currentPosition, isDataFetched, restaurants]);
+  const mapData = useMemo(
+    () => ({
+      currentPosition,
+      isDataFetched,
+      restaurants,
+    }),
+    [currentPosition, isDataFetched, restaurants],
+  );
 
   // Check if user is logged in
   const navigate = useNavigate();
@@ -45,7 +48,10 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   // Find current position
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
-      setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
+      setCurrentPosition({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
     });
   }, [isLoggedIn]);
 
@@ -53,11 +59,22 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const params = useParams();
   // Fetch restaurants
   useEffect(() => {
-    if (currentPosition.lat === 0 || currentPosition.lng === 0 || params.page !== 'home' || !username) {
+    if (
+      currentPosition.lat === 0
+      || currentPosition.lng === 0
+      || params.page !== 'home'
+      || !username
+    ) {
       setRestaurants([]);
     } else {
-      getNearbyRestaurants(currentPosition.lat, currentPosition.lng, username)
-        .then((res) => { setRestaurants(res.data); setIsDataFetched(true); });
+      getNearbyRestaurants(
+        currentPosition.lat,
+        currentPosition.lng,
+        username,
+      ).then((res) => {
+        setRestaurants(res.data);
+        setIsDataFetched(true);
+      });
     }
   }, [currentPosition, setCurrentPosition, setRestaurants, params, username]);
 
@@ -65,9 +82,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     return (
       <Box height="55vw">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
-        <AdventurerContext.Provider
-          value={mapData}
-        >
+        <AdventurerContext.Provider value={mapData}>
           <HStack height="100%">
             <FindAdventure />
             <ExperienceInfo restaurants={restaurants} />

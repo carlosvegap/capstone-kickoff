@@ -7,17 +7,34 @@ export default function FindAdventure() {
   const [displayExperience, onSelectDisplay] = useState('map');
   return (
     <Box width="50%" height="100%" padding="20px" bg="gray.200" overflow="auto">
-      <Heading as="h2" mt="10px" mb="10px" textAlign="center">Find your next adventure:</Heading>
+      <Heading as="h2" mt="10px" mb="10px" textAlign="center">
+        Find your next adventure:
+      </Heading>
       <Box justifyContent="center" display="flex">
-        <ExperienceViewButton value="map" display="Map" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
-        <ExperienceViewButton value="list" display="List" displayExperience={displayExperience} onSelectDisplay={onSelectDisplay} />
+        <ExperienceViewButton
+          value="map"
+          display="Map"
+          displayExperience={displayExperience}
+          onSelectDisplay={onSelectDisplay}
+        />
+        <ExperienceViewButton
+          value="list"
+          display="List"
+          displayExperience={displayExperience}
+          onSelectDisplay={onSelectDisplay}
+        />
       </Box>
       {displayExperience === 'map' ? <Map /> : <List />}
     </Box>
   );
 }
 
-function ExperienceViewButton({ value, displayExperience, onSelectDisplay, display }) {
+function ExperienceViewButton({
+  value,
+  displayExperience,
+  onSelectDisplay,
+  display,
+}) {
   if (displayExperience === value) {
     return (
       <Button value={value} colorScheme="blue" variant="outline" disabled>
@@ -26,7 +43,11 @@ function ExperienceViewButton({ value, displayExperience, onSelectDisplay, displ
     );
   }
   return (
-    <Button value={value} colorScheme="blue" onClick={() => onSelectDisplay(value)}>
+    <Button
+      value={value}
+      colorScheme="blue"
+      onClick={() => onSelectDisplay(value)}
+    >
       {display}
     </Button>
   );

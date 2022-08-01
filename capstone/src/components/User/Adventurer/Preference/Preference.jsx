@@ -33,7 +33,9 @@ export default function Preference() {
   return (
     <HStack>
       <Box bg="gray.100" width="50%">
-        <Heading mt="20px" mb="20px" textAlign="center">Define your adventure path</Heading>
+        <Heading mt="20px" mb="20px" textAlign="center">
+          Define your adventure path
+        </Heading>
         <Box p="10px" overflow="auto">
           <HStack mb="30px">
             <Box marginLeft="20px" textAlign="center">
@@ -73,10 +75,7 @@ export default function Preference() {
           ))}
         </Box>
         <HStack justifyContent="center">
-          <SelectMenu
-            inactiveItems={inactiveInfo}
-            onAdd={onAdd}
-          />
+          <SelectMenu inactiveItems={inactiveInfo} onAdd={onAdd} />
           <Button colorScheme="blue" width="100px" onClick={onSubmission}>
             Save
           </Button>
