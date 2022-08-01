@@ -77,13 +77,6 @@ export default function Map() {
         icon="https://www.robotwoods.com/dev/misc/bluecircle.png"
         position={currentPosition}
       />
-      {/* {activeRestaurant ? (
-        <InfoWindowF position={activeRestaurant.geometry.location}>
-          <Box width="100px">
-            <Heading size="xs">{activeRestaurant.name}</Heading>
-          </Box>
-        </InfoWindowF>
-      ) : null} */}
     </GoogleMap>
   );
 }
