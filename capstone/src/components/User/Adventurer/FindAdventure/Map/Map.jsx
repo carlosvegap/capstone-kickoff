@@ -36,11 +36,9 @@ export default function Map() {
   }
 
   function onHover(restaurant) {
-    console.log('in')
     setActiveRestaurant(restaurant);
   }
   function onLeave() {
-    console.log('left')
     setActiveRestaurant(null);
   }
   return (
