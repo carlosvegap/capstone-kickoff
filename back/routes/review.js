@@ -11,6 +11,7 @@ router.post('/experience/reviews', async (req, res) => {
   res.status(200).send(experienceReviews);
 });
 
+// INCLUDED IN QUERIES/ADVENTURE.JS
 // Find review of a user X to experience Y
 async function getReview(username, experienceId) {
   const query = new Parse.Query('Review');
