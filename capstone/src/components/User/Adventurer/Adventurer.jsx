@@ -16,8 +16,10 @@ import AdventurerContext from '../../../Contexts/AdventurerContext';
 const baseURL = process.env.REACT_APP_BASE_URL;
 
 function getNearbyRestaurants(lat, lng, username) {
-  const values = { lat, lng, username };
-  return axios.post(`${baseURL}/adventure/restaurants`, values);
+  return axios.get(`${baseURL}/adventure/restaurants`, {
+    params: { lat, lng },
+    headers: { username },
+  });
 }
 
 export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
@@ -85,7 +87,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
         <AdventurerContext.Provider value={mapData}>
           <HStack height="100%">
             <FindAdventure />
-            <ExperienceInfo restaurants={restaurants} />
+            <ExperienceInfo restaurants={restaurants} onSubmit={setRestaurants} />
           </HStack>
         </AdventurerContext.Provider>
       </Box>
