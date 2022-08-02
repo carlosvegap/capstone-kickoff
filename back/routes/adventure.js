@@ -1,13 +1,17 @@
 require('dotenv/config');
 const { Parse } = require('./../parse');
-const { UserPreferencesQuery, AllFeedbackInfoQuery, UserReviewsQuery, ExperiencesQuery } = require('../queries/adventure');
+const {
+  UserPreferencesQuery,
+  AllFeedbackInfoQuery,
+  UserReviewsQuery,
+  ExperiencesQuery,
+} = require('../queries/adventure');
 const { filterAndRank } = require('../functions/adventure');
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 
 const googleKey = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
-
 
 // --------- FIND MATCHING RESTAURANTS -----
 // -_-_-_-_-_-_-_-_FUNCTIONS_-_-_-_-_-_-_-_-_
@@ -88,21 +92,28 @@ function determineDistance(userPreference, distanceFeedback) {
     userPreference.hasMinimumValue.splice(index, 1);
     userPreference.minValues.splice(index, 1);
   }
-  return { userPreference, distance }
+  return { userPreference, distance };
 }
 // -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Get filtered restaurants ------
 // Used in Adventurer.jsx so that the adventurerContext can provide all restaurants information
 router.get('/restaurants', async (req, res) => {
   // Get active UsersPreferences from db
-  const registeredUserPreference = await UserPreferencesQuery(req.headers.username);
+  const registeredUserPreference = await UserPreferencesQuery(
+    req.headers.username,
+  );
   const allFeedbackInfo = await AllFeedbackInfoQuery();
   // Find all reviews of a user X
   const userReviews = await UserReviewsQuery(req.headers.username);
   // Contains the information of the distance from the db
-  const distanceFeedback = allFeedbackInfo.find((feedback) => feedback.displayText === 'Distance')
+  const distanceFeedback = allFeedbackInfo.find(
+    (feedback) => feedback.displayText === 'Distance',
+  );
   // Find working distance and remove it from userPreference if exists (will be processed differently)
-  const { userPreference, distance } = (determineDistance(registeredUserPreference, distanceFeedback));
+  const { userPreference, distance } = determineDistance(
+    registeredUserPreference,
+    distanceFeedback,
+  );
   // Get restaurants from Google (limiting distance)
   const googleRestaurants = await getGoogleRestaurants(
     distance,
@@ -120,7 +131,12 @@ router.get('/restaurants', async (req, res) => {
   );
   const allRestaurants = googleRestaurants.concat(databaseRestaurants);
   // Calculate final restaurants
-  const restaurants = await filterAndRank(userPreference, allRestaurants, allFeedbackInfo, userReviews);
+  const restaurants = await filterAndRank(
+    userPreference,
+    allRestaurants,
+    allFeedbackInfo,
+    userReviews,
+  );
   res.send(restaurants).status(200);
 });
 
