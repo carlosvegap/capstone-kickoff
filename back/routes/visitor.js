@@ -25,14 +25,10 @@ router.post('/logIn', async (req, res) => {
 //    if adventurer, also post default values in UserPreference table
 // Used in SignUp.jsx
 router.post('/signUp', async (req, res) => {
-  const hasAllFields = Object.keys(req.body).reduce(function (
-    hasAllFields,
-    inputKey,
-  ) {
-    if (req.body[inputKey] === '') return false;
-    return hasAllFields;
-  },
-  true);
+  // Check that all input fields != undefined/null/empty
+  const hasAllFields = Object.keys(req.body).every((inputKey) => {
+    return (req.body[inputKey]);
+  });
   if (hasAllFields) {
     // Create User in Parse
     const submission = await GeneralSignUpQuery(req.body);
