@@ -5,11 +5,12 @@ import './Login.css';
 
 export function logIn(formValues) {
   const baseURL = process.env.REACT_APP_BASE_URL;
-  const values = {
-    username: formValues.username,
-    password: formValues.password,
-  };
-  return axios.post(`${baseURL}/visitor/logIn`, values);
+  return axios.post(`${baseURL}/visitor/logIn`, {}, {
+    headers: {
+      username: formValues.username,
+      password: formValues.password,
+    },
+  });
 }
 
 export function resetForm(setLogIn) {
@@ -40,8 +41,13 @@ export default function Login({ setIsLoggedIn }) {
       // Note: This isn't a secure practice, but is convenient for prototyping.
       // In production, you would add an access token instead of (or in addition to)
       // the user id, in order to authenticate the request
-      localStorage.setItem(process.env.REACT_APP_USER_KEY, res.data.user.objectId);
-      axios.defaults.headers.common = { current_user_id: res.data.user.objectId };
+      localStorage.setItem(
+        process.env.REACT_APP_USER_KEY,
+        res.data.user.objectId,
+      );
+      axios.defaults.headers.common = {
+        current_user_id: res.data.user.objectId,
+      };
       setIsLoggedIn(true);
       const { userType } = res.data.user;
       if (userType === 'adventurer') {
@@ -59,17 +65,27 @@ export default function Login({ setIsLoggedIn }) {
     <div className="login">
       <h2>Log In</h2>
       <div className="loginForm">
-        <input name="username" type="text" placeholder="Username" value={loginForm.username} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
-        <input name="password" type="password" placeholder="Password" value={loginForm.password} onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)} />
+        <input
+          name="username"
+          type="text"
+          placeholder="Username"
+          value={loginForm.username}
+          onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)}
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={loginForm.password}
+          onChange={(e) => handleOnLoginChange(e.target.name, e.target.value)}
+        />
       </div>
-      {loginError !== ''
-        ? (
-          <span className="errorMessage">
-            {loginError.message}
-          </span>
-        )
-        : null}
-      <button onClick={handleSubmitLogIn} className="submit" type="submit">Login</button>
+      {loginError !== '' ? (
+        <span className="errorMessage">{loginError.message}</span>
+      ) : null}
+      <button onClick={handleSubmitLogIn} className="submit" type="submit">
+        Login
+      </button>
     </div>
   );
 }

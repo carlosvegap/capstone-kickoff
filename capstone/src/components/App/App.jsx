@@ -15,13 +15,11 @@ function getCurrentUserID() {
 }
 
 export async function getUserInfo(userId) {
-  const values = { objectId: userId };
   const baseURL = process.env.REACT_APP_BASE_URL;
-  return axios.post(`${baseURL}/visitor/user`, values);
+  return axios.get(`${baseURL}/visitor/user`, { headers: { objectID: userId } });
 }
 
 export default function App() {
-  // TODO: Handle state with useContext and useMemo
   const [isLoggedIn, setIsLoggedIn] = useState(getCurrentUserID() != null);
   const [userData, setUserData] = useState({});
   // runs on first load and anytime something changes
