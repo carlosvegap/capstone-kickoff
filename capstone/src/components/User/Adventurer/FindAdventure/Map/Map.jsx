@@ -1,4 +1,3 @@
-import './Map.css';
 import { useContext, useState, Fragment } from 'react';
 import {
   VStack, Spinner, Heading, Box, Text,
@@ -39,7 +38,13 @@ export default function Map() {
     <GoogleMap
       center={currentPosition}
       zoom={14}
-      mapContainerClassName="mapContainer"
+      mapContainerStyle={{
+        width: '80%',
+        height: '400px',
+        marginTop: '10px',
+        marginLeft: '10%',
+        borderRadius: '20px',
+      }}
       options={{
         mapTypeControl: false,
         streetViewControl: false,
