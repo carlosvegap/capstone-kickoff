@@ -140,6 +140,13 @@ router.get('/restaurants', async (req, res) => {
   res.send(restaurants).status(200);
 });
 
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get all Feedback Info ------
+// Used in Adventurer.jsx in a useContext so that the rest of components can consume it
+router.get('/preferences/all', async (req, res) => {
+  const feedbackInfo = await AllFeedbackInfoQuery();
+  res.status(200).send(feedbackInfo);
+})
 /* 
 ----------------------------------------------------
             NOT CHANGE YET !!!
@@ -168,14 +175,6 @@ router.post('/preferences/active/values', async (req, res) => {
 router.post('/preferences/active/hasMinimum', async (req, res) => {
   const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.hasMinimumValue);
-});
-
-// ----- Get all existing Preferences -----
-router.post('/preferences/all', async (req, res) => {
-  const query = new Parse.Query('Preference');
-  let preferences = await query.find();
-  res.status(200);
-  res.send(preferences);
 });
 
 // ----- Get all inactive preferences IDS -----
