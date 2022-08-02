@@ -1,7 +1,7 @@
 const { Parse } = require('./../parse');
 
 // Find reviews of an experience on X feedback area
-// Used by /restaurants
+// Used by functions/adventure/getMean
 async function ExperienceReviewsQuery(experienceID, feedbackID) {
   return await new Parse.Query('Review')
     .equalTo('experienceId', experienceID)
@@ -10,9 +10,9 @@ async function ExperienceReviewsQuery(experienceID, feedbackID) {
     .find();
 }
 
-// Get active UsersPreferences IDs (array)
-// Used by /restaurants
-async function UserPreferencesIDsQuery(username) {
+// Get active UsersPreferences fields
+// Used by routes/adventure/restaurants
+async function UserPreferencesQuery(username) {
   return (
     await new Parse.Query('UserPreference')
       .equalTo('username', username)
@@ -20,8 +20,8 @@ async function UserPreferencesIDsQuery(username) {
   ).toJSON();
 }
 
-// Get active UsersPreferences IDs (array)
-// Used by /restaurants
+// Get all existing feedback
+// Used by routes/adventure/restaurants
 async function AllFeedbackInfoQuery() {
   return (await new Parse.Query('Preference').find()).map((preference) =>
     preference.toJSON(),
@@ -29,7 +29,7 @@ async function AllFeedbackInfoQuery() {
 }
 
 // Find all reviews of a user X
-// Used by /restaurants
+// Used by routes/adventure/restaurants
 async function UserReviewsQuery(username) {
   return (
     await new Parse.Query('Review')
@@ -38,8 +38,8 @@ async function UserReviewsQuery(username) {
   ).map((review) => review.toJSON());
 }
 
-// Find all experiences
-// Used by /restaurants getDatabaseRestaurants
+// Find all registered experiences on db
+// Used by routes/adventure/getDatabaseRestaurants
 async function ExperiencesQuery() {
   return (await new Parse.Query('Experience').find()).map((experience) =>
     experience.toJSON(),
@@ -47,7 +47,7 @@ async function ExperiencesQuery() {
 }
 
 exports.ExperienceReviewsQuery = ExperienceReviewsQuery;
-exports.UserPreferencesIDsQuery = UserPreferencesIDsQuery;
+exports.UserPreferencesQuery = UserPreferencesQuery;
 exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.UserReviewsQuery = UserReviewsQuery;
 exports.ExperiencesQuery = ExperiencesQuery;

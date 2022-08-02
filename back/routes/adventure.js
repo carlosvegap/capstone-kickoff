@@ -1,84 +1,17 @@
 require('dotenv/config');
 const { Parse } = require('./../parse');
-const { ExperienceReviewsQuery, UserPreferencesIDsQuery, AllFeedbackInfoQuery, UserReviewsQuery, ExperiencesQuery } = require('../queries/adventure');
+const { UserPreferencesQuery, AllFeedbackInfoQuery, UserReviewsQuery, ExperiencesQuery } = require('../queries/adventure');
+const { filterAndRank } = require('../functions/adventure');
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 
 const googleKey = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
-// QUESTION: Should I move the functions to another folder?
 
-// TODO: Use same function to get the number of reviews
-// Find mean for reviews of restaurant on a feedback
-async function getMean(experienceID, feedbackID) {
-  // Find reviews of an experience on X feedback area
-  const reviews = await ExperienceReviewsQuery(experienceID, feedbackID);
-  // If it exists, return the mean of all reviews
-  if (reviews[0]) {
-    const sum = reviews.reduce((sum, score) => sum + score.toJSON().score, 0);
-    return sum / reviews.length;
-  }
-  return 0;
-}
-/* 
--_-_-_-_-_-_ FILTER / RANK ALGORITHM -_-_-_-_-_-_
-It requires all active user preferences, all restaurants, feedback information and the reviews of the user 
-These restaurants went already through the distance filter
-It uses getMean to go through all reviews on a feedback area and find the mean value
-If it is below the threshold, it is not included in the final restaurants
-If it passes the threshold and the user wants priorization:
-  - It finds the percentage of the meanValue vs the maximum possible value (found in allFeedbackInfo)
-  - It assigns lineally more points to the first preference
-Additionally it includes if it is rated already by the user (found in userReviews)
-RETURNS: A list of Restaurants objects, including a matchScore if priorization wanted
-*/
-async function filterAndRank(userPreference, allRestaurants, allFeedbackInfo, userReviews) {
-  const priority = userPreference.prioritize;
-  const restaurants = [];
-  for (const restaurant of allRestaurants) {
-    let score = 0;
-    let passesFilter = true;
-    let indexPreference = 0;
-    for (const preferenceID of userPreference.activePreferences) {
-      const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
-      // Find the matching score if the user has priorities
-      if (priority) {
-        // Find the max value of the current experience
-        const feedbackMaxValue = (allFeedbackInfo.find((feedback) => feedback.objectId === preferenceID)).maxValue
-        score +=
-          (meanReviewScore / feedbackMaxValue) *
-          (userPreference.activePreferences.length - indexPreference);
-      }
-      if (
-        userPreference.hasMinimumValue[indexPreference] &&
-        userPreference.minValues[indexPreference] > meanReviewScore
-      ) {
-        passesFilter = false;
-        break;
-      }
-    }
-    if (passesFilter) {      
-      restaurants.push({
-        ...restaurant,
-        matchScore: priority ? score : undefined,
-        // activeFeedback was set in database restaurants. if it doesn't exist, it's a google restaurant: all feedback applies
-        activeFeedback: restaurant.activeFeedback ?? allFeedbackInfo.map((feedback) => feedback.objectId),
-        // set review from the user if existing, otherwise undefined
-        review: userReviews.find((review) => review.experienceId === restaurant.place_id)
-      });
-    }
-  }
-  if (priority) {
-    restaurants.sort((a, b) => {
-      return b.matchScore - a.matchScore;
-    });
-  }
-  return restaurants;
-}
 
 // --------- FIND MATCHING RESTAURANTS -----
 // -_-_-_-_-_-_-_-_FUNCTIONS_-_-_-_-_-_-_-_-_
-// ----- Match Google API and database restaurant format -----
+// ------- Match Google API and database restaurant format -------
 function formatRestaurantForGoogleAPI(restaurant) {
   return {
     name: restaurant.name,
@@ -97,7 +30,7 @@ function formatRestaurantForGoogleAPI(restaurant) {
     activeFeedback: restaurant.activeFeedback,
   };
 }
-// ----- Get Google API restaurants -----
+// ------- Get Google API restaurants -------
 async function getGoogleRestaurants(radius, lat, lng) {
   const query = 'restaurant';
   const location = `${lat},${lng}`;
@@ -114,7 +47,7 @@ async function getGoogleRestaurants(radius, lat, lng) {
   });
   return results;
 }
-// ----- Get back4app restaurants -----
+// ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
   const allExperiences = await ExperiencesQuery();
   const experiences = [];
@@ -137,21 +70,11 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   }
   return experiences;
 }
-// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
-// Used in Adventurer.jsx
-// ----- Get filtered restaurants ------
-router.get('/restaurants', async (req, res) => {
-  // Get active UsersPreferences IDs (array)
-  const userPreference = await UserPreferencesIDsQuery(req.headers.username);
-  // Get active UsersPreferences IDs (array)
-  const allFeedbackInfo = await AllFeedbackInfoQuery();
-  // Find all reviews of a user X
-  const userReviews = await UserReviewsQuery(req.headers.username);
-  // Contains the information of the distance from the db
-  const distanceFeedback = allFeedbackInfo.find((feedback) => feedback.displayText === 'Distance')
+// ------- Find distance by user or set default value -------
+function determineDistance(userPreference, distanceFeedback) {
   // Change meters to km in case distance is not defined by user
   let distance = distanceFeedback.defaultValue * 1000;
-  // Get distance value by the user or by default in the database
+  // Get distance value by the user if existing
   if (userPreference.activePreferences.includes(distanceFeedback.objectId)) {
     let index = userPreference.activePreferences.indexOf(
       distanceFeedback.objectId,
@@ -165,6 +88,21 @@ router.get('/restaurants', async (req, res) => {
     userPreference.hasMinimumValue.splice(index, 1);
     userPreference.minValues.splice(index, 1);
   }
+  return { userPreference, distance }
+}
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get filtered restaurants ------
+// Used in Adventurer.jsx so that the adventurerContext can provide all restaurants information
+router.get('/restaurants', async (req, res) => {
+  // Get active UsersPreferences from db
+  const registeredUserPreference = await UserPreferencesQuery(req.headers.username);
+  const allFeedbackInfo = await AllFeedbackInfoQuery();
+  // Find all reviews of a user X
+  const userReviews = await UserReviewsQuery(req.headers.username);
+  // Contains the information of the distance from the db
+  const distanceFeedback = allFeedbackInfo.find((feedback) => feedback.displayText === 'Distance')
+  // Find working distance and remove it from userPreference if exists (will be processed differently)
+  const { userPreference, distance } = (determineDistance(registeredUserPreference, distanceFeedback));
   // Get restaurants from Google (limiting distance)
   const googleRestaurants = await getGoogleRestaurants(
     distance,
@@ -186,41 +124,33 @@ router.get('/restaurants', async (req, res) => {
   res.send(restaurants).status(200);
 });
 
-
-
-// NOT LONGER REQUIRED IF UserPreferencesIDsQuery work
-// Find an user's preference
-async function preferenceQuery(username) {
-  const query = new Parse.Query('UserPreference');
-  query.equalTo('username', username);
-  const currentPreference = await query.first();
-  return currentPreference.toJSON();
-}
-
-
-
+/* 
+----------------------------------------------------
+            NOT CHANGE YET !!!
+----------------------------------------------------
+*/
 
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.prioritize);
 });
 
 // ----- Get active user's preferences IDs -----
 router.post('/preferences/active', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.activePreferences);
 });
 
 // ----- Get active preferences' minimum values -----
 router.post('/preferences/active/values', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.minValues);
 });
 
 // ----- Get validation for minimum values -----
 router.post('/preferences/active/hasMinimum', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.hasMinimumValue);
 });
 
@@ -235,7 +165,7 @@ router.post('/preferences/all', async (req, res) => {
 // ----- Get all inactive preferences IDS -----
 router.post('/preferences/inactive', async (req, res) => {
   // Find current preferences
-  let userPreferences = await preferenceQuery(req.body.username);
+  let userPreferences = await UserPreferencesQuery(req.body.username);
   if (userPreferences != null) {
     let activePreferences = [];
     activePreferences = userPreferences.activePreferences;
