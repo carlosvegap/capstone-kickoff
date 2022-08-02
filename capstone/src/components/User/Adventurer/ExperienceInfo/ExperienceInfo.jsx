@@ -15,11 +15,6 @@ import RateExperience from './RateExperience';
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const baseURL = process.env.REACT_APP_BASE_URL;
 
-// async function getIsRated(username, experienceId) {
-//   const values = { username, experienceId };
-//   return axios.post(`${baseURL}/review/isRated`, values);
-// }
-
 async function submitRate(username, experienceId, reviews) {
   const values = { username, experienceId, reviews };
   return axios.post(`${baseURL}/review/rate`, values);
@@ -29,23 +24,13 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
-// async function getActiveFeedback(experienceId) {
-//   if (experienceId) {
-//     const values = { experienceId };
-//     return axios.post(`${baseURL}/review/active/info`, values);
-//   }
-//   return false;
-// }
-
 export default function ExperienceInfo({ restaurants, onSubmit }) {
   const { username } = useContext(UserContext);
   const [indexRestaurant, setIndexRestaurant] = useState(0);
-  // const [activeFeedback, setActiveFeedback] = useState([]);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
   const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   const isRated = currentRestaurant?.review != null;
-  // const [isRated, setIsRated] = useState(false);
 
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
@@ -68,22 +53,6 @@ export default function ExperienceInfo({ restaurants, onSubmit }) {
       setNewReview(resetRatingForm);
     }
   }, [currentRestaurant, setNewReview]);
-  // get active feedback information
-  // useEffect(() => {
-  //   if (currentRestaurant) {
-  //     Promise.all([
-  //       getActiveFeedback(currentRestaurant.place_id),
-  //       getIsRated(username, currentRestaurant.place_id),
-  //     ]).then(([feedbackRes, ratedRes]) => {
-  //       setActiveFeedback(feedbackRes.data);
-  //       const rated = ratedRes.data;
-  //       setIsRated(rated);
-  //       if (!rated) {
-  //         setNewReview(resetRatingForm);
-  //       }
-  //     });
-  //   }
-  // }, [setActiveFeedback, currentRestaurant, username, setIsRated]);
 
   function onNewReviewChange(feedbackId, input, value) {
     const array = newReview.map((review) => {
@@ -165,6 +134,7 @@ export default function ExperienceInfo({ restaurants, onSubmit }) {
           {!isRated ? (
             <RateExperience
               name={currentRestaurant.name}
+              // TODO: Requires all information of the activeFeedback.
               feedbackAreas={currentRestaurant.activeFeedback}
               onChange={onNewReviewChange}
               onReset={resetRatingForm}
