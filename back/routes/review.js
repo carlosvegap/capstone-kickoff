@@ -89,7 +89,7 @@ router.post('/active/info', async(req, res) => {
   const activeFeedbackInfo = activeFeedbackIDs.map((idActive) => 
     allFeedback.find((feedback) => 
       feedback.toJSON().objectId === idActive
-    )
+    ).toJSON()
   )
   res.status(200).send(activeFeedbackInfo);
 })
