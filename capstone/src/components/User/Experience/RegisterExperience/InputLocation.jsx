@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Input } from '@chakra-ui/react';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import { useLoadScript } from '@react-google-maps/api';
 
 const libraries = ['places'];
@@ -27,7 +30,10 @@ export default function InputLocation({ address, placeholder, onSelect }) {
           onSelect={onChooseAddress}
         >
           {({
-            getInputProps, suggestions, getSuggestionItemProps, loading,
+            getInputProps,
+            suggestions,
+            getSuggestionItemProps,
+            loading,
           }) => (
             <div>
               <Input
@@ -45,7 +51,7 @@ export default function InputLocation({ address, placeholder, onSelect }) {
                     : { backgroundColor: '#ffffff', cursor: 'pointer' };
                   return (
                     <div {...getSuggestionItemProps(suggestion, { style })}>
-                      { suggestion.description }
+                      {suggestion.description}
                     </div>
                   );
                 })}

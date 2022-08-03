@@ -1,4 +1,3 @@
-import './App.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Routes } from 'react-router';
@@ -28,8 +27,7 @@ export default function App() {
   // runs on first load and anytime something changes
   useEffect(() => {
     if (isLoggedIn) {
-      getUserInfo(getCurrentUserID())
-        .then((res) => setUserData(res.data));
+      getUserInfo(getCurrentUserID()).then((res) => setUserData(res.data));
     } else {
       setUserData({});
     }
@@ -48,15 +46,25 @@ export default function App() {
                       isLoggedIn={isLoggedIn}
                       setIsLoggedIn={setIsLoggedIn}
                     />
-                    )}
+                  )}
                 />
                 <Route
                   path="/adventurer/:page"
-                  element={<Adventurer isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                  element={(
+                    <Adventurer
+                      isLoggedIn={isLoggedIn}
+                      setIsLoggedIn={setIsLoggedIn}
+                    />
+                  )}
                 />
                 <Route
                   path="/experience/:page"
-                  element={<Experience isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                  element={(
+                    <Experience
+                      isLoggedIn={isLoggedIn}
+                      setIsLoggedIn={setIsLoggedIn}
+                    />
+                  )}
                 />
                 {/* <Route path="*" element={<NotFound/>} /> */}
               </Routes>

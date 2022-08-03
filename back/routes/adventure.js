@@ -26,23 +26,21 @@ async function getGoogleRestaurants(radius, lat, lng) {
 
 // ----- format to match google api values with database restaurants values -----
 function formatRestaurantForGoogleAPI(restaurant) {
-  return (
-    {
-      name: restaurant.name,
-      formatted_address: restaurant.address,
-      geometry: {
-        location: {
-          lat: restaurant.lat,
-          lng: restaurant.lng,
-        }
+  return {
+    name: restaurant.name,
+    formatted_address: restaurant.address,
+    geometry: {
+      location: {
+        lat: restaurant.lat,
+        lng: restaurant.lng,
       },
-      place_id: restaurant.objectId,
-      description: restaurant.description,
-      username: restaurant.username,
-      email: restaurant.email,
-      activeFeedback: restaurant.activeFeedback,
-    }
-  )
+    },
+    place_id: restaurant.objectId,
+    description: restaurant.description,
+    username: restaurant.username,
+    email: restaurant.email,
+    activeFeedback: restaurant.activeFeedback,
+  };
 }
 
 // ----- Get back4app restaurants -----
@@ -50,19 +48,24 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   const allExperiences = await new Parse.Query('Experience').find();
   const experiences = [];
   for (const exp of allExperiences) {
-    const experience = exp.toJSON()
+    const experience = exp.toJSON();
     var config = {
       method: 'get',
-      url: encodeURI(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLng}&destinations=${experience.lat},${experience.lng}&key=${googleKey}`),
-      headers: { }
+      url: encodeURI(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLng}&destinations=${experience.lat},${experience.lng}&key=${googleKey}`,
+      ),
+      headers: {},
     };
     await axios(config).then((response) => {
       if (response.data.rows[0].elements[0].distance.value <= distance) {
-        experiences.push({...experience, distance: response.data.rows[0].elements[0].distance.value})
-      } 
-    })
+        experiences.push({
+          ...experience,
+          distance: response.data.rows[0].elements[0].distance.value,
+        });
+      }
+    });
   }
-  return (experiences);
+  return experiences;
 }
 
 // Find an user's preference
@@ -98,8 +101,8 @@ If it passes the threshold and the user wants priorization:
   - It assigns lineally more points to the first preference
 RETURNS: A list of Restaurants objects, including a matchScore if priorization wanted
 */
-async function filterAndRank(userPreference, allRestaurants ) {
-  const priority = userPreference.prioritize
+async function filterAndRank(userPreference, allRestaurants) {
+  const priority = userPreference.prioritize;
   const restaurants = [];
   for (const restaurant of allRestaurants) {
     let score = 0;
@@ -109,10 +112,18 @@ async function filterAndRank(userPreference, allRestaurants ) {
       const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
       // Find the matching score if the user has priorities
       if (priority) {
-        const feedbackMaxValue = await new Parse.Query('Preference').equalTo('objectId', preferenceID).select('maxValue').first();
-        score += ( meanReviewScore / feedbackMaxValue.toJSON().maxValue ) * ( userPreference.activePreferences.length - indexPreference )
+        const feedbackMaxValue = await new Parse.Query('Preference')
+          .equalTo('objectId', preferenceID)
+          .select('maxValue')
+          .first();
+        score +=
+          (meanReviewScore / feedbackMaxValue.toJSON().maxValue) *
+          (userPreference.activePreferences.length - indexPreference);
       }
-      if (userPreference.hasMinimumValue[indexPreference] && userPreference.minValues[indexPreference] > meanReviewScore) {
+      if (
+        userPreference.hasMinimumValue[indexPreference] &&
+        userPreference.minValues[indexPreference] > meanReviewScore
+      ) {
         passesFilter = false;
         break;
       }
@@ -121,13 +132,13 @@ async function filterAndRank(userPreference, allRestaurants ) {
       restaurants.push({
         ...restaurant,
         matchScore: priority ? score : undefined,
-      })
+      });
     }
   }
   if (priority) {
     restaurants.sort((a, b) => {
       return b.matchScore - a.matchScore;
-    })
+    });
   }
   return restaurants;
 }
@@ -137,21 +148,28 @@ router.post('/restaurants', async (req, res) => {
   const userPreference = await preferenceQuery(req.body.username);
 
   // Contains the information of the distance from the db
-  const distanceFeedback = (await new Parse.Query('Preference').equalTo('displayText', "Distance").first()).toJSON();
-  
+  const distanceFeedback = (
+    await new Parse.Query('Preference')
+      .equalTo('displayText', 'Distance')
+      .first()
+  ).toJSON();
+
   // Change meters to km in case distance is not defined by user
   let distance = distanceFeedback.defaultValue * 1000;
   // Get distance value by the user or by default in the database
   if (userPreference.activePreferences.includes(distanceFeedback.objectId)) {
-    let index = userPreference.activePreferences.indexOf(distanceFeedback.objectId)
+    let index = userPreference.activePreferences.indexOf(
+      distanceFeedback.objectId,
+    );
     // Match km from UI options to meters in Google's API request
-    if (userPreference.hasMinimumValue[index]) distance = userPreference.minValues[index] * 1000;
+    if (userPreference.hasMinimumValue[index])
+      distance = userPreference.minValues[index] * 1000;
     // Delete distance from userPreferences (handled by Google Maps and by our database)
     // The database records minValue even if it is not active (so if user turns it on, it goes back to that)
-    (userPreference.activePreferences).splice(index, 1);
-    (userPreference.hasMinimumValue).splice(index, 1);
-    (userPreference.minValues).splice(index, 1);
-  } 
+    userPreference.activePreferences.splice(index, 1);
+    userPreference.hasMinimumValue.splice(index, 1);
+    userPreference.minValues.splice(index, 1);
+  }
 
   // Get restaurants from Google (limiting distance)
   const googleRestaurants = await getGoogleRestaurants(
@@ -160,10 +178,16 @@ router.post('/restaurants', async (req, res) => {
     req.body.lng,
   );
   // Get restaurants from our records (limiting distance)
-  let databaseRestaurants = await getDatabaseRestaurants(distance, req.body.lat, req.body.lng);
-  databaseRestaurants = databaseRestaurants.map((restaurant) => formatRestaurantForGoogleAPI(restaurant));
+  let databaseRestaurants = await getDatabaseRestaurants(
+    distance,
+    req.body.lat,
+    req.body.lng,
+  );
+  databaseRestaurants = databaseRestaurants.map((restaurant) =>
+    formatRestaurantForGoogleAPI(restaurant),
+  );
 
-  const allRestaurants = googleRestaurants.concat(databaseRestaurants)
+  const allRestaurants = googleRestaurants.concat(databaseRestaurants);
 
   // Calculate final restaurants
   const restaurants = await filterAndRank(userPreference, allRestaurants);

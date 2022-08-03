@@ -138,7 +138,11 @@ export default function ExperienceInfo({ restaurants }) {
           borderRadius="30px"
           alt="restaurant photo"
         />
-        {currentRestaurant.matchScore ? <Badge colorScheme="purple">{currentRestaurant.matchScore.toFixed(2)} match points</Badge> : null}
+        {currentRestaurant.matchScore ? (
+          <Badge colorScheme="purple">
+            {currentRestaurant.matchScore.toFixed(2)} match points
+          </Badge>
+        ) : null}
         <HStack justifyContent="center">
           <Button onClick={onPrevious} isDisabled={indexRestaurant === 0}>
             Previous

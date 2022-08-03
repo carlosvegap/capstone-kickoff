@@ -1,6 +1,7 @@
-import './Map.css';
 import { useContext, useState, Fragment } from 'react';
-import { VStack, Spinner, Heading, Box, Text } from '@chakra-ui/react';
+import {
+  VStack, Spinner, Heading, Box, Text,
+} from '@chakra-ui/react';
 import {
   useLoadScript,
   GoogleMap,
@@ -10,8 +11,7 @@ import {
 import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
 export default function Map() {
-  const { currentPosition, isDataFetched, restaurants } =
-    useContext(AdventurerContext);
+  const { currentPosition, isDataFetched, restaurants } = useContext(AdventurerContext);
 
   const [activeRestaurant, setActiveRestaurant] = useState(null);
   // TODO: change center
@@ -38,7 +38,13 @@ export default function Map() {
     <GoogleMap
       center={currentPosition}
       zoom={14}
-      mapContainerClassName="mapContainer"
+      mapContainerStyle={{
+        width: '80%',
+        height: '400px',
+        marginTop: '10px',
+        marginLeft: '10%',
+        borderRadius: '20px',
+      }}
       options={{
         mapTypeControl: false,
         streetViewControl: false,

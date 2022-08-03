@@ -1,5 +1,14 @@
 import {
-  Box, Heading, FormControl, FormLabel, Input, Textarea, ButtonGroup, Button, Badge, useToast,
+  Box,
+  Heading,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  ButtonGroup,
+  Button,
+  Badge,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext } from 'react';
@@ -21,7 +30,10 @@ async function submitExperience(formValues, username) {
   return axios.post(`${baseURL}/experience/submit`, values);
 }
 
-export default function RegisterExperience({ experienceValues, setExperienceValues }) {
+export default function RegisterExperience({
+  experienceValues,
+  setExperienceValues,
+}) {
   const { username } = useContext(UserContext);
   // const [experienceValues, setExperienceValues] = useState(experienceData);
   const [error, setError] = useState({
@@ -32,20 +44,47 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
 
   const fields = [
     {
-      id: 'name', value: experienceValues.name, displayText: 'Name', placeholder: 'Your amazing business', isRequired: true, type: 'text', error: error.name,
+      id: 'name',
+      value: experienceValues.name,
+      displayText: 'Name',
+      placeholder: 'Your amazing business',
+      isRequired: true,
+      type: 'text',
+      error: error.name,
     },
     {
-      id: 'address', value: experienceValues.address, displayText: 'Business Address', placeholder: '123 Stewart Drive', isRequired: true, type: 'address', error: error.address,
+      id: 'address',
+      value: experienceValues.address,
+      displayText: 'Business Address',
+      placeholder: '123 Stewart Drive',
+      isRequired: true,
+      type: 'address',
+      error: error.address,
     },
     {
-      id: 'email', value: experienceValues.email, displayText: 'Email', placeholder: 'yourbusiness@ext.org', isRequired: true, type: 'text', error: error.email,
+      id: 'email',
+      value: experienceValues.email,
+      displayText: 'Email',
+      placeholder: 'yourbusiness@ext.org',
+      isRequired: true,
+      type: 'text',
+      error: error.email,
     },
     {
-      id: 'description', value: experienceValues.description, displayText: 'Description', placeholder: 'Let people know your value in here!', isRequired: false, type: 'textArea', error: error.description,
+      id: 'description',
+      value: experienceValues.description,
+      displayText: 'Description',
+      placeholder: 'Let people know your value in here!',
+      isRequired: false,
+      type: 'textArea',
+      error: error.description,
     },
   ];
   function onRegistryChange(inputName, value) {
-    setExperienceValues((experienceValues) => ({ ...experienceValues, [inputName]: value }));
+    setExperienceValues((experienceValues) => ({
+      ...experienceValues,
+      [inputName]: value,
+    }));
     setError({ ...error, [inputName]: '' });
   }
 
@@ -56,7 +95,7 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
     let hasError = false;
     Object.keys(form).map((key) => {
       if (key === 'email') {
-        if (!(validateEmail(form[key]))) {
+        if (!validateEmail(form[key])) {
           setError({ ...error, [key]: 'Not a valid email' });
           hasError = true;
         }
@@ -65,7 +104,7 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
           setError({ ...error, address: 'Not a valid address' });
           hasError = true;
         }
-      } else if (!(form[key]) && key !== 'description') {
+      } else if (!form[key] && key !== 'description') {
         setError({ ...error, [key]: `Not a valid ${key}` });
         hasError = true;
       }
@@ -88,31 +127,42 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
     }
   }
   return (
-    <Box width="50%" p="30px" bg="gray.100" display="flex" flexDirection="column" justifyContent="center">
+    <Box
+      width="50%"
+      p="30px"
+      bg="gray.100"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
       <Heading as="h2" mb="20px" mt="10px" textAlign="center">
         Let the world find your talent
       </Heading>
       <Box width="70%" ml="15%">
         {fields.map((inputField) => (
-          <FormControl isRequired={inputField.isRequired} key={inputField.id} p="0px 20px">
-            <FormLabel>
-              {inputField.displayText}
-            </FormLabel>
+          <FormControl
+            isRequired={inputField.isRequired}
+            key={inputField.id}
+            p="0px 20px"
+          >
+            <FormLabel>{inputField.displayText}</FormLabel>
             {inputField.type === 'text' && (
-            <Input
-              bg="white"
-              value={inputField.value}
-              placeholder={inputField.placeholder}
-              onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-            />
+              <Input
+                bg="white"
+                value={inputField.value}
+                placeholder={inputField.placeholder}
+                onChange={(e) =>
+                  onRegistryChange(inputField.id, e.target.value)}
+              />
             )}
             {inputField.type === 'textArea' && (
-            <Textarea
-              bg="white"
-              value={inputField.value}
-              placeholder={inputField.placeholder}
-              onChange={(e) => onRegistryChange(inputField.id, e.target.value)}
-            />
+              <Textarea
+                bg="white"
+                value={inputField.value}
+                placeholder={inputField.placeholder}
+                onChange={(e) =>
+                  onRegistryChange(inputField.id, e.target.value)}
+              />
             )}
             {inputField.type === 'address' && (
               <InputLocation
@@ -126,7 +176,13 @@ export default function RegisterExperience({ experienceValues, setExperienceValu
         ))}
       </Box>
       <ButtonGroup spacing="6" margin="auto">
-        <Button colorScheme="blue" variant="solid" onClick={() => onRegistrySubmission(experienceValues)}>Save</Button>
+        <Button
+          colorScheme="blue"
+          variant="solid"
+          onClick={() => onRegistrySubmission(experienceValues)}
+        >
+          Save
+        </Button>
       </ButtonGroup>
     </Box>
   );

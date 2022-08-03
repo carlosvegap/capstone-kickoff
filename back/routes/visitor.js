@@ -1,15 +1,14 @@
-require('dotenv/config')
+require('dotenv/config');
 var express = require('express');
-const {Parse} = require('./../parse')
+const { Parse } = require('./../parse');
 var router = express.Router();
 
 // Log In
 router.post('/logIn', async (req, res) => {
   if (req.body.username === '' || req.body.password === '') {
     res.status(400);
-    res.send( {error: {message: "Fill all fields"} });
-  }
-  else {
+    res.send({ error: { message: 'Fill all fields' } });
+  } else {
     try {
       const user = await Parse.User.logIn(req.body.username, req.body.password);
       res.send({ user });
@@ -22,10 +21,14 @@ router.post('/logIn', async (req, res) => {
 
 // Sign Up
 router.post('/signUp', async (req, res) => {
-  const hasAllFields = Object.keys(req.body).reduce( function (hasAllFields, inputKey) {
-    if (req.body[inputKey] === '') return false
-      return hasAllFields
-    }, true);
+  const hasAllFields = Object.keys(req.body).reduce(function (
+    hasAllFields,
+    inputKey,
+  ) {
+    if (req.body[inputKey] === '') return false;
+    return hasAllFields;
+  },
+  true);
   if (hasAllFields) {
     // Create User in Parse
     const user = new Parse.User(req.body);
@@ -39,31 +42,32 @@ router.post('/signUp', async (req, res) => {
       UserPreference.set('username', username);
       UserPreference.set('activePreferences', activePreferences);
       // Save user preferences (default) in Parse
-      await UserPreference.save();  
-    } 
+      await UserPreference.save();
+    }
     // Save user information in Parse
     await user.signUp();
     res.status(200).send({ user });
   } else {
-    res.status(400).send({ error: {message: 'Complete all fields to sign up'}})
+    res
+      .status(400)
+      .send({ error: { message: 'Complete all fields to sign up' } });
   }
 });
 
 // User information
 router.post('/user', async (req, res) => {
   if (Object.keys(req.body).length === 0) {
-    res.status(400)
-    res.send({error : {message: 'No objectId provided'}})
-  }
-  else {
+    res.status(400);
+    res.send({ error: { message: 'No objectId provided' } });
+  } else {
     try {
-      const query = new Parse.Query("User");
+      const query = new Parse.Query('User');
       query.get(req.body.objectId);
       const user = await query.find();
-      res.send(user[0])
-    } catch(error) {
-      res.status(400)
-      res.send(error)
+      res.send(user[0]);
+    } catch (error) {
+      res.status(400);
+      res.send(error);
     }
   }
 });

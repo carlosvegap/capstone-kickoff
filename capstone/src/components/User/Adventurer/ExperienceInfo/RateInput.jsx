@@ -28,8 +28,16 @@ export default function RateInput({
     onChange(id, 'score', sliderValue);
   }, [sliderValue]);
   return (
-    <Box mb="20px" p="16px 20px" boxShadow="md" bg="gray.300" borderRadius="10px">
-      <Heading as="h3" size="md" textAlign="center" mb="30px">{feedbackName}</Heading>
+    <Box
+      mb="20px"
+      p="16px 20px"
+      boxShadow="md"
+      bg="gray.300"
+      borderRadius="10px"
+    >
+      <Heading as="h3" size="md" textAlign="center" mb="30px">
+        {feedbackName}
+      </Heading>
       <Slider
         defaultValue={defaultValue}
         min={minValue}
@@ -59,7 +67,13 @@ export default function RateInput({
         </SliderTrack>
         <SliderThumb />
       </Slider>
-      <Input mt="20px" placeholder="Let us know more" bg="white" value={commentValue} onChange={(e) => setCommentValue(e.target.value)} />
+      <Input
+        mt="20px"
+        placeholder="Let us know more"
+        bg="white"
+        value={commentValue}
+        onChange={(e) => setCommentValue(e.target.value)}
+      />
     </Box>
   );
 }

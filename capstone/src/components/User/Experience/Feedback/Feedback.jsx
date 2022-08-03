@@ -1,5 +1,7 @@
 import { useContext } from 'react';
-import { Box, HStack, Badge, Button, Heading, VStack } from '@chakra-ui/react';
+import {
+  Box, HStack, Badge, Button, Heading, VStack,
+} from '@chakra-ui/react';
 import UserContext from '../../../../Contexts/UserContext';
 import useSettings from '../../useSettings';
 import SelectMenu from '../../SelectMenu';
@@ -8,8 +10,9 @@ import SettingsControls from '../../SettingsControls';
 export default function Feedback() {
   const { username, userType } = useContext(UserContext);
   if (username == null || userType == null) return <h2>Loading...</h2>;
-  const { activeInfo, inactiveInfo, onAdd, onDelete, onSubmission } =
-    useSettings(userType, username);
+  const {
+    activeInfo, inactiveInfo, onAdd, onDelete, onSubmission,
+  } = useSettings(userType, username);
   const hasMinFeedback = Object.keys(activeInfo).length >= 5;
   return (
     <Box justifyContent="center" width="50%" textAlign="center">
