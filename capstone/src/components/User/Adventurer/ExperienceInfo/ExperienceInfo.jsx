@@ -26,15 +26,20 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
-export default function ExperienceInfo({ onSubmit }) {
+export default function ExperienceInfo({ onUpdateRestaurants }) {
   const { username } = useContext(UserContext);
   const { restaurants } = useContext(AdventurerContext);
+  // All feedback information (including distance, which is not rateable)
   const feedbackInfo = useContext(FeedbackContext);
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
   const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
-  const isRated = currentRestaurant?.review != null;
+  // QUESTION: Why is it not responding to changes (derived state)
+  // currentRestaurant.review not updating
+  let isRated = currentRestaurant ? currentRestaurant.review != null : false;
+  console.log(currentRestaurant);
+  console.log(isRated);
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
   const feedbackAreas = feedbackInfo?.filter((feedback) =>
@@ -46,9 +51,9 @@ export default function ExperienceInfo({ onSubmit }) {
     : null;
 
   function resetRatingForm() {
-    if (currentRestaurant?.activeFeedback) {
-      return currentRestaurant.activeFeedback.map((feedbackId) => ({
-        feedbackId,
+    if (feedbackAreas.length > 0) {
+      return feedbackAreas.map((feedback) => ({
+        feedbackId: feedback.objectId,
         score: 0,
         comment: '',
       }));
@@ -57,7 +62,7 @@ export default function ExperienceInfo({ onSubmit }) {
   }
 
   useEffect(() => {
-    if (isRated) {
+    if (!isRated) {
       setNewReview(resetRatingForm);
     }
   }, [currentRestaurant, setNewReview]);
@@ -91,7 +96,8 @@ export default function ExperienceInfo({ onSubmit }) {
   function onSubmission() {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
       if (res.data) {
-        onSubmit([...restaurants, { ...currentRestaurant, review: newReview }]);
+        isRated = true;
+        onUpdateRestaurants([...restaurants, { ...currentRestaurant, review: newReview }]);
         return toast({
           title: 'Successfully rated',
           description: 'Thanks for rating!',

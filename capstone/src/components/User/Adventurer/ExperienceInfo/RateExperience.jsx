@@ -49,7 +49,14 @@ export default function RateExperience({
           ))}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onSubmit}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={() => {
+              onSubmit();
+              onClose();
+            }}
+          >
             Submit
           </Button>
           <Button
