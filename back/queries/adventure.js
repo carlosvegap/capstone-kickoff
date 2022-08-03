@@ -68,9 +68,30 @@ async function RateQuery(reviews, username, experienceId) {
   return hasError;
 }
 
+// Update preferences query
+// Used by routes/adventure/preferences/update
+async function UpdatePreferenceQuery(username, prioritize, activeIDs, minValues, hasMinValues) {
+    // Find objectId of the current userPreference entry
+    const objectId = (await new Parse.Query('UserPreference').equalTo('username', username).first()).toJSON().objectId
+    // Update information for that user
+    try {
+      await new Parse.Object('UserPreference')
+      .set('objectId', objectId)
+      .set('prioritize', prioritize)
+      .set('activePreferences', activeIDs)
+      .set('minValues', minValues)
+      .set('hasMinimumValue', hasMinValues)
+      .save();
+      return true;
+    } catch (error) {
+      return false;
+    }
+}
+
 exports.ExperienceReviewsQuery = ExperienceReviewsQuery;
 exports.UserPreferencesQuery = UserPreferencesQuery;
 exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.UserReviewsQuery = UserReviewsQuery;
 exports.ExperiencesQuery = ExperiencesQuery;
 exports.RateQuery = RateQuery;
+exports.UpdatePreferenceQuery = UpdatePreferenceQuery
