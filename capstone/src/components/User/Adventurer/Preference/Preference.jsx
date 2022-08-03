@@ -12,14 +12,16 @@ import { useContext } from 'react';
 import FilterArea from './FilterArea/FilterArea';
 import SelectMenu from '../../SelectMenu';
 import UserContext from '../../../../Contexts/UserContext';
+import FeedbackContext from '../../../../Contexts/FeedbackContext';
 import useSettings from '../../useSettings';
 
 export default function Preference() {
   const { username, userType } = useContext(UserContext);
+  const feedbackInfo = useContext(FeedbackContext);
   if (username == null || userType == null) return <h2>Loading...</h2>;
   const {
-    activeInfo,
-    inactiveInfo,
+    activeIDs,
+    inactiveIDs,
     onSwitchChange,
     prioritize,
     onAdd,
@@ -30,6 +32,15 @@ export default function Preference() {
     onChangeHasMinValue,
     onChangeMinValue,
   } = useSettings(userType, username);
+  if (!feedbackInfo) return <h2>Loading</h2>;
+  // Find the information of the active and inactive IDs
+  // Map function so it respects the order it is in
+  const activeInfo = activeIDs.map((ID) =>
+    feedbackInfo.find((feedback) => ID === feedback.objectId),
+  );
+  const inactiveInfo = feedbackInfo.filter((feedback) =>
+    inactiveIDs.includes(feedback.objectId),
+  );
   return (
     <HStack>
       <Box bg="gray.100" width="50%">

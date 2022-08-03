@@ -19,14 +19,11 @@ function defineURL(userType) {
   return URL;
 }
 
-async function getInactiveIDs(username, URL) {
-  const values = { username };
-  return axios.post(URL.inactive, values);
-}
-
-async function getActiveIDs(username, URL) {
-  const values = { username };
-  return axios.post(URL.active, values);
+// TODO: Adapt URL when work done with Experience's back
+async function getPreferenceStatusIDs(username, URL) {
+  return axios.get(`${baseURL}/adventure/preferences/status`, {
+    headers: { username },
+  });
 }
 
 // ONLY FOR ADVENTURER
@@ -39,11 +36,6 @@ async function getActiveMinValues(username) {
 async function getBoolMinValues(username) {
   const values = { username };
   return axios.post(`${baseURL}${preferenceBaseURL}/active/hasMinimum`, values);
-}
-
-async function getInfo(IDs, URL) {
-  const values = { IDs };
-  return axios.post(URL.info, values);
 }
 
 async function update(form, URL) {
@@ -78,25 +70,21 @@ export default function useSettings(userType, username) {
   // get all active/inactive IDs
   useEffect(() => {
     if (username != null) {
-      getActiveIDs(username, URL).then((res) =>
-        setActiveIDs(res.data),
-      );
-      getInactiveIDs(username, URL).then((res) =>
-        setInactiveIDs(res.data),
-      );
+      getPreferenceStatusIDs(username, URL).then((res) => {
+        setActiveIDs(res.data.active);
+        setInactiveIDs(res.data.inactive);
+      });
       // ONLY FOR ADVENTURER
-      getPriorization(username, userType).then((res) =>
-        setPrioritize(res.data),
-      );
       if (isAdventurer) {
+        getPriorization(username, userType).then((res) =>
+          setPrioritize(res.data),
+        );
         // ONLY FOR ADVENTURER
         getActiveMinValues(username).then((res) =>
           setMinPreferenceValues(res.data),
         );
         // ONLY FOR ADVENTURER
-        getBoolMinValues(username).then((res) =>
-          setHasMinValues(res.data),
-        );
+        getBoolMinValues(username).then((res) => setHasMinValues(res.data));
       }
     }
   }, [
@@ -107,16 +95,6 @@ export default function useSettings(userType, username) {
     setMinPreferenceValues,
     setHasMinValues,
   ]);
-
-  const [activeInfo, setActiveInfo] = useState([]);
-  const [inactiveInfo, setInactiveInfo] = useState([]);
-  // get information from the IDs
-  useEffect(() => {
-    getInfo(activeIDs, URL).then((res) => setActiveInfo(res.data));
-  }, [activeIDs, setActiveInfo]);
-  useEffect(() => {
-    getInfo(inactiveIDs, URL).then((res) => setInactiveInfo(res.data));
-  }, [inactiveIDs, setInactiveInfo]);
 
   // HANDLERS
   function onAdd(id) {
@@ -196,7 +174,8 @@ export default function useSettings(userType, username) {
           activeIDs,
           minValues: minPreferenceValues,
           hasMinValues,
-        }, URL,
+        },
+        URL,
       ).then((res) => submissionMessage(res.data));
     } else {
       update({ username, activeIDs }, URL).then((res) =>
@@ -206,8 +185,8 @@ export default function useSettings(userType, username) {
   }
   if (isAdventurer) {
     return {
-      activeInfo,
-      inactiveInfo,
+      activeIDs,
+      inactiveIDs,
       onSwitchChange,
       prioritize,
       onAdd,
@@ -219,9 +198,10 @@ export default function useSettings(userType, username) {
       onChangeMinValue,
     };
   }
+  // TODO: Go over experience part consumer of the useSettings and fix the activeInfo part
   return {
-    activeInfo,
-    inactiveInfo,
+    activeIDs,
+    inactiveIDs,
     onAdd,
     onDelete,
     onSubmission,
