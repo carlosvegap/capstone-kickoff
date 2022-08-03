@@ -19,7 +19,6 @@ async function GeneralSignUpQuery(userForm) {
     await new Parse.User(userForm).signUp();
     return true;
   } catch (error) {
-    console.log(error);
     return { error: { message: error.message } };
   }
 }
