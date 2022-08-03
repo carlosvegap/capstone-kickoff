@@ -187,19 +187,11 @@ router.post('/rate', async (req, res) => {
   res.status(200).send(hasError);
 });
 
-/* 
-    
-----------------------------------------------------
-            NOT CHANGE YET !!!
-----------------------------------------------------
-*/
-
-// TODO: Refactor code. This still works this way
 // ----- Update user's preferences ------
 router.post('/preferences/update', async (req, res) => {
   // Find objectId of the current user preference
   const findQuery = new Parse.Query('UserPreference');
-  findQuery.equalTo('username', req.body.username);
+  findQuery.equalTo('username', req.headers.username);
   let objectId = null;
   let currentPreferences = await findQuery.first();
   objectId = currentPreferences.toJSON().objectId;
@@ -219,6 +211,13 @@ router.post('/preferences/update', async (req, res) => {
     res.send(false).status(400);
   }
 });
+
+/* 
+    
+----------------------------------------------------
+            NOT CHANGE YET !!!
+----------------------------------------------------
+*/
 
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async (req, res) => {
