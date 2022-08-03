@@ -5,6 +5,7 @@ const {
   AllFeedbackInfoQuery,
   UserReviewsQuery,
   ExperiencesQuery,
+  RateQuery,
 } = require('../queries/adventure');
 const { filterAndRank } = require('../functions/adventure');
 var express = require('express');
@@ -164,11 +165,32 @@ router.get('/preferences/status', async (req, res) => {
     const inactivePreferences = allFeedback.filter(
       (feedback) => !activePreferencesIDs.includes(feedback.objectId),
     );
-    const inactivePreferencesIDs = inactivePreferences.map((preference) => preference.objectId)
-    res.status(200).send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+    const inactivePreferencesIDs = inactivePreferences.map(
+      (preference) => preference.objectId,
+    );
+    res
+      .status(200)
+      .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
   } else {
-    res.status(400).send({ error : { message: "No existing preferences record for that user" }})
+    res
+      .status(400)
+      .send({
+        error: { message: 'No existing preferences record for that user' },
+      });
   }
+});
+
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Submit a review ------
+// Used in ExperienceInfo.jsx
+// Returns a bool with submission status
+router.post('/rate', async (req, res) => {
+  const hasError = RateQuery(
+    req.body.reviews,
+    req.headers.username,
+    req.headers.experienceid,
+  );
+  res.status(200).send(hasError);
 });
 
 /* 
@@ -266,7 +288,5 @@ router.post('/preferences/info', async (req, res) => {
   res.status(200);
   res.send(preferenceInformationJSON);
 });
-
-
 
 module.exports = router;

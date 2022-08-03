@@ -46,8 +46,31 @@ async function ExperiencesQuery() {
   );
 }
 
+// Submit a review by an adventurer and return success or fail
+// Used by /routes/adventure/rate
+async function RateQuery(reviews, username, experienceId) {
+  let hasError = false;
+  await Promise.all(
+    reviews.map(async (review) => {
+      const newReview = new Parse.Object('Review');
+      newReview.set('feedbackId', review.feedbackId);
+      newReview.set('adventurerUsername', username);
+      newReview.set('experienceId', experienceId);
+      newReview.set('score', review.score);
+      newReview.set('comment', review.comment);
+      try {
+        await newReview.save();
+      } catch (err) {
+        hasError = true;
+      }
+    }),
+  );
+  return hasError;
+}
+
 exports.ExperienceReviewsQuery = ExperienceReviewsQuery;
 exports.UserPreferencesQuery = UserPreferencesQuery;
 exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.UserReviewsQuery = UserReviewsQuery;
 exports.ExperiencesQuery = ExperiencesQuery;
+exports.RateQuery = RateQuery;

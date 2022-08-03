@@ -18,8 +18,11 @@ const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const baseURL = process.env.REACT_APP_BASE_URL;
 
 async function submitRate(username, experienceId, reviews) {
-  const values = { username, experienceId, reviews };
-  return axios.post(`${baseURL}/review/rate`, values);
+  return axios.post(
+    `${baseURL}/adventure/rate`,
+    { reviews },
+    { headers: { username, experienceId } },
+  );
 }
 
 function getPhotoReference(restaurant) {
@@ -36,14 +39,15 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   // Get the restaurant viewing now
   const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   // QUESTION: Why is it not responding to changes (derived state)
-  // currentRestaurant.review not updating
-  let isRated = currentRestaurant ? currentRestaurant.review != null : false;
-  console.log(currentRestaurant);
-  console.log(isRated);
+  // currentRestaurant.review not updated by setter. Queued. Till when will it be triggered?
+  // Thinking about not a derived state but another independent state for manipulation
+  const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
-  const feedbackAreas = feedbackInfo?.filter((feedback) =>
-    feedback.forExperience && currentRestaurant?.activeFeedback.includes(feedback.objectId),
+  const feedbackAreas = feedbackInfo?.filter(
+    (feedback) =>
+      feedback.forExperience &&
+      currentRestaurant?.activeFeedback.includes(feedback.objectId),
   );
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
@@ -96,8 +100,11 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   function onSubmission() {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
       if (res.data) {
-        isRated = true;
-        onUpdateRestaurants([...restaurants, { ...currentRestaurant, review: newReview }]);
+        // update value of Restaurants in the useContext
+        onUpdateRestaurants([
+          ...restaurants,
+          { ...currentRestaurant, review: newReview },
+        ]);
         return toast({
           title: 'Successfully rated',
           description: 'Thanks for rating!',
