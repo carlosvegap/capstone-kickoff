@@ -47,8 +47,8 @@ export default function ExperienceInfo({ onSubmit }) {
 
   function resetRatingForm() {
     if (currentRestaurant?.activeFeedback) {
-      return currentRestaurant.activeFeedback.map((feedback) => ({
-        feedbackId: feedback.objectId,
+      return currentRestaurant.activeFeedback.map((feedbackId) => ({
+        feedbackId,
         score: 0,
         comment: '',
       }));
@@ -57,7 +57,7 @@ export default function ExperienceInfo({ onSubmit }) {
   }
 
   useEffect(() => {
-    if (!isRated) {
+    if (isRated) {
       setNewReview(resetRatingForm);
     }
   }, [currentRestaurant, setNewReview]);
