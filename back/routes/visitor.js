@@ -1,52 +1,46 @@
 require('dotenv/config');
 var express = require('express');
-const { Parse } = require('./../parse');
+const {
+  UserDataQuery,
+  LoginQuery,
+  GeneralSignUpQuery,
+  InitializePreferencesQuery,
+} = require('../queries/visitor');
 var router = express.Router();
 
-// Log In
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// POST the user has loggedIn into Session Table
+// Used in Login.jsx to check information on db and return which kind of user is logging in (adventurer or experience maker)
 router.post('/logIn', async (req, res) => {
-  if (req.body.username === '' || req.body.password === '') {
-    res.status(400);
-    res.send({ error: { message: 'Fill all fields' } });
+  if (!req.headers.username || !req.headers.password) {
+    res.status(400).send({ error: { message: 'Fill all fields' } });
   } else {
-    try {
-      const user = await Parse.User.logIn(req.body.username, req.body.password);
-      res.send({ user });
-    } catch (error) {
-      res.status(400);
-      res.send({ error });
-    }
+    const user = await LoginQuery(req.headers.username, req.headers.password);
+    res.status(200).send({ user });
   }
 });
 
-// Sign Up
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// POST a new entry for the user table and
+//    if adventurer, also post default values in UserPreference table
+// Used in SignUp.jsx
 router.post('/signUp', async (req, res) => {
-  const hasAllFields = Object.keys(req.body).reduce(function (
-    hasAllFields,
-    inputKey,
-  ) {
-    if (req.body[inputKey] === '') return false;
-    return hasAllFields;
-  },
-  true);
+  // Check that all input fields != undefined/null/empty
+  const hasAllFields = Object.keys(req.body).every((inputKey) => {
+    return (req.body[inputKey]);
+  });
   if (hasAllFields) {
     // Create User in Parse
-    const user = new Parse.User(req.body);
-    // Create User Preferences (default) in Parse
-    const prioritize = false;
-    const username = req.body.username;
-    const activePreferences = [];
-    if (req.body.userType === 'adventurer') {
-      let UserPreference = new Parse.Object('UserPreference');
-      UserPreference.set('prioritize', prioritize);
-      UserPreference.set('username', username);
-      UserPreference.set('activePreferences', activePreferences);
-      // Save user preferences (default) in Parse
-      await UserPreference.save();
+    const submission = await GeneralSignUpQuery(req.body);
+    if (submission.error) {
+      res.status(400).send(submission);
+    } else {
+      // Create User Preferences for the adventurer
+      if (req.body.userType === 'adventurer') {
+        await InitializePreferencesQuery(req.body.username);
+      }
+      res.status(200).send(submission);
     }
-    // Save user information in Parse
-    await user.signUp();
-    res.status(200).send({ user });
   } else {
     res
       .status(400)
@@ -54,21 +48,16 @@ router.post('/signUp', async (req, res) => {
   }
 });
 
-// User information
-router.post('/user', async (req, res) => {
-  if (Object.keys(req.body).length === 0) {
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// GET all user information from DB by objectID from Headers
+// Used in App.jsx to feed the userContext
+router.get('/user', async (req, res) => {
+  if (!req.headers.objectid) {
     res.status(400);
-    res.send({ error: { message: 'No objectId provided' } });
+    res.send({ error: { message: 'No objectID provided' } });
   } else {
-    try {
-      const query = new Parse.Query('User');
-      query.get(req.body.objectId);
-      const user = await query.find();
-      res.send(user[0]);
-    } catch (error) {
-      res.status(400);
-      res.send(error);
-    }
+    const user = await UserDataQuery(req.headers.objectid);
+    res.send(user).status(200);
   }
 });
 
