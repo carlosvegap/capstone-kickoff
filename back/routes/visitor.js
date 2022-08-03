@@ -11,12 +11,21 @@ var router = express.Router();
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // POST the user has loggedIn into Session Table
 // Used in Login.jsx to check information on db and return which kind of user is logging in (adventurer or experience maker)
+// If there is an error, submission will inform that to the UI
 router.post('/logIn', async (req, res) => {
   if (!req.headers.username || !req.headers.password) {
     res.status(400).send({ error: { message: 'Fill all fields' } });
   } else {
-    const user = await LoginQuery(req.headers.username, req.headers.password);
-    res.status(200).send({ user });
+    const submission = await LoginQuery(
+      req.headers.username,
+      req.headers.password,
+    );
+    if (submission.error) {
+      res.status(400).send(submission);
+    } else {
+      // Sent as user to match UI format
+      res.status(200).send({user: submission});
+    }
   }
 });
 
@@ -27,7 +36,7 @@ router.post('/logIn', async (req, res) => {
 router.post('/signUp', async (req, res) => {
   // Check that all input fields != undefined/null/empty
   const hasAllFields = Object.keys(req.body).every((inputKey) => {
-    return (req.body[inputKey]);
+    return req.body[inputKey];
   });
   if (hasAllFields) {
     // Create User in Parse
