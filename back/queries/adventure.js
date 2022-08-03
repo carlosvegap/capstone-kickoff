@@ -11,7 +11,7 @@ async function ExperienceReviewsQuery(experienceID, feedbackID) {
 }
 
 // Get active UsersPreferences fields
-// Used by routes/adventure/restaurants
+// Used by routes/adventure/restaurants, routes/adventure/preferences/restrictions
 async function UserPreferencesQuery(username) {
   return (
     await new Parse.Query('UserPreference')
