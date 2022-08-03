@@ -7,7 +7,11 @@ async function UserDataQuery(objectID) {
 }
 
 async function LoginQuery(username, password) {
-  return await Parse.User.logIn(username, password);
+  try {
+    return await Parse.User.logIn(username, password);
+  } catch (error) {
+    return { error: { message: error.message } };
+  }
 }
 
 async function GeneralSignUpQuery(userForm) {
@@ -15,8 +19,8 @@ async function GeneralSignUpQuery(userForm) {
     await new Parse.User(userForm).signUp();
     return true;
   } catch (error) {
-    console.log(error)
-    return { error: { message: error.message }};
+    console.log(error);
+    return { error: { message: error.message } };
   }
 }
 
@@ -26,7 +30,8 @@ async function InitializePreferencesQuery(username) {
     .set('username', username)
     .set('activePreferences', [])
     .set('hasMinimumValue', [])
-    .set('minValues', []).save();
+    .set('minValues', [])
+    .save();
 }
 
 exports.UserDataQuery = UserDataQuery;
