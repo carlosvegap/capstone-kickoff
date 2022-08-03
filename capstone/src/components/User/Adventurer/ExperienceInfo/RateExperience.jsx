@@ -41,7 +41,7 @@ export default function RateExperience({
               id={feedback.objectId}
               minValue={feedback.minValue}
               maxValue={feedback.maxValue}
-              step={feedback.step}
+              step={feedback.stepRating}
               defaultValue={feedback.defaultValue}
               feedbackName={feedback.displayText}
               onChange={onChange}

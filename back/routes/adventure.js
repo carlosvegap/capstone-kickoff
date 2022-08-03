@@ -168,15 +168,9 @@ router.get('/preferences/status', async (req, res) => {
     const inactivePreferencesIDs = inactivePreferences.map(
       (preference) => preference.objectId,
     );
-    res
-      .status(200)
-      .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+    res.status(200).send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
   } else {
-    res
-      .status(400)
-      .send({
-        error: { message: 'No existing preferences record for that user' },
-      });
+    res.status(400).send({ error: { message: 'No existing preferences record for that user' }});
   }
 });
 

@@ -44,10 +44,8 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
-  const feedbackAreas = feedbackInfo?.filter(
-    (feedback) =>
-      feedback.forExperience &&
-      currentRestaurant?.activeFeedback.includes(feedback.objectId),
+  const feedbackAreas = feedbackInfo?.filter((feedback) =>
+    feedback.forExperience && currentRestaurant?.activeFeedback.includes(feedback.objectId),
   );
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
@@ -101,10 +99,7 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
       if (res.data) {
         // update value of Restaurants in the useContext
-        onUpdateRestaurants([
-          ...restaurants,
-          { ...currentRestaurant, review: newReview },
-        ]);
+        onUpdateRestaurants([...restaurants, { ...currentRestaurant, review: newReview }]);
         return toast({
           title: 'Successfully rated',
           description: 'Thanks for rating!',
