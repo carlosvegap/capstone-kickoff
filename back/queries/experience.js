@@ -9,11 +9,27 @@ async function AllFeedbackInfoQuery() {
 }
 
 // Get all records of an experience
-// Used by routes/experience/preferences/status
+// Used by 
+// -> routes/experience/preferences/status, 
+// -> routes/experience/preferences/update
 async function ExperienceInfoQuery(username) {
-  const experienceInfo = (await new Parse.Query('Experience').equalTo('username', username).first())
-  return experienceInfo.toJSON();
+  return (await new Parse.Query('Experience').equalTo('username', username).first()).toJSON();
+}
+
+// Update active preferences of an experience
+// Used by routes/experience/preferences/update
+async function UpdatePreferencesQuery(objectID, activeIDs) {
+  const updateQuery = new Parse.Object('Experience');
+  updateQuery.set('objectId', objectID);
+  updateQuery.set('activeFeedback', activeIDs);
+  try {
+    await updateQuery.save();
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.ExperienceInfoQuery = ExperienceInfoQuery;
+exports.UpdatePreferencesQuery = UpdatePreferencesQuery;
