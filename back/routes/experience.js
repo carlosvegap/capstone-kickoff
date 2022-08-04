@@ -1,6 +1,5 @@
 require('dotenv/config');
 var express = require('express');
-const { Parse } = require('./../parse');
 const {
   AllFeedbackInfoQuery,
   ExperienceInfoQuery,
