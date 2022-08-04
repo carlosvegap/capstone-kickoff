@@ -45,6 +45,13 @@ router.get('/preferences/status', async (req, res) => {
 });
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// ----- Get the information of an experience that user X owns -----
+router.get('/info', async (req, res) => {
+  const experienceInfo = await ExperienceInfoQuery(req.headers.username);
+  res.status(200).send(experienceInfo);
+});
+
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // ----- Submit feedback preferences to db -----
 router.post('/preferences/update', async (req, res) => {
   const objectId = (await ExperienceInfoQuery(req.headers.username)).objectId;
@@ -61,14 +68,6 @@ OLD VERSION
 ---------------------------
 ----------------------------
 */
-
-// ----- Get the experience the user owns -----
-router.post('/info', async (req, res) => {
-  const query = new Parse.Query('Experience');
-  query.equalTo('username', req.body.username);
-  const experienceInfo = await query.first();
-  res.status(200).send(experienceInfo);
-});
 
 // Submit experience information
 router.post('/submit', async (req, res) => {

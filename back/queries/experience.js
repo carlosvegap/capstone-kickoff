@@ -10,7 +10,8 @@ async function AllFeedbackInfoQuery() {
 
 // Get all records of an experience
 // Used by 
-// -> routes/experience/preferences/status, 
+// -> routes/experience/info
+// -> routes/experience/preferences/status
 // -> routes/experience/preferences/update
 async function ExperienceInfoQuery(username) {
   return (await new Parse.Query('Experience').equalTo('username', username).first()).toJSON();

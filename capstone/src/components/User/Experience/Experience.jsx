@@ -13,8 +13,7 @@ import FeedbackContext from '../../../Contexts/FeedbackContext';
 const baseURL = process.env.REACT_APP_BASE_URL;
 
 async function getExperienceInfo(username) {
-  const values = { username };
-  return axios.post(`${baseURL}/experience/info`, values);
+  return axios.get(`${baseURL}/experience/info`, { headers: { username } });
 }
 
 async function getAllFeedbackInfo() {
@@ -45,7 +44,11 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
           // If there are no values for a field
           // send to that page to promote submission.
           // Otherwise, just set values in state
-          if (Object.keys(expRes.data).every((experienceField) => !!experienceField)) {
+          if (
+            Object.keys(expRes.data).every(
+              (experienceFieldID) => !expRes.data[experienceFieldID],
+            )
+          ) {
             navigate('/experience/myExperience', { replace: true });
           } else {
             setExperienceData(expRes.data);
