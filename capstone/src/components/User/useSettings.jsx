@@ -20,7 +20,6 @@ function defineURL(userType) {
   return URL;
 }
 
-// TODO: Adapt URL when work done with Experience's back
 async function getPreferenceStatusIDs(username, URL) {
   return axios.get(URL.status, {
     headers: { username },
