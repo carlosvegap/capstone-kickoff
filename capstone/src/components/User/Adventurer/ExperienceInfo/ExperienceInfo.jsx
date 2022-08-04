@@ -38,9 +38,6 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
   const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
-  // QUESTION: Why is it not responding to changes (derived state)
-  // currentRestaurant.review not updated by setter. Queued. Till when will it be triggered?
-  // Thinking about not a derived state but another independent state for manipulation
   const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
@@ -67,7 +64,7 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
     if (!isRated) {
       setNewReview(resetRatingForm);
     }
-  }, [currentRestaurant, setNewReview]);
+  }, [currentRestaurant, setNewReview, isRated]);
 
   function onNewReviewChange(feedbackId, input, value) {
     const array = newReview.map((review) => {
@@ -98,8 +95,8 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   function onSubmission() {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
       if (res.data) {
-        // update value of Restaurants in the useContext
-        onUpdateRestaurants([...restaurants, { ...currentRestaurant, review: newReview }]);
+        restaurants[indexRestaurant] = { ...restaurants[indexRestaurant], review: newReview };
+        onUpdateRestaurants([...restaurants]);
         return toast({
           title: 'Successfully rated',
           description: 'Thanks for rating!',
