@@ -5,6 +5,7 @@ const {
   LoginQuery,
   GeneralSignUpQuery,
   InitializePreferencesQuery,
+  InitializeExperienceQuery,
 } = require('../queries/visitor');
 var router = express.Router();
 
@@ -38,6 +39,8 @@ router.post('/signUp', async (req, res) => {
       // Create User Preferences for the adventurer
       if (req.body.userType === 'adventurer') {
         await InitializePreferencesQuery(req.body.username);
+      } else {
+        await InitializeExperienceQuery(req.body.username);
       }
       res.status(200).send(submission);
     }
