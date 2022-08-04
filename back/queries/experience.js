@@ -13,6 +13,7 @@ async function AllFeedbackInfoQuery() {
 // -> routes/experience/info
 // -> routes/experience/preferences/status
 // -> routes/experience/preferences/update
+// -> routes/experience/preferences/submit
 async function ExperienceInfoQuery(username) {
   return (await new Parse.Query('Experience').equalTo('username', username).first()).toJSON();
 }
@@ -31,6 +32,24 @@ async function UpdatePreferencesQuery(objectID, activeIDs) {
   }
 }
 
+// Submit Experience Information
+// Used by routes/experience/preferences/submit
+async function SubmitExperienceQuery(objectID, formValues) {
+  const Experience = new Parse.Object('Experience');
+  // overwrite existing experience values
+  Experience.set('objectId', objectID);
+  Object.keys(formValues).map((key) => {
+    Experience.set(key, formValues[key]);
+  });
+  try {
+    await Experience.save();
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.ExperienceInfoQuery = ExperienceInfoQuery;
 exports.UpdatePreferencesQuery = UpdatePreferencesQuery;
+exports.SubmitExperienceQuery = SubmitExperienceQuery;

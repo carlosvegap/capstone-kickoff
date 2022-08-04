@@ -5,6 +5,7 @@ const {
   AllFeedbackInfoQuery,
   ExperienceInfoQuery,
   UpdatePreferencesQuery,
+  SubmitExperienceQuery,
 } = require('../queries/experience');
 var router = express.Router();
 
@@ -59,33 +60,11 @@ router.post('/preferences/update', async (req, res) => {
   res.status(200).send(isUpdated);
 });
 
-/* 
----------------------------
----------------------------
----------------------------
-OLD VERSION
----------------------------
----------------------------
-----------------------------
-*/
-
 // Submit experience information
 router.post('/submit', async (req, res) => {
-  const findOwnerQuery = new Parse.Query('Experience');
-  findOwnerQuery.equalTo('username', req.body.username);
-  const existingExperience = await findOwnerQuery.first();
-  const Experience = new Parse.Object('Experience');
-  // overwrite existing experience if it exists
-  if (existingExperience != null) {
-    Experience.set('objectId', existingExperience.toJSON().objectId);
-  } else {
-    Experience.set('username', req.body.username);
-  }
-  Object.keys(req.body.formValues).map((key) => {
-    Experience.set(key, req.body.formValues[key]);
-  });
-  await Experience.save();
-  res.send(true).status(200);
+  const objectID = (await ExperienceInfoQuery(req.headers.username)).objectId;
+  const isSubmitted = await SubmitExperienceQuery(objectID, req.body.formValues);
+  res.status(200).send(isSubmitted);
 });
 
 module.exports = router;
