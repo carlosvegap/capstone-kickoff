@@ -6,14 +6,26 @@ import UserContext from '../../../../Contexts/UserContext';
 import useSettings from '../../useSettings';
 import SelectMenu from '../../SelectMenu';
 import SettingsControls from '../../SettingsControls';
+import FeedbackContext from '../../../../Contexts/FeedbackContext';
 
 export default function Feedback() {
   const { username, userType } = useContext(UserContext);
+  // All feedback information (including distance, which is not rateable)
+  const feedbackInfo = useContext(FeedbackContext);
   if (username == null || userType == null) return <h2>Loading...</h2>;
   const {
-    activeInfo, inactiveInfo, onAdd, onDelete, onSubmission,
+    activeIDs, inactiveIDs, onAdd, onDelete, onSubmission,
   } = useSettings(userType, username);
-  const hasMinFeedback = Object.keys(activeInfo).length >= 5;
+
+  const hasMinFeedback = activeIDs.length >= 5;
+  // Find the information of the active and inactive IDs
+  // Map function so it respects the order it is in
+  const activeInfo = activeIDs.map((ID) =>
+    feedbackInfo.find((feedback) => ID === feedback.objectId),
+  );
+  const inactiveInfo = feedbackInfo.filter((feedback) =>
+    inactiveIDs.includes(feedback.objectId),
+  );
   return (
     <Box justifyContent="center" width="50%" textAlign="center">
       <Heading mb="20px"> Why do you want to be remembered? </Heading>

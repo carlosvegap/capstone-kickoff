@@ -2,19 +2,28 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import { Box, HStack } from '@chakra-ui/react';
 import axios from 'axios';
-import UserContext from '../../../Contexts/UserContext';
 import Header from '../Header/Header';
 import RegisterExperience from './RegisterExperience/RegisterExperience';
 import Feedback from './Feedback/Feedback';
 
+// CONTEXTS
+import UserContext from '../../../Contexts/UserContext';
+import FeedbackContext from '../../../Contexts/FeedbackContext';
+
+const baseURL = process.env.REACT_APP_BASE_URL;
+
 async function getExperienceInfo(username) {
   const values = { username };
-  const baseURL = process.env.REACT_APP_BASE_URL;
   return axios.post(`${baseURL}/experience/info`, values);
+}
+
+async function getAllFeedbackInfo() {
+  return axios.get(`${baseURL}/experience/preferences/all`);
 }
 
 export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   const { firstName, username, userType } = useContext(UserContext);
+  const [feedbackInfo, setFeedbackInfo] = useState([]);
   const [experienceData, setExperienceData] = useState({
     name: '',
     address: '',
@@ -25,22 +34,28 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  // Check if user is logged in or if is missing to complete their profile
+  // If they are loggedIn, check if has chosen experience values
+  // Check if user is logged in, if not send him back home
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
     } else if (username != null) {
-      getExperienceInfo(username)
-        .then((res) => {
-          if (Object.keys(res.data).length === 0) {
+      Promise.all([getExperienceInfo(username), getAllFeedbackInfo()]).then(
+        ([expRes, feedbackRes]) => {
+          // If there are no records on the experience that the user owns
+          // send to that page to promote submission.
+          // Otherwise, just set values in state
+          if (Object.keys(expRes.data).length === 0) {
             navigate('/experience/myExperience', { replace: true });
           } else {
-            setExperienceData(res.data);
+            setExperienceData(expRes.data);
           }
+          setFeedbackInfo(feedbackRes.data);
           setIsLoading(false);
-        });
+        },
+      );
     }
-  }, [isLoggedIn, username, setIsLoading, setExperienceData]);
+  }, [isLoggedIn, username, setIsLoading, setExperienceData, setFeedbackInfo]);
 
   // store the value after experience/ route in params
   const params = useParams();
@@ -55,14 +70,16 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   if (params.page === 'myExperience' && !isLoading) {
     return (
       <Box>
-        <Header userType={userType} onLogOutClick={setIsLoggedIn} />
-        <HStack alignItems="flex-start">
-          <RegisterExperience
-            experienceValues={experienceData}
-            setExperienceValues={setExperienceData}
-          />
-          <Feedback />
-        </HStack>
+        <FeedbackContext.Provider value={feedbackInfo}>
+          <Header userType={userType} onLogOutClick={setIsLoggedIn} />
+          <HStack alignItems="center">
+            <RegisterExperience
+              experienceValues={experienceData}
+              setExperienceValues={setExperienceData}
+            />
+            <Feedback />
+          </HStack>
+        </FeedbackContext.Provider>
       </Box>
     );
   }

@@ -1,7 +1,26 @@
 require('dotenv/config');
 var express = require('express');
-var router = express.Router();
 const { Parse } = require('./../parse');
+const {
+  AllFeedbackInfoQuery,
+} = require('../queries/experience');
+var router = express.Router();
+
+// ----- Get feedback information of a given array -----
+router.get('/preferences/all', async (req, res) => {
+  const allFeedbackInfo = await AllFeedbackInfoQuery();
+  res.status(200).send(allFeedbackInfo);
+});
+
+/* 
+---------------------------
+---------------------------
+---------------------------
+OLD VERSION
+---------------------------
+---------------------------
+----------------------------
+*/
 
 // ----- Get the experience the user owns -----
 router.post('/info', async (req, res) => {
