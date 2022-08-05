@@ -12,14 +12,19 @@ import UserContext from '../../../Contexts/UserContext';
 
 // CONTEXTS
 import AdventurerContext from '../../../Contexts/AdventurerContext';
+import FeedbackContext from '../../../Contexts/FeedbackContext';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
-function getNearbyRestaurants(lat, lng, username) {
+async function getNearbyRestaurants(lat, lng, username) {
   return axios.get(`${baseURL}/adventure/restaurants`, {
     params: { lat, lng },
     headers: { username },
   });
+}
+
+async function getAllFeedbackInfo() {
+  return axios.get(`${baseURL}/adventure/preferences/all`);
 }
 
 export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
@@ -28,6 +33,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
+  const [feedbackInfo, setFeedbackInfo] = useState([]);
 
   // MEMO VALUES
   const mapData = useMemo(
@@ -69,26 +75,34 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     ) {
       setRestaurants([]);
     } else {
-      getNearbyRestaurants(
-        currentPosition.lat,
-        currentPosition.lng,
-        username,
-      ).then((res) => {
-        setRestaurants(res.data);
+      Promise.all([
+        getNearbyRestaurants(
+          currentPosition.lat,
+          currentPosition.lng,
+          username,
+        ),
+        getAllFeedbackInfo(),
+      ]).then(([resRestaurants, resFeedback]) => {
+        setRestaurants(resRestaurants.data);
+        setFeedbackInfo(resFeedback.data);
         setIsDataFetched(true);
       });
     }
-  }, [currentPosition, setCurrentPosition, setRestaurants, params, username]);
+  }, [currentPosition, setCurrentPosition, setRestaurants, params, username, setFeedbackInfo]);
 
   if (params.page === 'home') {
     return (
       <Box height="55vw">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
         <AdventurerContext.Provider value={mapData}>
-          <HStack height="100%">
-            <FindAdventure />
-            <ExperienceInfo restaurants={restaurants} onSubmit={setRestaurants} />
-          </HStack>
+          <FeedbackContext.Provider value={feedbackInfo}>
+            <HStack height="100%">
+              <FindAdventure />
+              <ExperienceInfo
+                onSubmit={setRestaurants}
+              />
+            </HStack>
+          </FeedbackContext.Provider>
         </AdventurerContext.Provider>
       </Box>
     );

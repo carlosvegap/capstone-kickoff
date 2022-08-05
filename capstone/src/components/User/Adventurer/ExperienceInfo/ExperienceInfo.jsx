@@ -9,6 +9,8 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext, useEffect } from 'react';
+import AdventurerContext from '../../../../Contexts/AdventurerContext';
+import FeedbackContext from '../../../../Contexts/FeedbackContext';
 import UserContext from '../../../../Contexts/UserContext';
 import RateExperience from './RateExperience';
 
@@ -24,14 +26,20 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
-export default function ExperienceInfo({ restaurants, onSubmit }) {
+export default function ExperienceInfo({ onSubmit }) {
   const { username } = useContext(UserContext);
+  const { restaurants } = useContext(AdventurerContext);
+  const feedbackInfo = useContext(FeedbackContext);
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
   const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   const isRated = currentRestaurant?.review != null;
-
+  // Get the information for the active feedback areas
+  // discarding distance (that is not to be rated forExperience)
+  const feedbackAreas = feedbackInfo.filter((feedback) =>
+    feedback.forExperience && currentRestaurant.activeFeedback.includes(feedback.objectId),
+  );
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
     ? getPhotoReference(currentRestaurant)
@@ -134,8 +142,7 @@ export default function ExperienceInfo({ restaurants, onSubmit }) {
           {!isRated ? (
             <RateExperience
               name={currentRestaurant.name}
-              // TODO: Requires all information of the activeFeedback.
-              feedbackAreas={currentRestaurant.activeFeedback}
+              feedbackAreas={feedbackAreas}
               onChange={onNewReviewChange}
               onReset={resetRatingForm}
               onSubmit={onSubmission}

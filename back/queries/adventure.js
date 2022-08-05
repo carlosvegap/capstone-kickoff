@@ -21,7 +21,7 @@ async function UserPreferencesQuery(username) {
 }
 
 // Get all existing feedback
-// Used by routes/adventure/restaurants
+// Used by routes/adventure/restaurants, routes/adventure/allFeedback
 async function AllFeedbackInfoQuery() {
   return (await new Parse.Query('Preference').find()).map((preference) =>
     preference.toJSON(),
