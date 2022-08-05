@@ -1,12 +1,41 @@
 require('dotenv/config');
 const { Parse } = require('./../parse');
+const {
+  UserPreferencesQuery,
+  AllFeedbackInfoQuery,
+  UserReviewsQuery,
+  ExperiencesQuery,
+  RateQuery,
+} = require('../queries/adventure');
+const { filterAndRank } = require('../functions/adventure');
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 
 const googleKey = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
 
-// ----- Get Google API restaurants -----
+// --------- FIND MATCHING RESTAURANTS -----
+// -_-_-_-_-_-_-_-_FUNCTIONS_-_-_-_-_-_-_-_-_
+// ------- Match Google API and database restaurant format -------
+function formatRestaurantForGoogleAPI(restaurant) {
+  return {
+    name: restaurant.name,
+    formatted_address: restaurant.address,
+    geometry: {
+      location: {
+        lat: restaurant.lat,
+        lng: restaurant.lng,
+      },
+    },
+    place_id: restaurant.objectId,
+    description: restaurant.description,
+    username: restaurant.username,
+    email: restaurant.email,
+    distance: restaurant.distance,
+    activeFeedback: restaurant.activeFeedback,
+  };
+}
+// ------- Get Google API restaurants -------
 async function getGoogleRestaurants(radius, lat, lng) {
   const query = 'restaurant';
   const location = `${lat},${lng}`;
@@ -23,32 +52,11 @@ async function getGoogleRestaurants(radius, lat, lng) {
   });
   return results;
 }
-
-// ----- format to match google api values with database restaurants values -----
-function formatRestaurantForGoogleAPI(restaurant) {
-  return {
-    name: restaurant.name,
-    formatted_address: restaurant.address,
-    geometry: {
-      location: {
-        lat: restaurant.lat,
-        lng: restaurant.lng,
-      },
-    },
-    place_id: restaurant.objectId,
-    description: restaurant.description,
-    username: restaurant.username,
-    email: restaurant.email,
-    activeFeedback: restaurant.activeFeedback,
-  };
-}
-
-// ----- Get back4app restaurants -----
+// ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
-  const allExperiences = await new Parse.Query('Experience').find();
+  const allExperiences = await ExperiencesQuery();
   const experiences = [];
-  for (const exp of allExperiences) {
-    const experience = exp.toJSON();
+  for (const experience of allExperiences) {
     var config = {
       method: 'get',
       url: encodeURI(
@@ -67,96 +75,11 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   }
   return experiences;
 }
-
-// Find an user's preference
-async function preferenceQuery(username) {
-  const query = new Parse.Query('UserPreference');
-  query.equalTo('username', username);
-  const currentPreference = await query.first();
-  return currentPreference.toJSON();
-}
-
-// Find mean for reviews of restaurant on a feedback
-async function getMean(experienceId, feedbackId) {
-  const values = await new Parse.Query('Review')
-    .equalTo('experienceId', experienceId)
-    .equalTo('feedbackId', feedbackId)
-    .select('score')
-    .find();
-  if (values[0]) {
-    const sum = values.reduce((sum, score) => sum + score.toJSON().score, 0);
-    return sum / values.length;
-  }
-  return 0;
-}
-
-/* 
--_-_-_-_-_-_ FILTER / RANK ALGORITHM -_-_-_-_-_-_
-It requires all active preferences and all restaurants. 
-This restaurants went already through the distance filter
-It uses getMean to go through all reviews on a feedback area and find the mean value
-If it is below the threshold, it is not included in the final restaurants
-If it passes the threshold and the user wants priorization:
-  - It finds the percentage of the meanValue vs the maximum possible value
-  - It assigns lineally more points to the first preference
-RETURNS: A list of Restaurants objects, including a matchScore if priorization wanted
-*/
-async function filterAndRank(userPreference, allRestaurants) {
-  const priority = userPreference.prioritize;
-  const restaurants = [];
-  for (const restaurant of allRestaurants) {
-    let score = 0;
-    let passesFilter = true;
-    let indexPreference = 0;
-    for (const preferenceID of userPreference.activePreferences) {
-      const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
-      // Find the matching score if the user has priorities
-      if (priority) {
-        const feedbackMaxValue = await new Parse.Query('Preference')
-          .equalTo('objectId', preferenceID)
-          .select('maxValue')
-          .first();
-        score +=
-          (meanReviewScore / feedbackMaxValue.toJSON().maxValue) *
-          (userPreference.activePreferences.length - indexPreference);
-      }
-      if (
-        userPreference.hasMinimumValue[indexPreference] &&
-        userPreference.minValues[indexPreference] > meanReviewScore
-      ) {
-        passesFilter = false;
-        break;
-      }
-    }
-    if (passesFilter) {
-      restaurants.push({
-        ...restaurant,
-        matchScore: priority ? score : undefined,
-      });
-    }
-  }
-  if (priority) {
-    restaurants.sort((a, b) => {
-      return b.matchScore - a.matchScore;
-    });
-  }
-  return restaurants;
-}
-
-// ----- Get filtered restaurants ------
-router.post('/restaurants', async (req, res) => {
-  const userPreference = await preferenceQuery(req.body.username);
-
-  // Contains the information of the distance from the db
-  const distanceFeedback = (
-    await new Parse.Query('Preference')
-      .equalTo('displayText', 'Distance')
-      .first()
-  ).toJSON();
-
+// ------- Find distance by user or set default value -------
+function determineDistance(userPreference, distanceFeedback) {
   // Change meters to km in case distance is not defined by user
   let distance = distanceFeedback.defaultValue * 1000;
-  // Get distance value by the user or by default in the database
+  // Get distance value by the user if existing
   if (userPreference.activePreferences.includes(distanceFeedback.objectId)) {
     let index = userPreference.activePreferences.indexOf(
       distanceFeedback.objectId,
@@ -165,71 +88,166 @@ router.post('/restaurants', async (req, res) => {
     if (userPreference.hasMinimumValue[index])
       distance = userPreference.minValues[index] * 1000;
     // Delete distance from userPreferences (handled by Google Maps and by our database)
-    // The database records minValue even if it is not active (so if user turns it on, it goes back to that)
+    // The database records minValue even if it is not active (because if user turns it on, it should go back to that previous value) so it should be deleted
     userPreference.activePreferences.splice(index, 1);
     userPreference.hasMinimumValue.splice(index, 1);
     userPreference.minValues.splice(index, 1);
   }
-
+  return { userPreference, distance };
+}
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get filtered restaurants ------
+// Used in Adventurer.jsx so that the adventurerContext can provide all restaurants information
+router.get('/restaurants', async (req, res) => {
+  // Get active UsersPreferences from db
+  const registeredUserPreference = await UserPreferencesQuery(
+    req.headers.username,
+  );
+  const allFeedbackInfo = await AllFeedbackInfoQuery();
+  // Find all reviews of a user X
+  const userReviews = await UserReviewsQuery(req.headers.username);
+  // Contains the information of the distance from the db
+  const distanceFeedback = allFeedbackInfo.find(
+    (feedback) => feedback.displayText === 'Distance',
+  );
+  // Find working distance and remove it from userPreference if exists (will be processed differently)
+  const { userPreference, distance } = determineDistance(
+    registeredUserPreference,
+    distanceFeedback,
+  );
   // Get restaurants from Google (limiting distance)
   const googleRestaurants = await getGoogleRestaurants(
     distance,
-    req.body.lat,
-    req.body.lng,
+    req.query.lat,
+    req.query.lng,
   );
   // Get restaurants from our records (limiting distance)
   let databaseRestaurants = await getDatabaseRestaurants(
     distance,
-    req.body.lat,
-    req.body.lng,
+    req.query.lat,
+    req.query.lng,
   );
   databaseRestaurants = databaseRestaurants.map((restaurant) =>
     formatRestaurantForGoogleAPI(restaurant),
   );
-
   const allRestaurants = googleRestaurants.concat(databaseRestaurants);
-
   // Calculate final restaurants
-  const restaurants = await filterAndRank(userPreference, allRestaurants);
+  const restaurants = await filterAndRank(
+    userPreference,
+    allRestaurants,
+    allFeedbackInfo,
+    userReviews,
+  );
   res.send(restaurants).status(200);
+});
+
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get all Feedback Info ------
+// Used in Adventurer.jsx in a useContext so that the rest of components can consume it
+router.get('/preferences/all', async (req, res) => {
+  const feedbackInfo = await AllFeedbackInfoQuery();
+  res.status(200).send(feedbackInfo);
+});
+
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get Feedback status ------
+// Used in useSettings.jsx
+// Returns an object in format {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
+router.get('/preferences/status', async (req, res) => {
+  // Find current preferences
+  const userPreferences = await UserPreferencesQuery(req.headers.username);
+  // Find all possible Feedback areas
+  const allFeedback = await AllFeedbackInfoQuery();
+  // There should be preferences since they are created when SignUp is correct
+  if (userPreferences != null) {
+    const activePreferencesIDs = userPreferences.activePreferences;
+    // Find inactive preferences IDS
+    const inactivePreferences = allFeedback.filter(
+      (feedback) => !activePreferencesIDs.includes(feedback.objectId),
+    );
+    const inactivePreferencesIDs = inactivePreferences.map(
+      (preference) => preference.objectId,
+    );
+    res.status(200).send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+  } else {
+    res.status(400).send({ error: { message: 'No existing preferences record for that user' }});
+  }
+});
+
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Submit a review ------
+// Used in ExperienceInfo.jsx
+// Returns a bool with submission status
+router.post('/rate', async (req, res) => {
+  const hasError = RateQuery(
+    req.body.reviews,
+    req.headers.username,
+    req.headers.experienceid,
+  );
+  res.status(200).send(hasError);
+});
+
+/* 
+    
+----------------------------------------------------
+            NOT CHANGE YET !!!
+----------------------------------------------------
+*/
+
+// TODO: Refactor code. This still works this way
+// ----- Update user's preferences ------
+router.post('/preferences/update', async (req, res) => {
+  // Find objectId of the current user preference
+  const findQuery = new Parse.Query('UserPreference');
+  findQuery.equalTo('username', req.body.username);
+  let objectId = null;
+  let currentPreferences = await findQuery.first();
+  objectId = currentPreferences.toJSON().objectId;
+  // Update information for that user
+  let updateQuery = new Parse.Object('UserPreference');
+  updateQuery.set('objectId', objectId);
+  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
+  updateQuery.set('prioritize', req.body.prioritize);
+  updateQuery.set('activePreferences', req.body.activeIDs);
+  updateQuery.set('minValues', req.body.minValues);
+  updateQuery.set('hasMinimumValue', req.body.hasMinValues);
+  try {
+    await updateQuery.save();
+    res.status(200);
+    res.send(true);
+  } catch (error) {
+    res.send(false).status(400);
+  }
 });
 
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.prioritize);
 });
 
 // ----- Get active user's preferences IDs -----
 router.post('/preferences/active', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.activePreferences);
 });
 
 // ----- Get active preferences' minimum values -----
 router.post('/preferences/active/values', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.minValues);
 });
 
 // ----- Get validation for minimum values -----
 router.post('/preferences/active/hasMinimum', async (req, res) => {
-  const preference = await preferenceQuery(req.body.username);
+  const preference = await UserPreferencesQuery(req.body.username);
   res.status(200).send(preference.hasMinimumValue);
-});
-
-// ----- Get all existing Preferences -----
-router.post('/preferences/all', async (req, res) => {
-  const query = new Parse.Query('Preference');
-  let preferences = await query.find();
-  res.status(200);
-  res.send(preferences);
 });
 
 // ----- Get all inactive preferences IDS -----
 router.post('/preferences/inactive', async (req, res) => {
   // Find current preferences
-  let userPreferences = await preferenceQuery(req.body.username);
+  let userPreferences = await UserPreferencesQuery(req.body.username);
   if (userPreferences != null) {
     let activePreferences = [];
     activePreferences = userPreferences.activePreferences;
@@ -263,31 +281,6 @@ router.post('/preferences/info', async (req, res) => {
   );
   res.status(200);
   res.send(preferenceInformationJSON);
-});
-
-// ----- Update user's preferences ------
-router.post('/preferences/update', async (req, res) => {
-  // Find objectId of the current user preference
-  const findQuery = new Parse.Query('UserPreference');
-  findQuery.equalTo('username', req.body.username);
-  let objectId = null;
-  let currentPreferences = await findQuery.first();
-  objectId = currentPreferences.toJSON().objectId;
-  // Update information for that user
-  let updateQuery = new Parse.Object('UserPreference');
-  updateQuery.set('objectId', objectId);
-  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
-  updateQuery.set('prioritize', req.body.prioritize);
-  updateQuery.set('activePreferences', req.body.activeIDs);
-  updateQuery.set('minValues', req.body.minValues);
-  updateQuery.set('hasMinimumValue', req.body.hasMinValues);
-  try {
-    await updateQuery.save();
-    res.status(200);
-    res.send(true);
-  } catch (error) {
-    res.send(false).status(400);
-  }
 });
 
 module.exports = router;

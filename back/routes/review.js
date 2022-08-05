@@ -11,6 +11,7 @@ router.post('/experience/reviews', async (req, res) => {
   res.status(200).send(experienceReviews);
 });
 
+// INCLUDED IN QUERIES/ADVENTURE.JS
 // Find review of a user X to experience Y
 async function getReview(username, experienceId) {
   const query = new Parse.Query('Review');
@@ -26,31 +27,6 @@ router.post('/isRated', async (req, res) => {
     res.status(200).send(true);
   } else {
     res.status(200).send(false);
-  }
-});
-
-// ----- Submit a review -----
-router.post('/rate', async (req, res) => {
-  let hasError = false;
-  await Promise.all(
-    req.body.reviews.map(async (adventurerReview) => {
-      const review = new Parse.Object('Review');
-      review.set('feedbackId', adventurerReview.feedbackId);
-      review.set('adventurerUsername', req.body.username);
-      review.set('experienceId', req.body.experienceId);
-      review.set('score', adventurerReview.score);
-      review.set('comment', adventurerReview.comment);
-      try {
-        await review.save();
-      } catch (err) {
-        hasError = true;
-      }
-    }),
-  );
-  if (hasError) {
-    res.status(400).send(false);
-  } else {
-    res.status(200).send(true);
   }
 });
 

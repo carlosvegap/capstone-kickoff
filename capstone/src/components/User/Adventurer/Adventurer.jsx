@@ -1,7 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  useEffect, useState, useMemo, useContext,
-} from 'react';
+import { useEffect, useState, useMemo, useContext } from 'react';
 import { Box, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
@@ -12,12 +10,19 @@ import UserContext from '../../../Contexts/UserContext';
 
 // CONTEXTS
 import AdventurerContext from '../../../Contexts/AdventurerContext';
+import FeedbackContext from '../../../Contexts/FeedbackContext';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 
-function getNearbyRestaurants(lat, lng, username) {
-  const values = { lat, lng, username };
-  return axios.post(`${baseURL}/adventure/restaurants`, values);
+async function getNearbyRestaurants(lat, lng, username) {
+  return axios.get(`${baseURL}/adventure/restaurants`, {
+    params: { lat, lng },
+    headers: { username },
+  });
+}
+
+async function getAllFeedbackInfo() {
+  return axios.get(`${baseURL}/adventure/preferences/all`);
 }
 
 export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
@@ -26,6 +31,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
+  const [feedbackInfo, setFeedbackInfo] = useState([]);
 
   // MEMO VALUES
   const mapData = useMemo(
@@ -60,33 +66,45 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   // Fetch restaurants
   useEffect(() => {
     if (
-      currentPosition.lat === 0
-      || currentPosition.lng === 0
-      || params.page !== 'home'
-      || !username
+      currentPosition.lat === 0 ||
+      currentPosition.lng === 0 ||
+      params.page !== 'home' ||
+      !username
     ) {
       setRestaurants([]);
     } else {
-      getNearbyRestaurants(
-        currentPosition.lat,
-        currentPosition.lng,
-        username,
-      ).then((res) => {
-        setRestaurants(res.data);
+      Promise.all([
+        getNearbyRestaurants(
+          currentPosition.lat,
+          currentPosition.lng,
+          username,
+        ),
+        getAllFeedbackInfo(),
+      ]).then(([resRestaurants, resFeedback]) => {
+        setRestaurants(resRestaurants.data);
+        setFeedbackInfo(resFeedback.data);
         setIsDataFetched(true);
       });
     }
-  }, [currentPosition, setCurrentPosition, setRestaurants, params, username]);
-
+  }, [
+    currentPosition,
+    setCurrentPosition,
+    setRestaurants,
+    params,
+    username,
+    setFeedbackInfo,
+  ]);
   if (params.page === 'home') {
     return (
       <Box height="55vw">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
         <AdventurerContext.Provider value={mapData}>
-          <HStack height="100%">
-            <FindAdventure />
-            <ExperienceInfo restaurants={restaurants} />
-          </HStack>
+          <FeedbackContext.Provider value={feedbackInfo}>
+            <HStack height="100%">
+              <FindAdventure />
+              <ExperienceInfo onUpdateRestaurants={setRestaurants} />
+            </HStack>
+          </FeedbackContext.Provider>
         </AdventurerContext.Provider>
       </Box>
     );
@@ -95,9 +113,9 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     return (
       <div className="user">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
-        <div className="filters">
+        <FeedbackContext.Provider value={feedbackInfo}>
           <Preference />
-        </div>
+        </FeedbackContext.Provider>
       </div>
     );
   }

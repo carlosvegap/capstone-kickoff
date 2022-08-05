@@ -57,6 +57,7 @@ export default function SliderControls({
         {[markSpace, 2 * markSpace, 3 * markSpace, 4 * markSpace, maxValue].map(
           (interval) => (
             <SliderMark
+              key={`${id}mark${interval}`}
               value={interval}
               mt="1"
               ml="-2.5"

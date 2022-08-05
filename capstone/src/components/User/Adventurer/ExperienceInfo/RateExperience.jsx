@@ -41,7 +41,7 @@ export default function RateExperience({
               id={feedback.objectId}
               minValue={feedback.minValue}
               maxValue={feedback.maxValue}
-              step={feedback.step}
+              step={feedback.stepRating}
               defaultValue={feedback.defaultValue}
               feedbackName={feedback.displayText}
               onChange={onChange}
@@ -49,7 +49,14 @@ export default function RateExperience({
           ))}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onSubmit}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={() => {
+              onSubmit();
+              onClose();
+            }}
+          >
             Submit
           </Button>
           <Button
