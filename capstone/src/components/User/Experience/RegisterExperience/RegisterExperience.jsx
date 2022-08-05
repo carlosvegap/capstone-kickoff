@@ -36,7 +36,6 @@ export default function RegisterExperience({
   setExperienceValues,
 }) {
   const { username } = useContext(UserContext);
-  // const [experienceValues, setExperienceValues] = useState(experienceData);
   const [error, setError] = useState({
     name: '',
     address: '',

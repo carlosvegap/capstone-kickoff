@@ -6,10 +6,12 @@ const {
   UpdatePreferencesQuery,
   SubmitExperienceQuery,
 } = require('../queries/experience');
+const { googleTextSearch } = require('../functions/googleTextSearch');
 var router = express.Router();
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-// ----- Get feedback information of a given array -----
+// ----- Get all Feedback Info ------
+// Used in Adventurer.jsx in a useContext so that the rest of components can consume it
 router.get('/preferences/all', async (req, res) => {
   const allFeedbackInfo = await AllFeedbackInfoQuery();
   res.status(200).send(allFeedbackInfo);
@@ -65,5 +67,11 @@ router.post('/submit', async (req, res) => {
   const isSubmitted = await SubmitExperienceQuery(objectID, req.body.formValues);
   res.status(200).send(isSubmitted);
 });
+
+// ----- Get possible claimed restaurant ------
+router.get('/similar', async(req, res) => {
+  const results = await googleTextSearch(100, req.body.lat, req.body.lng);
+  res.status(200).send(results.filter((res, index) => index < 3));
+})
 
 module.exports = router;

@@ -7,7 +7,8 @@ const {
   RateQuery,
   UpdatePreferenceQuery,
 } = require('../queries/adventure');
-const { filterAndRank } = require('../functions/adventure');
+const { filterAndRank } = require('../functions/filterAndRank');
+const { googleTextSearch } = require('../functions/googleTextSearch');
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
@@ -34,23 +35,6 @@ function formatRestaurantForGoogleAPI(restaurant) {
     distance: restaurant.distance,
     activeFeedback: restaurant.activeFeedback,
   };
-}
-// ------- Get Google API restaurants -------
-async function getGoogleRestaurants(radius, lat, lng) {
-  const query = 'restaurant';
-  const location = `${lat},${lng}`;
-  const url = encodeURI(
-    `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${googleKey}`,
-  );
-  var config = {
-    method: 'get',
-    url: url,
-    headers: {},
-  };
-  const results = axios(config).then(function (response) {
-    return response.data.results;
-  });
-  return results;
 }
 // ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
@@ -117,7 +101,7 @@ router.get('/restaurants', async (req, res) => {
     distanceFeedback,
   );
   // Get restaurants from Google (limiting distance)
-  const googleRestaurants = await getGoogleRestaurants(
+  const googleRestaurants = await googleTextSearch(
     distance,
     req.query.lat,
     req.query.lng,
