@@ -102,7 +102,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
           <FeedbackContext.Provider value={feedbackInfo}>
             <HStack height="100%">
               <FindAdventure />
-              <ExperienceInfo onSubmit={setRestaurants} />
+              <ExperienceInfo onUpdateRestaurants={setRestaurants} />
             </HStack>
           </FeedbackContext.Provider>
         </AdventurerContext.Provider>
