@@ -37,8 +37,8 @@ export default function ExperienceInfo({ onSubmit }) {
   const isRated = currentRestaurant?.review != null;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
-  const feedbackAreas = feedbackInfo.filter((feedback) =>
-    feedback.forExperience && currentRestaurant.activeFeedback.includes(feedback.objectId),
+  const feedbackAreas = feedbackInfo?.filter((feedback) =>
+    feedback.forExperience && currentRestaurant?.activeFeedback.includes(feedback.objectId),
   );
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant

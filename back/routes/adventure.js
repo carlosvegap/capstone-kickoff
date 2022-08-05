@@ -146,12 +146,63 @@ router.get('/restaurants', async (req, res) => {
 router.get('/preferences/all', async (req, res) => {
   const feedbackInfo = await AllFeedbackInfoQuery();
   res.status(200).send(feedbackInfo);
-})
+});
+
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Get Feedback status ------
+// Used in useSettings.jsx
+// Returns an object in format {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
+router.get('/preferences/status', async (req, res) => {
+  // Find current preferences
+  const userPreferences = await UserPreferencesQuery(req.headers.username);
+  // Find all possible Feedback areas
+  const allFeedback = await AllFeedbackInfoQuery();
+  // There should be preferences since they are created when SignUp is correct
+  if (userPreferences != null) {
+    const activePreferencesIDs = userPreferences.activePreferences;
+    // Find inactive preferences IDS
+    const inactivePreferences = allFeedback.filter(
+      (feedback) => !activePreferencesIDs.includes(feedback.objectId),
+    );
+    const inactivePreferencesIDs = inactivePreferences.map((preference) => preference.objectId)
+    res.status(200).send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+  } else {
+    res.status(400).send({ error : { message: "No existing preferences record for that user" }})
+  }
+});
+
 /* 
+    
 ----------------------------------------------------
             NOT CHANGE YET !!!
 ----------------------------------------------------
 */
+
+// TODO: Refactor code. This still works this way
+// ----- Update user's preferences ------
+router.post('/preferences/update', async (req, res) => {
+  // Find objectId of the current user preference
+  const findQuery = new Parse.Query('UserPreference');
+  findQuery.equalTo('username', req.body.username);
+  let objectId = null;
+  let currentPreferences = await findQuery.first();
+  objectId = currentPreferences.toJSON().objectId;
+  // Update information for that user
+  let updateQuery = new Parse.Object('UserPreference');
+  updateQuery.set('objectId', objectId);
+  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
+  updateQuery.set('prioritize', req.body.prioritize);
+  updateQuery.set('activePreferences', req.body.activeIDs);
+  updateQuery.set('minValues', req.body.minValues);
+  updateQuery.set('hasMinimumValue', req.body.hasMinValues);
+  try {
+    await updateQuery.save();
+    res.status(200);
+    res.send(true);
+  } catch (error) {
+    res.send(false).status(400);
+  }
+});
 
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async (req, res) => {
@@ -216,29 +267,6 @@ router.post('/preferences/info', async (req, res) => {
   res.send(preferenceInformationJSON);
 });
 
-// ----- Update user's preferences ------
-router.post('/preferences/update', async (req, res) => {
-  // Find objectId of the current user preference
-  const findQuery = new Parse.Query('UserPreference');
-  findQuery.equalTo('username', req.body.username);
-  let objectId = null;
-  let currentPreferences = await findQuery.first();
-  objectId = currentPreferences.toJSON().objectId;
-  // Update information for that user
-  let updateQuery = new Parse.Object('UserPreference');
-  updateQuery.set('objectId', objectId);
-  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
-  updateQuery.set('prioritize', req.body.prioritize);
-  updateQuery.set('activePreferences', req.body.activeIDs);
-  updateQuery.set('minValues', req.body.minValues);
-  updateQuery.set('hasMinimumValue', req.body.hasMinValues);
-  try {
-    await updateQuery.save();
-    res.status(200);
-    res.send(true);
-  } catch (error) {
-    res.send(false).status(400);
-  }
-});
+
 
 module.exports = router;

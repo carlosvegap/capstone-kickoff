@@ -1,7 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  useEffect, useState, useMemo, useContext,
-} from 'react';
+import { useEffect, useState, useMemo, useContext } from 'react';
 import { Box, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 import FindAdventure from './FindAdventure/FindAdventure';
@@ -68,10 +66,10 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   // Fetch restaurants
   useEffect(() => {
     if (
-      currentPosition.lat === 0
-      || currentPosition.lng === 0
-      || params.page !== 'home'
-      || !username
+      currentPosition.lat === 0 ||
+      currentPosition.lng === 0 ||
+      params.page !== 'home' ||
+      !username
     ) {
       setRestaurants([]);
     } else {
@@ -88,8 +86,14 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
         setIsDataFetched(true);
       });
     }
-  }, [currentPosition, setCurrentPosition, setRestaurants, params, username, setFeedbackInfo]);
-
+  }, [
+    currentPosition,
+    setCurrentPosition,
+    setRestaurants,
+    params,
+    username,
+    setFeedbackInfo,
+  ]);
   if (params.page === 'home') {
     return (
       <Box height="55vw">
@@ -98,9 +102,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
           <FeedbackContext.Provider value={feedbackInfo}>
             <HStack height="100%">
               <FindAdventure />
-              <ExperienceInfo
-                onSubmit={setRestaurants}
-              />
+              <ExperienceInfo onSubmit={setRestaurants} />
             </HStack>
           </FeedbackContext.Provider>
         </AdventurerContext.Provider>
@@ -111,9 +113,9 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
     return (
       <div className="user">
         <Header onLogOutClick={setIsLoggedIn} userType="adventurer" />
-        <div className="filters">
+        <FeedbackContext.Provider value={feedbackInfo}>
           <Preference />
-        </div>
+        </FeedbackContext.Provider>
       </div>
     );
   }
