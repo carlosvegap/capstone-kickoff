@@ -46,8 +46,8 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
           // send to that page to promote submission.
           // Otherwise, just set values in state
           if (
-            !(Object.keys(expRes.data).every(
-              (experienceFieldID) => expRes.data[experienceFieldID] !== '' || experienceFieldID === 'description',
+            !(Object.entries(expRes.data).every(
+              ([key, value]) => value !== '' || key === 'description',
             ))
           ) {
             navigate('/experience/myExperience', { replace: true });
