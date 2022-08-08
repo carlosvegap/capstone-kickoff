@@ -4,6 +4,7 @@ const { Parse } = require('./../parse');
 const {
   AllFeedbackInfoQuery,
   ExperienceInfoQuery,
+  UpdatePreferencesQuery,
 } = require('../queries/experience');
 var router = express.Router();
 
@@ -43,6 +44,14 @@ router.get('/preferences/status', async (req, res) => {
   }
 });
 
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// ----- Submit feedback preferences to db -----
+router.post('/preferences/update', async (req, res) => {
+  const objectId = (await ExperienceInfoQuery(req.headers.username)).objectId;
+  const isUpdated = await UpdatePreferencesQuery(objectId, req.body.activeIDs)
+  res.status(200).send(isUpdated);
+});
+
 /* 
 ---------------------------
 ---------------------------
@@ -78,78 +87,6 @@ router.post('/submit', async (req, res) => {
   });
   await Experience.save();
   res.send(true).status(200);
-});
-
-// -_-_-_-_-_-_-_-_ QUERIES -_-_-_-_-_-_-_
-
-// ----- Query for active feedback areas -----
-async function activeFeedbackQuery(username) {
-  const query = new Parse.Query('Experience');
-  query.equalTo('username', username);
-  const experienceInfo = await query.first();
-  if (experienceInfo) return experienceInfo.toJSON().activeFeedback;
-  return [];
-}
-
-// ----- Query for all feedback areas -----
-async function allFeedbackQuery() {
-  const query = new Parse.Query('Preference');
-  query.equalTo('forExperience', true);
-  const feedbackInfo = await query.find();
-  return feedbackInfo;
-}
-
-// -_-_-_-_-_-_-_-_ ENDPOINTS -_-_-_-_-_-_-_
-
-// ------ Get active feedback areas IDs -----
-router.post('/feedback/active', async (req, res) => {
-  const activeFeedback = await activeFeedbackQuery(req.body.username);
-  res.status(200).send(activeFeedback);
-});
-
-// ----- Get inactive feedback areas IDs ------
-router.post('/feedback/inactive', async (req, res) => {
-  // Find active areas
-  const activeFeedback = await activeFeedbackQuery(req.body.username);
-  // Find all feedback areas
-  const allFeedback = await allFeedbackQuery();
-  // Discard active from all to get inactive
-  const inactiveFeedback = allFeedback.filter(
-    (feedback) => !activeFeedback.includes(feedback.toJSON().objectId),
-  );
-  // Return only the id of the feedback
-  const inactiveFeedbackIDs = inactiveFeedback.map(
-    (feedback) => feedback.toJSON().objectId,
-  );
-  res.status(200).send(inactiveFeedbackIDs);
-});
-
-// ----- Get feedback information of a given array -----
-router.post('/feedback/info', async (req, res) => {
-  const allFeedback = await allFeedbackQuery();
-  // let feedbackInfo = allFeedback.filter(())
-  const feedbackInfo = req.body.IDs.map((id) =>
-    allFeedback.find((feedback) => feedback.toJSON().objectId === id),
-  );
-  const feedbackInfoJSON = feedbackInfo.map((feedback) => feedback.toJSON());
-  res.status(200).send(feedbackInfoJSON);
-});
-
-// ----- Submit feedback preferences to db -----
-router.post('/preferences/update', async (req, res) => {
-  const findQuery = new Parse.Query('Experience');
-  findQuery.equalTo('username', req.headers.username);
-  const currentExperience = await findQuery.first();
-  const objectId = currentExperience.toJSON().objectId;
-  const updateQuery = new Parse.Object('Experience');
-  updateQuery.set('objectId', objectId);
-  updateQuery.set('activeFeedback', req.body.activeIDs);
-  try {
-    await updateQuery.save();
-    res.status(200).send(true);
-  } catch (error) {
-    res.status(400).send(false);
-  }
 });
 
 module.exports = router;

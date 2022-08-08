@@ -117,7 +117,7 @@ export default function useSettings(userType, username) {
   function submissionMessage(isSubmitted) {
     const adventurerTitle = 'Preferences updated!';
     const adventurerDescription = 'You can go back and find new adventures';
-    const experienceTitle = 'Information updated!!';
+    const experienceTitle = 'Information updated!';
     const experienceDescription = 'Get ready to outstand in this categories';
     if (isSubmitted) {
       const title = isAdventurer ? adventurerTitle : experienceTitle;
