@@ -1,3 +1,5 @@
+// Disabled to match google maps format on function onClaim()
+/* eslint-disable camelcase */
 import {
   Heading,
   Text,
@@ -33,10 +35,7 @@ export default function ClaimRestaurant({
       </Badge>
     );
   }
-  // Disabled to match google maps format
-  // eslint-disable-next-line camelcase
   function onClaim({ address, lat, lng, place_id }) {
-    // eslint-disable-next-line camelcase
     const newExp = { ...experienceValues, address, lat, lng, place_id };
     onUpdate(newExp);
   }
