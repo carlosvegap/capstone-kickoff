@@ -7,7 +7,7 @@ import PlacesAutocomplete, {
 import { useLoadScript } from '@react-google-maps/api';
 
 const libraries = ['places'];
-export default function InputLocation({ address, placeholder, onSelect }) {
+export default function InputLocation({ address, placeholder, onSelect, onUpdateClaim }) {
   const [search, setSearch] = useState(address);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -20,6 +20,7 @@ export default function InputLocation({ address, placeholder, onSelect }) {
     onSelect('address', place);
     onSelect('lat', coord.lat);
     onSelect('lng', coord.lng);
+    onUpdateClaim({ hasClaimed: false, type: '' });
   }
   if (isLoaded) {
     return (
