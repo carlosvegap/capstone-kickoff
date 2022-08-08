@@ -70,7 +70,7 @@ router.post('/submit', async (req, res) => {
 
 // ----- Get possible claimed restaurant ------
 router.get('/similar', async(req, res) => {
-  const results = await googleTextSearch(100, req.body.lat, req.body.lng);
+  const results = await googleTextSearch(100, req.query.lat, req.query.lng);
   res.status(200).send(results.filter((res, index) => index < 3));
 })
 

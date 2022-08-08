@@ -32,33 +32,72 @@ function formatRestaurantForGoogleAPI(restaurant) {
     description: restaurant.description,
     username: restaurant.username,
     email: restaurant.email,
-    distance: restaurant.distance,
     activeFeedback: restaurant.activeFeedback,
   };
 }
+// ------- Mix back and google info -------
+async function mergeAPIandAppData(restaurant) {
+  var config = {
+    method: 'get',
+    url: encodeURI(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${restaurant.place_id}&key=${googleKey}`
+    ),
+    headers: {},
+  };
+  return (await axios(config).then((response) => {
+    const googleInfo = response.data.result
+    return {
+      name: restaurant.name,
+      formatted_address: googleInfo.formatted_address,
+      geometry: googleInfo.geometry,
+      place_id: restaurant.place_id,
+      description: restaurant.description,
+      username: restaurant.username,
+      email: restaurant.email,
+      activeFeedback: restaurant.activeFeedback,
+      photos: googleInfo.photos,
+    };
+  }));
+  // 
+}
 // ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
-  const allExperiences = await ExperiencesQuery();
-  const experiences = [];
-  for (const experience of allExperiences) {
-    if (!experience.address) continue;
+  const allRestaurants = await ExperiencesQuery();
+  const restaurants = [];
+  // IDs that are not allowed to be repeated by google API
+  const usedPlaceIDs = [];
+  for (const restaurant of allRestaurants) {
+    if (!restaurant.address) continue;
+    // find distance between adventurer and restaurant
     var config = {
       method: 'get',
       url: encodeURI(
-        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLng}&destinations=${experience.lat},${experience.lng}&key=${googleKey}`,
-      ),
-      headers: {},
+        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLng}&destinations=${restaurant.lat},${restaurant.lng}&key=${googleKey}`,
+        ),
+        headers: {},
     };
-    await axios(config).then((response) => {
+    await axios(config).then(async (response) => {
+      // determine if the restaurant is within distance radius
       if (response.data.rows[0].elements[0].distance.value <= distance) {
-        experiences.push({
-          ...experience,
-          distance: response.data.rows[0].elements[0].distance.value,
-        });
+        // if the restaurant is a claimed restaurant, mix data from google and app
+        if (restaurant.place_id !== '') {
+          usedPlaceIDs.push(restaurant.place_id);
+          const mixRestaurant = await mergeAPIandAppData(restaurant)
+          restaurants.push({
+            ...mixRestaurant,
+            distance: response.data.rows[0].elements[0].distance.value,
+          });
+        }
+        else {
+          restaurants.push({
+            ...(formatRestaurantForGoogleAPI(restaurant)),
+            distance: response.data.rows[0].elements[0].distance.value,
+          });
+        }
       }
     });
   }
-  return experiences;
+  return { databaseRestaurants: restaurants, usedPlaceIDs };
 }
 // ------- Find distance by user or set default value -------
 function determineDistance(userPreference, distanceFeedback) {
@@ -100,21 +139,18 @@ router.get('/restaurants', async (req, res) => {
     registeredUserPreference,
     distanceFeedback,
   );
-  // Get restaurants from Google (limiting distance)
-  const googleRestaurants = await googleTextSearch(
-    distance,
-    req.query.lat,
-    req.query.lng,
-  );
   // Get restaurants from our records (limiting distance)
-  let databaseRestaurants = await getDatabaseRestaurants(
+  const { databaseRestaurants, usedPlaceIDs } = await getDatabaseRestaurants(
     distance,
     req.query.lat,
     req.query.lng,
   );
-  databaseRestaurants = databaseRestaurants.map((restaurant) =>
-    formatRestaurantForGoogleAPI(restaurant),
-  );
+  // Get restaurants from Google (limiting distance) and those that didn't appear on the other records
+  const googleRestaurants = (await googleTextSearch(
+    distance,
+    req.query.lat,
+    req.query.lng,
+  )).filter((restaurant) => !usedPlaceIDs.includes(restaurant.place_id));
   const allRestaurants = googleRestaurants.concat(databaseRestaurants);
   // Calculate final restaurants
   const restaurants = await filterAndRank(
