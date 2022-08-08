@@ -1,5 +1,4 @@
 require('dotenv/config');
-const { Parse } = require('./../parse');
 const {
   UserPreferencesQuery,
   AllFeedbackInfoQuery,
@@ -169,9 +168,15 @@ router.get('/preferences/status', async (req, res) => {
     const inactivePreferencesIDs = inactivePreferences.map(
       (preference) => preference.objectId,
     );
-    res.status(200).send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+    res
+      .status(200)
+      .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
   } else {
-    res.status(400).send({ error: { message: 'No existing preferences record for that user' }});
+    res
+      .status(400)
+      .send({
+        error: { message: 'No existing preferences record for that user' },
+      });
   }
 });
 
@@ -188,80 +193,35 @@ router.post('/rate', async (req, res) => {
   res.status(200).send(hasError);
 });
 
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Update user's preferences ------
+// Used in useSettings.jsx
+// Returns a bool with update status
 router.post('/preferences/update', async (req, res) => {
-  const isUpdated = await UpdatePreferenceQuery(req.headers.username, req.body.prioritize, req.body.activeIDs, req.body.minValues, req.body.hasMinValues)
+  const isUpdated = await UpdatePreferenceQuery(
+    req.headers.username,
+    req.body.prioritize,
+    req.body.activeIDs,
+    req.body.minValues,
+    req.body.hasMinValues,
+  );
   res.status(200).send(isUpdated);
 });
 
-/* 
+// -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
+// ----- Preferences restrictions ------
+// Used in useSettings.jsx
+// Returns priorization (bool indicating if ranking algorithm is active), minValues (array of values) and hasMinValues (array of bools stating if the minValue is active - to filter)
+// Format: {prioritize, minValues, hasMinimumValue}
+router.get('/preferences/restrictions', async (req, res) => {
+  const preference = await UserPreferencesQuery(req.headers.username);
+  res
+    .status(200)
+    .send({
+      prioritize: preference.prioritize,
+      minValues: preference.minValues,
+      hasMinimumValue: preference.hasMinimumValue,
+    });
+});
     
-----------------------------------------------------
-            NOT CHANGE YET !!!
-----------------------------------------------------
-*/
-
-// ----- Get priorization preferences -----
-router.post('/preferences/prioritize', async (req, res) => {
-  const preference = await UserPreferencesQuery(req.body.username);
-  res.status(200).send(preference.prioritize);
-});
-
-// ----- Get active user's preferences IDs -----
-router.post('/preferences/active', async (req, res) => {
-  const preference = await UserPreferencesQuery(req.body.username);
-  res.status(200).send(preference.activePreferences);
-});
-
-// ----- Get active preferences' minimum values -----
-router.post('/preferences/active/values', async (req, res) => {
-  const preference = await UserPreferencesQuery(req.body.username);
-  res.status(200).send(preference.minValues);
-});
-
-// ----- Get validation for minimum values -----
-router.post('/preferences/active/hasMinimum', async (req, res) => {
-  const preference = await UserPreferencesQuery(req.body.username);
-  res.status(200).send(preference.hasMinimumValue);
-});
-
-// ----- Get all inactive preferences IDS -----
-router.post('/preferences/inactive', async (req, res) => {
-  // Find current preferences
-  let userPreferences = await UserPreferencesQuery(req.body.username);
-  if (userPreferences != null) {
-    let activePreferences = [];
-    activePreferences = userPreferences.activePreferences;
-    // Get all possible preferences
-    const allPreferencesQuery = new Parse.Query('Preference');
-    let allPreferences = null;
-    allPreferences = await allPreferencesQuery.find();
-    // Find inactive preferences IDS
-    let inactivePreferences = allPreferences.filter(
-      (preference) => !activePreferences.includes(preference.toJSON().objectId),
-    );
-    const inactivePreferencesJSON = inactivePreferences.map(
-      (preference) => preference.toJSON().objectId,
-    );
-    res.status(200);
-    res.send(inactivePreferencesJSON);
-  }
-});
-
-// ----- Get preferences information of a given array -----
-router.post('/preferences/info', async (req, res) => {
-  let preferenceInformation = [];
-  const query = new Parse.Query('Preference');
-  let allPreferences = [];
-  allPreferences = await query.find();
-  preferenceInformation = req.body.IDs.map((id) =>
-    allPreferences.find((preference) => preference.toJSON().objectId === id),
-  );
-  preferenceInformationJSON = preferenceInformation.map((preference) =>
-    preference.toJSON(),
-  );
-  res.status(200);
-  res.send(preferenceInformationJSON);
-});
-
 module.exports = router;

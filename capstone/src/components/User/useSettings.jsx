@@ -3,17 +3,17 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
-const preferenceBaseURL = '/adventure/preferences';
-const feedbackBaseURL = '/experience/feedback';
+const adventurerURL = '/adventure/preferences';
+const experienceURL = '/experience/preferences';
 
 function defineURL(userType) {
-  const KeysURL = ['inactive', 'active', 'info', 'update'];
+  const KeysURL = ['status', 'update'];
   const URL = {};
   KeysURL.forEach((key) => {
     if (userType === 'adventurer') {
-      URL[key] = `${baseURL}${preferenceBaseURL}/${key}`;
+      URL[key] = `${baseURL}${adventurerURL}/${key}`;
     } else {
-      URL[key] = `${baseURL}${feedbackBaseURL}/${key}`;
+      URL[key] = `${baseURL}${experienceURL}/${key}`;
     }
   });
   return URL;
@@ -21,34 +21,20 @@ function defineURL(userType) {
 
 // TODO: Adapt URL when work done with Experience's back
 async function getPreferenceStatusIDs(username, URL) {
-  return axios.get(`${baseURL}/adventure/preferences/status`, {
+  return axios.get(URL.status, {
     headers: { username },
   });
 }
 
-// ONLY FOR ADVENTURER
-async function getActiveMinValues(username) {
-  const values = { username };
-  return axios.post(`${baseURL}${preferenceBaseURL}/active/values`, values);
-}
-
-// ONLY FOR ADVENTURERS
-async function getBoolMinValues(username) {
-  const values = { username };
-  return axios.post(`${baseURL}${preferenceBaseURL}/active/hasMinimum`, values);
-}
-
 async function update(form, username, URL) {
-  return axios.post(`${baseURL}/adventure/preferences/update`, form, { headers: { username } });
+  return axios.post(URL.update, form, { headers: { username } });
 }
 
 // ONLY FOR ADVENTURER
-async function getPriorization(username, userType) {
-  if (userType === 'adventurer') {
-    const values = { username };
-    return axios.post(`${baseURL}${preferenceBaseURL}/prioritize`, values);
-  }
-  return { res: { data: false } };
+async function getPreferenceRestrictions(username) {
+  return axios.get(`${baseURL}${adventurerURL}/restrictions`, {
+    headers: { username },
+  });
 }
 
 export default function useSettings(userType, username) {
@@ -74,17 +60,12 @@ export default function useSettings(userType, username) {
         setActiveIDs(res.data.active);
         setInactiveIDs(res.data.inactive);
       });
-      // ONLY FOR ADVENTURER
       if (isAdventurer) {
-        getPriorization(username, userType).then((res) =>
-          setPrioritize(res.data),
-        );
-        // ONLY FOR ADVENTURER
-        getActiveMinValues(username).then((res) =>
-          setMinPreferenceValues(res.data),
-        );
-        // ONLY FOR ADVENTURER
-        getBoolMinValues(username).then((res) => setHasMinValues(res.data));
+        getPreferenceRestrictions(username).then((res) => {
+          setPrioritize(res.data.prioritize);
+          setMinPreferenceValues(res.data.minValues);
+          setHasMinValues(res.data.hasMinimumValue);
+        });
       }
     }
   }, [
