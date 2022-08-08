@@ -71,7 +71,9 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
       params.page !== 'home' ||
       !username
     ) {
+      // Avoid wasting time if it is not at home, by not looking at restaurants
       setRestaurants([]);
+      getAllFeedbackInfo().then((res) => setFeedbackInfo(res.data));
     } else {
       Promise.all([
         getNearbyRestaurants(

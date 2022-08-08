@@ -32,7 +32,7 @@ export default function Preference() {
     onChangeHasMinValue,
     onChangeMinValue,
   } = useSettings(userType, username);
-  if (!feedbackInfo) return <h2>Loading</h2>;
+  if (!feedbackInfo || feedbackInfo.length === 0) return <h2>Loading</h2>;
   // Find the information of the active and inactive IDs
   // Map function so it respects the order it is in
   const activeInfo = activeIDs.map((ID) =>

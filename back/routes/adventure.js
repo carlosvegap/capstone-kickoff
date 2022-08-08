@@ -6,6 +6,7 @@ const {
   UserReviewsQuery,
   ExperiencesQuery,
   RateQuery,
+  UpdatePreferenceQuery,
 } = require('../queries/adventure');
 const { filterAndRank } = require('../functions/adventure');
 var express = require('express');
@@ -187,38 +188,18 @@ router.post('/rate', async (req, res) => {
   res.status(200).send(hasError);
 });
 
+// ----- Update user's preferences ------
+router.post('/preferences/update', async (req, res) => {
+  const isUpdated = await UpdatePreferenceQuery(req.headers.username, req.body.prioritize, req.body.activeIDs, req.body.minValues, req.body.hasMinValues)
+  res.status(200).send(isUpdated);
+});
+
 /* 
     
 ----------------------------------------------------
             NOT CHANGE YET !!!
 ----------------------------------------------------
 */
-
-// TODO: Refactor code. This still works this way
-// ----- Update user's preferences ------
-router.post('/preferences/update', async (req, res) => {
-  // Find objectId of the current user preference
-  const findQuery = new Parse.Query('UserPreference');
-  findQuery.equalTo('username', req.body.username);
-  let objectId = null;
-  let currentPreferences = await findQuery.first();
-  objectId = currentPreferences.toJSON().objectId;
-  // Update information for that user
-  let updateQuery = new Parse.Object('UserPreference');
-  updateQuery.set('objectId', objectId);
-  // Determine what fields the user submitted to update them (if not found, that field remains as recorded in the db)
-  updateQuery.set('prioritize', req.body.prioritize);
-  updateQuery.set('activePreferences', req.body.activeIDs);
-  updateQuery.set('minValues', req.body.minValues);
-  updateQuery.set('hasMinimumValue', req.body.hasMinValues);
-  try {
-    await updateQuery.save();
-    res.status(200);
-    res.send(true);
-  } catch (error) {
-    res.send(false).status(400);
-  }
-});
 
 // ----- Get priorization preferences -----
 router.post('/preferences/prioritize', async (req, res) => {

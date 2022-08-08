@@ -38,8 +38,8 @@ async function getBoolMinValues(username) {
   return axios.post(`${baseURL}${preferenceBaseURL}/active/hasMinimum`, values);
 }
 
-async function update(form, URL) {
-  return axios.post(URL.update, form);
+async function update(form, username, URL) {
+  return axios.post(`${baseURL}/adventure/preferences/update`, form, { headers: { username } });
 }
 
 // ONLY FOR ADVENTURER
@@ -169,12 +169,12 @@ export default function useSettings(userType, username) {
     if (isAdventurer) {
       update(
         {
-          username,
           prioritize,
           activeIDs,
           minValues: minPreferenceValues,
           hasMinValues,
         },
+        username,
         URL,
       ).then((res) => submissionMessage(res.data));
     } else {
