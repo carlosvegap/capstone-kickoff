@@ -84,6 +84,7 @@ async function UpdatePreferenceQuery(username, prioritize, activeIDs, minValues,
       .save();
       return true;
     } catch (error) {
+      console.error(error);
       return false;
     }
 }
