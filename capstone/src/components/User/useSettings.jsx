@@ -26,29 +26,15 @@ async function getPreferenceStatusIDs(username, URL) {
   });
 }
 
-// ONLY FOR ADVENTURER
-async function getActiveMinValues(username) {
-  const values = { username };
-  return axios.post(`${baseURL}${preferenceBaseURL}/active/values`, values);
-}
-
-// ONLY FOR ADVENTURERS
-async function getBoolMinValues(username) {
-  const values = { username };
-  return axios.post(`${baseURL}${preferenceBaseURL}/active/hasMinimum`, values);
-}
-
 async function update(form, username, URL) {
   return axios.post(`${baseURL}/adventure/preferences/update`, form, { headers: { username } });
 }
 
 // ONLY FOR ADVENTURER
-async function getPriorization(username, userType) {
-  if (userType === 'adventurer') {
-    const values = { username };
-    return axios.post(`${baseURL}${preferenceBaseURL}/prioritize`, values);
-  }
-  return { res: { data: false } };
+async function getPreferenceRestrictions(username) {
+  return axios.get(`${baseURL}/adventure/preferences/restrictions`, {
+    headers: { username },
+  });
 }
 
 export default function useSettings(userType, username) {
@@ -74,17 +60,12 @@ export default function useSettings(userType, username) {
         setActiveIDs(res.data.active);
         setInactiveIDs(res.data.inactive);
       });
-      // ONLY FOR ADVENTURER
       if (isAdventurer) {
-        getPriorization(username, userType).then((res) =>
-          setPrioritize(res.data),
-        );
-        // ONLY FOR ADVENTURER
-        getActiveMinValues(username).then((res) =>
-          setMinPreferenceValues(res.data),
-        );
-        // ONLY FOR ADVENTURER
-        getBoolMinValues(username).then((res) => setHasMinValues(res.data));
+        getPreferenceRestrictions(username).then((res) => {
+          setPrioritize(res.data.prioritize);
+          setMinPreferenceValues(res.data.minValues);
+          setHasMinValues(res.data.hasMinimumValue);
+        });
       }
     }
   }, [
