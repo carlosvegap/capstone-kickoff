@@ -14,7 +14,6 @@ export function logIn(formValues) {
 }
 
 export function resetForm(setLogIn) {
-  // TODO: Convenient to map attributes in case of change, applied automatically
   setLogIn({
     username: '',
     password: '',

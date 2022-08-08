@@ -13,8 +13,7 @@ import FeedbackContext from '../../../Contexts/FeedbackContext';
 const baseURL = process.env.REACT_APP_BASE_URL;
 
 async function getExperienceInfo(username) {
-  const values = { username };
-  return axios.post(`${baseURL}/experience/info`, values);
+  return axios.get(`${baseURL}/experience/info`, { headers: { username } });
 }
 
 async function getAllFeedbackInfo() {
@@ -42,13 +41,16 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
     } else if (username != null) {
       Promise.all([getExperienceInfo(username), getAllFeedbackInfo()]).then(
         ([expRes, feedbackRes]) => {
+          setExperienceData(expRes.data);
           // If there are no values for a field
           // send to that page to promote submission.
           // Otherwise, just set values in state
-          if (Object.keys(expRes.data).every((experienceField) => !!experienceField)) {
+          if (
+            !(Object.entries(expRes.data).every(
+              ([key, value]) => value !== '' || key === 'description',
+            ))
+          ) {
             navigate('/experience/myExperience', { replace: true });
-          } else {
-            setExperienceData(expRes.data);
           }
           setFeedbackInfo(feedbackRes.data);
           setIsLoading(false);
