@@ -24,11 +24,11 @@ function validateEmail(email) {
 }
 
 async function submitExperience(formValues, username) {
-  const values = {
-    username,
-    formValues,
-  };
-  return axios.post(`${baseURL}/experience/submit`, values);
+  return axios.post(
+    `${baseURL}/experience/submit`,
+    { formValues },
+    { headers: { username } },
+  );
 }
 
 export default function RegisterExperience({
