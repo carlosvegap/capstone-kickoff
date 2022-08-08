@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
-import callToast from './Toast';
+import getToastOptions from './ToastOptions';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 const adventurerURL = '/adventure/preferences';
@@ -60,7 +60,7 @@ export default function useSettings(userType, username) {
     if (username != null) {
       getPreferenceStatusIDs(username, URL).then((res) => {
         if (res.data.error) {
-          callToast({ toast, status: 'error' });
+          toast(getToastOptions({ status: 'error' }));
         } else {
           setActiveIDs(res.data.active);
           setInactiveIDs(res.data.inactive);
@@ -124,9 +124,9 @@ export default function useSettings(userType, username) {
       const description = isAdventurer
         ? adventurerDescription
         : experienceDescription;
-      callToast({ toast, title, description, status: 'success' });
+      toast(getToastOptions({ title, description, status: 'success' }));
     } else {
-      callToast({ toast, status: 'error' });
+      toast(getToastOptions({ status: 'error' }));
     }
   }
   // ---------------------------------

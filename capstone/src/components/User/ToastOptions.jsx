@@ -1,19 +1,19 @@
 // Show toast value
-export default function callToast({ toast, title, description, status }) {
+export default function getToastOptions({ title, description, status }) {
   if (status === 'success' || status === 'warning') {
-    return toast({
+    return {
       title,
       description,
       status,
       duration: 2000,
       isClosable: true,
-    });
+    };
   }
-  return toast({
+  return {
     title: title ?? 'An error happened',
     description: description ?? 'Please try again later',
     status,
     duration: 2000,
     isClosable: true,
-  });
+  };
 }

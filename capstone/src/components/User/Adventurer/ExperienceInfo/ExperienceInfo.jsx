@@ -13,7 +13,7 @@ import AdventurerContext from '../../../../Contexts/AdventurerContext';
 import FeedbackContext from '../../../../Contexts/FeedbackContext';
 import UserContext from '../../../../Contexts/UserContext';
 import RateExperience from './RateExperience';
-import callToast from '../../Toast';
+import getToastOptions from '../../ToastOptions';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -98,9 +98,9 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
       if (res.data) {
         restaurants[indexRestaurant] = { ...restaurants[indexRestaurant], review: newReview };
         onUpdateRestaurants([...restaurants]);
-        callToast({ toast, title: 'Successfully rated', description: 'Thanks for rating!', status: 'success' });
+        toast(getToastOptions({ title: 'Successfully rated', description: 'Thanks for rating!', status: 'success' }));
       } else {
-        callToast({ toast, status: 'error' });
+        toast(getToastOptions({ toast, status: 'error' }));
       }
     });
   }
