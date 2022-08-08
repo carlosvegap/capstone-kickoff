@@ -1,6 +1,6 @@
 import { useContext, useState, Fragment } from 'react';
 import {
-  VStack, Spinner, Heading, Box, Text,
+  VStack, Spinner, Heading, Box, Text, Badge,
 } from '@chakra-ui/react';
 import {
   useLoadScript,
@@ -64,6 +64,7 @@ export default function Map() {
                 <Box width="120px">
                   <Heading size="l">{restaurant.name}</Heading>
                   <Text size="l">{restaurant.formatted_address}</Text>
+                  <Badge colorScheme="purple">{restaurant.matchScore}% match</Badge>
                 </Box>
               </InfoWindowF>
             ) : null}

@@ -11,9 +11,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import UserContext from '../../../../Contexts/UserContext';
 import getToastOptions from '../../ToastOptions';
+import ClaimRestaurant from './ClaimRestaurant';
 import InputLocation from './InputLocation';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -31,12 +32,20 @@ async function submitExperience(formValues, username) {
   );
 }
 
+async function getPossibleClaims(lat, lng) {
+  const restaurants = await axios.get(`${baseURL}/experience/similar`, {
+    params: { lat, lng },
+  });
+  return restaurants;
+}
+
 export default function RegisterExperience({
   experienceValues,
   setExperienceValues,
 }) {
   const { username } = useContext(UserContext);
-  // const [experienceValues, setExperienceValues] = useState(experienceData);
+  const [restaurants, setRestaurants] = useState([]);
+  const [claimStatus, setClaimStatus] = useState({ hasClaimed: true, type: '' });
   const [error, setError] = useState({
     name: '',
     address: '',
@@ -88,6 +97,15 @@ export default function RegisterExperience({
     }));
     setError({ ...error, [inputName]: '' });
   }
+  useEffect(() => {
+    if (experienceValues.lat !== 0 && experienceValues.lng !== 0) {
+      getPossibleClaims(experienceValues.lat, experienceValues.lng).then(
+        (res) => setRestaurants(res.data),
+      );
+    } else {
+      setRestaurants([]);
+    }
+  }, [experienceValues, setRestaurants]);
 
   // used to display success message in the following function
   const toast = useToast();
@@ -142,7 +160,7 @@ export default function RegisterExperience({
         {fields.map((inputField) => (
           <FormControl
             isRequired={inputField.isRequired}
-            key={inputField.id}
+            key={`${inputField.id}${claimStatus.hasClaimed}`}
             p="0px 20px"
           >
             <FormLabel>{inputField.displayText}</FormLabel>
@@ -165,11 +183,21 @@ export default function RegisterExperience({
               />
             )}
             {inputField.type === 'address' && (
-              <InputLocation
-                address={inputField.value}
-                placeholder={inputField.placeholder}
-                onSelect={onRegistryChange}
-              />
+              <>
+                <InputLocation
+                  address={inputField.value}
+                  placeholder={inputField.placeholder}
+                  onSelect={onRegistryChange}
+                  onUpdateClaim={setClaimStatus}
+                />
+                <ClaimRestaurant
+                  claimStatus={claimStatus}
+                  onSelect={setClaimStatus}
+                  restaurants={restaurants}
+                  experienceValues={experienceValues}
+                  onUpdate={setExperienceValues}
+                />
+              </>
             )}
             <Badge colorScheme="red">{inputField.error}</Badge>
           </FormControl>

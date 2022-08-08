@@ -28,6 +28,7 @@
         "no-param-reassign": "off",
         "no-shadow": "off",
         "operator-linebreak": "off",
-        "object-curly-newline": "off"
+        "object-curly-newline": "off",
+        "react/no-array-index-key": "off"
     }
 }
