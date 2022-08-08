@@ -9,16 +9,18 @@
 
 .env files:
 - /capstone-kickoff/back
-  NODE_ENV_ID_PROJECT = "ID_ON_DB"
-  NODE_ENV_PROJECT_KEY = "ID_ON_DB"
-  NODE_ENV_GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API"
-  
+```
+NODE_ENV_ID_PROJECT = "ID_ON_DB"
+NODE_ENV_PROJECT_KEY = "ID_ON_DB"
+NODE_ENV_GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API"
+```
 - /capstone-kickoff/capstone
-  ESLINT_NO_DEV_ERRORS = true
-  REACT_APP_USER_KEY = "current_user_id"
-  REACT_APP_BASE_URL = "http://localhost:3001"
-  REACT_APP_GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API"
-
+```
+ESLINT_NO_DEV_ERRORS = true
+REACT_APP_USER_KEY = "current_user_id"
+REACT_APP_BASE_URL = "http://localhost:3001"
+REACT_APP_GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API"
+```
 # Install and rund
 ```
 git clone https://github.com/carlosvegap/capstone-kickoff.git
