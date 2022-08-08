@@ -13,6 +13,7 @@ import {
 import axios from 'axios';
 import { useState, useContext } from 'react';
 import UserContext from '../../../../Contexts/UserContext';
+import getToastOptions from '../../ToastOptions';
 import InputLocation from './InputLocation';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -114,13 +115,12 @@ export default function RegisterExperience({
       // upload values to the database
       if (submitExperience(form, username)) {
         // display success message
-        toast({
+        toast(getToastOptions({
+          toast,
           title: 'Experience created!',
           description: 'Start preparing for new adventurers to arrive soon',
           status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        }));
         // store locally the values
         setExperienceValues(form);
       }

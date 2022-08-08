@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
+import getToastOptions from './ToastOptions';
 
 const baseURL = process.env.REACT_APP_BASE_URL;
 const adventurerURL = '/adventure/preferences';
@@ -38,6 +39,7 @@ async function getPreferenceRestrictions(username) {
 }
 
 export default function useSettings(userType, username) {
+  const toast = useToast();
   const URL = defineURL(userType);
   const isAdventurer = userType === 'adventurer';
   const [activeIDs, setActiveIDs] = useState([]);
@@ -57,8 +59,12 @@ export default function useSettings(userType, username) {
   useEffect(() => {
     if (username != null) {
       getPreferenceStatusIDs(username, URL).then((res) => {
-        setActiveIDs(res.data.active);
-        setInactiveIDs(res.data.inactive);
+        if (res.data.error) {
+          toast(getToastOptions({ status: 'error' }));
+        } else {
+          setActiveIDs(res.data.active);
+          setInactiveIDs(res.data.inactive);
+        }
       });
       if (isAdventurer) {
         getPreferenceRestrictions(username).then((res) => {
@@ -106,32 +112,24 @@ export default function useSettings(userType, username) {
     // ONLY FOR ADVENTURER
     hasMinValues.splice(activeIDIndex, 1);
   }
+  // ---------------------------------
   // Show success/error message after submission
-  const toast = useToast();
   function submissionMessage(isSubmitted) {
     const adventurerTitle = 'Preferences updated!';
     const adventurerDescription = 'You can go back and find new adventures';
     const experienceTitle = 'Information updated!!';
     const experienceDescription = 'Get ready to outstand in this categories';
     if (isSubmitted) {
-      return toast({
-        title: isAdventurer ? adventurerTitle : experienceTitle,
-        description: isAdventurer
-          ? adventurerDescription
-          : experienceDescription,
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-      });
+      const title = isAdventurer ? adventurerTitle : experienceTitle;
+      const description = isAdventurer
+        ? adventurerDescription
+        : experienceDescription;
+      toast(getToastOptions({ title, description, status: 'success' }));
+    } else {
+      toast(getToastOptions({ status: 'error' }));
     }
-    return toast({
-      title: 'An error has ocurred',
-      description: 'Please try again later',
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
   }
+  // ---------------------------------
   function onChangeMinValue(index, val) {
     const newPreferenceValues = minPreferenceValues.map((value, i) => {
       if (i !== index) return value;
@@ -159,7 +157,7 @@ export default function useSettings(userType, username) {
         URL,
       ).then((res) => submissionMessage(res.data));
     } else {
-      update({ username, activeIDs }, URL).then((res) =>
+      update({ activeIDs }, username, URL).then((res) =>
         submissionMessage(res.data),
       );
     }
@@ -179,7 +177,6 @@ export default function useSettings(userType, username) {
       onChangeMinValue,
     };
   }
-  // TODO: Go over experience part consumer of the useSettings and fix the activeInfo part
   return {
     activeIDs,
     inactiveIDs,

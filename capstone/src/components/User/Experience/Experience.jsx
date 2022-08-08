@@ -42,10 +42,10 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
     } else if (username != null) {
       Promise.all([getExperienceInfo(username), getAllFeedbackInfo()]).then(
         ([expRes, feedbackRes]) => {
-          // If there are no records on the experience that the user owns
+          // If there are no values for a field
           // send to that page to promote submission.
           // Otherwise, just set values in state
-          if (Object.keys(expRes.data).length === 0) {
+          if (Object.keys(expRes.data).every((experienceField) => !!experienceField)) {
             navigate('/experience/myExperience', { replace: true });
           } else {
             setExperienceData(expRes.data);

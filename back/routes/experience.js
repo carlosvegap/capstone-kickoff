@@ -3,13 +3,44 @@ var express = require('express');
 const { Parse } = require('./../parse');
 const {
   AllFeedbackInfoQuery,
+  ExperienceInfoQuery,
 } = require('../queries/experience');
 var router = express.Router();
 
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // ----- Get feedback information of a given array -----
 router.get('/preferences/all', async (req, res) => {
   const allFeedbackInfo = await AllFeedbackInfoQuery();
   res.status(200).send(allFeedbackInfo);
+});
+
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+// ----- Get Preference status ------
+// Used in useSettings.jsx
+// Returns an object in format {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
+router.get('/preferences/status', async (req, res) => {
+  const experienceInfo = await ExperienceInfoQuery(req.headers.username);
+  const allFeedback = await AllFeedbackInfoQuery();
+  // It should pass, since Experience is created with sign up by default
+  if (experienceInfo) {
+    const activePreferencesIDs = experienceInfo.activeFeedback;
+    // Find inactive preferences IDS
+    const inactivePreferences = allFeedback.filter(
+      (feedback) => !activePreferencesIDs.includes(feedback.objectId),
+    );
+    const inactivePreferencesIDs = inactivePreferences.map(
+      (preference) => preference.objectId,
+    );
+    res
+      .status(200)
+      .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
+  } else {
+    res
+      .status(400)
+      .send({
+        error: { message: 'An error just happened.' },
+      });
+  }
 });
 
 /* 
@@ -105,9 +136,9 @@ router.post('/feedback/info', async (req, res) => {
 });
 
 // ----- Submit feedback preferences to db -----
-router.post('/feedback/update', async (req, res) => {
+router.post('/preferences/update', async (req, res) => {
   const findQuery = new Parse.Query('Experience');
-  findQuery.equalTo('username', req.body.username);
+  findQuery.equalTo('username', req.headers.username);
   const currentExperience = await findQuery.first();
   const objectId = currentExperience.toJSON().objectId;
   const updateQuery = new Parse.Object('Experience');

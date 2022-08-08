@@ -33,7 +33,21 @@ async function InitializePreferencesQuery(username) {
     .save();
 }
 
+async function InitializeExperienceQuery(username) {
+  await new Parse.Object('Experience')
+  .set('username', username)
+  .set('name', '')
+  .set('description', '')
+  .set('email', '')
+  .set('address', '')
+  .set('lat', 0)
+  .set('lng', 0)
+  .set('activeFeedback', [])
+  .save();
+}
+
 exports.UserDataQuery = UserDataQuery;
 exports.LoginQuery = LoginQuery;
 exports.GeneralSignUpQuery = GeneralSignUpQuery;
 exports.InitializePreferencesQuery = InitializePreferencesQuery;
+exports.InitializeExperienceQuery = InitializeExperienceQuery

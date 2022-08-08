@@ -13,6 +13,7 @@ import AdventurerContext from '../../../../Contexts/AdventurerContext';
 import FeedbackContext from '../../../../Contexts/FeedbackContext';
 import UserContext from '../../../../Contexts/UserContext';
 import RateExperience from './RateExperience';
+import getToastOptions from '../../ToastOptions';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -97,21 +98,10 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
       if (res.data) {
         restaurants[indexRestaurant] = { ...restaurants[indexRestaurant], review: newReview };
         onUpdateRestaurants([...restaurants]);
-        return toast({
-          title: 'Successfully rated',
-          description: 'Thanks for rating!',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        toast(getToastOptions({ title: 'Successfully rated', description: 'Thanks for rating!', status: 'success' }));
+      } else {
+        toast(getToastOptions({ toast, status: 'error' }));
       }
-      return toast({
-        title: 'An error happened',
-        description: 'Try again later',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
     });
   }
 

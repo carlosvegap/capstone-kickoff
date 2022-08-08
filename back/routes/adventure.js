@@ -57,6 +57,7 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   const allExperiences = await ExperiencesQuery();
   const experiences = [];
   for (const experience of allExperiences) {
+    if (!experience.address) continue;
     var config = {
       method: 'get',
       url: encodeURI(
