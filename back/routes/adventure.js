@@ -9,9 +9,9 @@ const {
 } = require('../queries/adventure');
 const { filterAndRank } = require('../functions/filterAndRank');
 const { googleTextSearch } = require('../functions/googleTextSearch');
-var express = require('express');
-var router = express.Router();
-var axios = require('axios');
+const express = require('express');
+const router = express.Router();
+const axios = require('axios');
 
 const googleKey = process.env.NODE_ENV_GOOGLE_MAPS_API_KEY;
 
@@ -37,15 +37,15 @@ function formatRestaurantForGoogleAPI(restaurant) {
 }
 // ------- Mix back and google info -------
 async function mergeAPIandAppData(restaurant) {
-  var config = {
+  const config = {
     method: 'get',
     url: encodeURI(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${restaurant.place_id}&key=${googleKey}`
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${restaurant.place_id}&key=${googleKey}`,
     ),
     headers: {},
   };
-  return (await axios(config).then((response) => {
-    const googleInfo = response.data.result
+  return await axios(config).then((response) => {
+    const googleInfo = response.data.result;
     return {
       name: restaurant.name,
       formatted_address: googleInfo.formatted_address,
@@ -57,8 +57,8 @@ async function mergeAPIandAppData(restaurant) {
       activeFeedback: restaurant.activeFeedback,
       photos: googleInfo.photos,
     };
-  }));
-  // 
+  });
+  //
 }
 // ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
@@ -69,28 +69,28 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   for (const restaurant of allRestaurants) {
     if (!restaurant.address) continue;
     // find distance between adventurer and restaurant
-    var config = {
+    const config = {
       method: 'get',
       url: encodeURI(
         `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLng}&destinations=${restaurant.lat},${restaurant.lng}&key=${googleKey}`,
-        ),
-        headers: {},
+      ),
+      headers: {},
     };
     await axios(config).then(async (response) => {
       // determine if the restaurant is within distance radius
       if (response.data.rows[0].elements[0].distance.value <= distance) {
-        // if the restaurant is a claimed restaurant, mix data from google and app
+        // if the restaurant is a claimed
+        // restaurant, mix data from google and app
         if (restaurant.place_id !== '') {
           usedPlaceIDs.push(restaurant.place_id);
-          const mixRestaurant = await mergeAPIandAppData(restaurant)
+          const mixRestaurant = await mergeAPIandAppData(restaurant);
           restaurants.push({
             ...mixRestaurant,
             distance: response.data.rows[0].elements[0].distance.value,
           });
-        }
-        else {
+        } else {
           restaurants.push({
-            ...(formatRestaurantForGoogleAPI(restaurant)),
+            ...formatRestaurantForGoogleAPI(restaurant),
             distance: response.data.rows[0].elements[0].distance.value,
           });
         }
@@ -105,14 +105,18 @@ function determineDistance(userPreference, distanceFeedback) {
   let distance = distanceFeedback.defaultValue * 1000;
   // Get distance value by the user if existing
   if (userPreference.activePreferences.includes(distanceFeedback.objectId)) {
-    let index = userPreference.activePreferences.indexOf(
+    const index = userPreference.activePreferences.indexOf(
       distanceFeedback.objectId,
     );
     // Match km from UI options to meters in Google's API request
-    if (userPreference.hasMinimumValue[index])
+    if (userPreference.hasMinimumValue[index]) {
       distance = userPreference.minValues[index] * 1000;
-    // Delete distance from userPreferences (handled by Google Maps and by our database)
-    // The database records minValue even if it is not active (because if user turns it on, it should go back to that previous value) so it should be deleted
+    }
+    /* Delete distance from userPreferences
+    (handled by Google Maps and by our database)
+    The database records minValue even if it is not active
+    (because if user turns it on, it should go back to that previous value)
+    so it should be deleted */
     userPreference.activePreferences.splice(index, 1);
     userPreference.hasMinimumValue.splice(index, 1);
     userPreference.minValues.splice(index, 1);
@@ -121,7 +125,8 @@ function determineDistance(userPreference, distanceFeedback) {
 }
 // -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Get filtered restaurants ------
-// Used in Adventurer.jsx so that the adventurerContext can provide all restaurants information
+// Used in Adventurer.jsx so that the
+// adventurerContext can provide all restaurants information
 router.get('/restaurants', async (req, res) => {
   // Get active UsersPreferences from db
   const registeredUserPreference = await UserPreferencesQuery(
@@ -134,7 +139,8 @@ router.get('/restaurants', async (req, res) => {
   const distanceFeedback = allFeedbackInfo.find(
     (feedback) => feedback.displayText === 'Distance',
   );
-  // Find working distance and remove it from userPreference if exists (will be processed differently)
+  // Find working distance and remove it
+  // from userPreference if exists (will be processed differently)
   const { userPreference, distance } = determineDistance(
     registeredUserPreference,
     distanceFeedback,
@@ -145,12 +151,11 @@ router.get('/restaurants', async (req, res) => {
     req.query.lat,
     req.query.lng,
   );
-  // Get restaurants from Google (limiting distance) and those that didn't appear on the other records
-  const googleRestaurants = (await googleTextSearch(
-    distance,
-    req.query.lat,
-    req.query.lng,
-  )).filter((restaurant) => !usedPlaceIDs.includes(restaurant.place_id));
+  // Get restaurants from Google (limiting distance)
+  // and those that didn't appear on the other records
+  const googleRestaurants = (
+    await googleTextSearch(distance, req.query.lat, req.query.lng)
+  ).filter((restaurant) => !usedPlaceIDs.includes(restaurant.place_id));
   const allRestaurants = googleRestaurants.concat(databaseRestaurants);
   // Calculate final restaurants
   const restaurants = await filterAndRank(
@@ -164,7 +169,8 @@ router.get('/restaurants', async (req, res) => {
 
 // -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Get all Feedback Info ------
-// Used in Adventurer.jsx in a useContext so that the rest of components can consume it
+// Used in Adventurer.jsx in a useContext so
+// that the rest of components can consume it
 router.get('/preferences/all', async (req, res) => {
   const feedbackInfo = await AllFeedbackInfoQuery();
   res.status(200).send(feedbackInfo);
@@ -173,7 +179,8 @@ router.get('/preferences/all', async (req, res) => {
 // -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Get Feedback status ------
 // Used in useSettings.jsx
-// Returns an object in format {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
+// Returns an object in format
+// {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
 router.get('/preferences/status', async (req, res) => {
   // Find current preferences
   const userPreferences = await UserPreferencesQuery(req.headers.username);
@@ -193,11 +200,9 @@ router.get('/preferences/status', async (req, res) => {
       .status(200)
       .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
   } else {
-    res
-      .status(400)
-      .send({
-        error: { message: 'No existing preferences record for that user' },
-      });
+    res.status(400).send({
+      error: { message: 'No existing preferences record for that user' },
+    });
   }
 });
 
@@ -232,17 +237,17 @@ router.post('/preferences/update', async (req, res) => {
 // -_-_-_-_-_-_-_ENDPOINT_-_-_-_-_-_-_-_-_-_
 // ----- Preferences restrictions ------
 // Used in useSettings.jsx
-// Returns priorization (bool indicating if ranking algorithm is active), minValues (array of values) and hasMinValues (array of bools stating if the minValue is active - to filter)
+// Returns priorization (bool indicating if ranking algorithm is active),
+// minValues (array of values)
+// hasMinValues (array of bools stating if the minValue is active - to filter)
 // Format: {prioritize, minValues, hasMinimumValue}
 router.get('/preferences/restrictions', async (req, res) => {
   const preference = await UserPreferencesQuery(req.headers.username);
-  res
-    .status(200)
-    .send({
-      prioritize: preference.prioritize,
-      minValues: preference.minValues,
-      hasMinimumValue: preference.hasMinimumValue,
-    });
+  res.status(200).send({
+    prioritize: preference.prioritize,
+    minValues: preference.minValues,
+    hasMinimumValue: preference.hasMinimumValue,
+  });
 });
-    
+
 module.exports = router;

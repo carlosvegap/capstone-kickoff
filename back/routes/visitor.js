@@ -1,5 +1,5 @@
 require('dotenv/config');
-var express = require('express');
+const express = require('express');
 const {
   UserDataQuery,
   LoginQuery,
@@ -7,11 +7,12 @@ const {
   InitializePreferencesQuery,
   InitializeExperienceQuery,
 } = require('../queries/visitor');
-var router = express.Router();
+const router = express.Router();
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // POST the user has loggedIn into Session Table
-// Used in Login.jsx to check information on db and return which kind of user is logging in (adventurer or experience maker)
+// Used in Login.jsx to check information on db and return which kind of user
+// is logging in (adventurer or experience maker)
 // If there is an error, submission will inform that to the UI
 router.post('/logIn', async (req, res) => {
   if (!req.headers.username || !req.headers.password) {
@@ -25,7 +26,7 @@ router.post('/logIn', async (req, res) => {
       res.status(400).send(submission);
     } else {
       // Sent as user to match UI format
-      res.status(200).send({user: submission});
+      res.status(200).send({ user: submission });
     }
   }
 });

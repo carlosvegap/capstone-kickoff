@@ -49,10 +49,10 @@ if priorization wanted
 */
 // eslint-disable-next-line require-jsdoc
 async function filterAndRank(
-    userPreference,
-    allRestaurants,
-    allFeedbackInfo,
-    userReviews,
+  userPreference,
+  allRestaurants,
+  allFeedbackInfo,
+  userReviews,
 ) {
   const priority = userPreference.prioritize;
   const restaurants = [];
@@ -68,7 +68,7 @@ async function filterAndRank(
       if (priority) {
         // Find the max value of the current experience
         const feedbackMaxValue = allFeedbackInfo.find(
-            (feedback) => feedback.objectId === preferenceID,
+          (feedback) => feedback.objectId === preferenceID,
         ).maxValue;
         score +=
           (meanReviewScore / feedbackMaxValue) *
@@ -97,7 +97,7 @@ async function filterAndRank(
           allFeedbackInfo.map((feedback) => feedback.objectId),
         // set review from the user if existing, otherwise undefined
         review: userReviews.find(
-            (review) => review.experienceId === restaurant.place_id,
+          (review) => review.experienceId === restaurant.place_id,
         ),
         reviewsNumber: reviewsNumber,
       });
