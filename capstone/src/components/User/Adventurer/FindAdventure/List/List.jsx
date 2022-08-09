@@ -36,6 +36,8 @@ export default function List() {
               <Text textAlign="center">{restaurant.formatted_address}</Text>
             </VStack>
             <Image
+              alignSelf="center"
+              margin="auto"
               width="100px"
               height="100px"
               borderRadius="10px"
