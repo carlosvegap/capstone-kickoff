@@ -118,7 +118,7 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
         />
         {currentRestaurant.matchScore ? (
           <Badge colorScheme="purple">
-            {currentRestaurant.matchScore.toFixed(2)} match points
+            {currentRestaurant.matchScore}% match
           </Badge>
         ) : null}
         <HStack justifyContent="center">

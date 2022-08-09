@@ -38,6 +38,25 @@ async function UserReviewsQuery(username) {
   ).map((review) => review.toJSON());
 }
 
+/* Find all reviews of an experience by ID
+   It groups those made by the same user, since each review is on a single
+   preference area
+Used by functions/filterAndRank */
+async function AllExperienceReviewsQuery(experienceID) {
+  let totalReviews = 0;
+  const ratingUsers = [];
+  const reviews = await new Parse.Query('Review')
+      .equalTo('experienceId', experienceID)
+      .find();
+  reviews.map((review) => {
+        if (!ratingUsers.includes(review.toJSON().adventurerUsername)) {
+          totalReviews++;
+          ratingUsers.push(review.toJSON().adventurerUsername);
+        }
+      });
+  return totalReviews;
+}
+
 // Find all registered experiences on db
 // Used by routes/adventure/getDatabaseRestaurants
 async function ExperiencesQuery() {
@@ -95,4 +114,5 @@ exports.AllFeedbackInfoQuery = AllFeedbackInfoQuery;
 exports.UserReviewsQuery = UserReviewsQuery;
 exports.ExperiencesQuery = ExperiencesQuery;
 exports.RateQuery = RateQuery;
-exports.UpdatePreferenceQuery = UpdatePreferenceQuery
+exports.UpdatePreferenceQuery = UpdatePreferenceQuery;
+exports.AllExperienceReviewsQuery = AllExperienceReviewsQuery;

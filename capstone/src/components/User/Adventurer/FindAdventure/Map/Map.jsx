@@ -1,6 +1,12 @@
 import { useContext, useState, Fragment } from 'react';
 import {
-  VStack, Spinner, Heading, Box, Text, Badge,
+  VStack,
+  Spinner,
+  Heading,
+  Box,
+  Text,
+  Badge,
+  Image,
 } from '@chakra-ui/react';
 import {
   useLoadScript,
@@ -10,11 +16,12 @@ import {
 } from '@react-google-maps/api';
 import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
-export default function Map() {
-  const { currentPosition, isDataFetched, restaurants } = useContext(AdventurerContext);
+const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
+export default function Map() {
+  const { currentPosition, isDataFetched, restaurants } =
+    useContext(AdventurerContext);
   const [activeRestaurant, setActiveRestaurant] = useState(null);
-  // TODO: change center
 
   // returns if isLoaded when you call the API
   const { isLoaded } = useLoadScript({
@@ -61,10 +68,33 @@ export default function Map() {
           >
             {activeRestaurant === restaurant.place_id ? (
               <InfoWindowF position={restaurant.geometry.location}>
-                <Box width="120px">
+                <Box
+                  width="120px"
+                  display="flex"
+                  justifyContent="center"
+                  flexDirection="column"
+                >
                   <Heading size="l">{restaurant.name}</Heading>
                   <Text size="l">{restaurant.formatted_address}</Text>
-                  <Badge colorScheme="purple">{restaurant.matchScore}% match</Badge>
+                  <Image
+                    width="auto"
+                    height="70px"
+                    src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${
+                      restaurant.photos
+                        ? restaurant.photos[0].photo_reference
+                        : null
+                    }&key=${API_KEY}`}
+                  />
+                  {restaurant.matchScore ? (
+                    <Badge mt="5px" colorScheme="purple">
+                      {restaurant.matchScore}% match
+                    </Badge>
+                  ) : null}
+                  {restaurant.reviewsNumber ? (
+                    <Badge mt="5px" colorScheme="blue">
+                      {restaurant.reviewsNumber} reviews
+                    </Badge>
+                  ) : null}
                 </Box>
               </InfoWindowF>
             ) : null}

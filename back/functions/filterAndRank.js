@@ -1,9 +1,5 @@
-const {
-  ExperienceReviewsQuery,
-} = require('../queries/adventure');
+const { ExperienceReviewsQuery, AllExperienceReviewsQuery } = require('../queries/adventure');
 
-
-// TODO: Use same function to get the number of reviews
 // ----- Find mean for reviews of restaurant on a feedback -----
 async function getMean(experienceID, feedbackID) {
   // Find reviews of an experience on X feedback area
@@ -13,17 +9,34 @@ async function getMean(experienceID, feedbackID) {
     const sum = reviews.reduce((sum, score) => sum + score.toJSON().score, 0);
     return sum / reviews.length;
   }
-  return 0;
+  return null;
+}
+
+// Find max points an experience can get
+function getMaxPoints(numberPreferences) {
+  let result = 0;
+  for (let i = 1; i <= numberPreferences; i++) {
+    result += i;
+  }
+  return result;
+}
+
+// Get the total number of reviews an experience has
+async function getReviews(experienceID) {
+  const reviewsNumber = await AllExperienceReviewsQuery(experienceID);
+  return reviewsNumber;
 }
 /* 
 -_-_-_-_-_-_ FILTER / RANK ALGORITHM -_-_-_-_-_-_
 It requires all active user preferences, all restaurants, feedback information and the reviews of the user 
 These restaurants went already through the distance filter
 It uses getMean to go through all reviews on a feedback area and find the mean value
+It uses getMaxPoints to find the maximum score an experience can have (all perfect reviews)
 If it is below the threshold, it is not included in the final restaurants
 If it passes the threshold and the user wants priorization:
   - It finds the percentage of the meanValue vs the maximum possible value (found in allFeedbackInfo)
   - It assigns lineally more points to the first preference
+  - It adds all those scores and compare it to the max points to determine match %
 Additionally it includes if it is rated already by the user (found in userReviews)
 RETURNS: A list of Restaurants objects, including a matchScore if priorization wanted
 */
@@ -35,10 +48,12 @@ async function filterAndRank(
 ) {
   const priority = userPreference.prioritize;
   const restaurants = [];
+  const maxPoints = getMaxPoints(userPreference.activePreferences.length);
   for (const restaurant of allRestaurants) {
     let score = 0;
     let passesFilter = true;
     let indexPreference = 0;
+    const reviewsNumber = await getReviews(restaurant.place_id);
     for (const preferenceID of userPreference.activePreferences) {
       const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
       // Find the matching score if the user has priorities
@@ -58,12 +73,16 @@ async function filterAndRank(
         passesFilter = false;
         break;
       }
+      indexPreference++;
     }
     if (passesFilter) {
       restaurants.push({
         ...restaurant,
-        matchScore: priority ? score : undefined,
-        // activeFeedback was set in database restaurants. if it doesn't exist, it's a google restaurant: all feedback applies
+        matchScore: priority
+          ? Math.round((100 * score) / maxPoints)
+          : undefined,
+        /* activeFeedback was set in database restaurants. 
+        if it doesn't exist, it's a google restaurant, therefore all feedback applies */
         activeFeedback:
           restaurant.activeFeedback ??
           allFeedbackInfo.map((feedback) => feedback.objectId),
@@ -71,6 +90,7 @@ async function filterAndRank(
         review: userReviews.find(
           (review) => review.experienceId === restaurant.place_id,
         ),
+        reviewsNumber: reviewsNumber
       });
     }
   }
