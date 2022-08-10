@@ -47,6 +47,7 @@ async function mergeAPIandAppData(restaurant) {
   return await axios(config).then((response) => {
     const googleInfo = response.data.result;
     return {
+      objectId: restaurant.objectId,
       name: restaurant.name,
       formatted_address: googleInfo.formatted_address,
       geometry: googleInfo.geometry,
@@ -58,7 +59,6 @@ async function mergeAPIandAppData(restaurant) {
       photos: googleInfo.photos,
     };
   });
-  //
 }
 // ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
@@ -67,7 +67,7 @@ async function getDatabaseRestaurants(distance, userLat, userLng) {
   // IDs that are not allowed to be repeated by google API
   const usedPlaceIDs = [];
   for (const restaurant of allRestaurants) {
-    if (!restaurant.address) continue;
+    if (!restaurant.address || restaurant.activeFeedback.length < 5) continue;
     // find distance between adventurer and restaurant
     const config = {
       method: 'get',
@@ -155,7 +155,9 @@ router.get('/restaurants', async (req, res) => {
   // and those that didn't appear on the other records
   const googleRestaurants = (
     await googleTextSearch(distance, req.query.lat, req.query.lng)
-  ).filter((restaurant) => !usedPlaceIDs.includes(restaurant.place_id));
+  )
+    .filter((restaurant) => !usedPlaceIDs.includes(restaurant.place_id))
+    .map((res) => ({ ...res, objectId: res.place_id }));
   const allRestaurants = googleRestaurants.concat(databaseRestaurants);
   // Calculate final restaurants
   const restaurants = await filterAndRank(
