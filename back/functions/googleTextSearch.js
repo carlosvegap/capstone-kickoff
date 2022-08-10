@@ -7,7 +7,7 @@ async function getGoogleRestaurants(radius, lat, lng) {
   const query = 'restaurant';
   const location = `${lat},${lng}`;
   const url = encodeURI(
-      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${googleKey}`,
+    `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&location=${location}&radius=${radius}&key=${googleKey}`,
   );
   const config = {
     method: 'get',

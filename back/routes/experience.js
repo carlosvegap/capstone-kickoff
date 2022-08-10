@@ -1,5 +1,5 @@
 require('dotenv/config');
-var express = require('express');
+const express = require('express');
 const {
   AllFeedbackInfoQuery,
   ExperienceInfoQuery,
@@ -7,11 +7,12 @@ const {
   SubmitExperienceQuery,
 } = require('../queries/experience');
 const { googleTextSearch } = require('../functions/googleTextSearch');
-var router = express.Router();
+const router = express.Router();
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // ----- Get all Feedback Info ------
-// Used in Adventurer.jsx in a useContext so that the rest of components can consume it
+// Used in Adventurer.jsx in a useContext
+// so that the rest of components can consume it
 router.get('/preferences/all', async (req, res) => {
   const allFeedbackInfo = await AllFeedbackInfoQuery();
   res.status(200).send(allFeedbackInfo);
@@ -20,7 +21,8 @@ router.get('/preferences/all', async (req, res) => {
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // ----- Get Preference status ------
 // Used in useSettings.jsx
-// Returns an object in format {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
+// Returns an object in format
+// {active: ['feedbackKey'...], inactive: ['feedbackKey'...]}
 router.get('/preferences/status', async (req, res) => {
   const experienceInfo = await ExperienceInfoQuery(req.headers.username);
   const allFeedback = await AllFeedbackInfoQuery();
@@ -38,11 +40,9 @@ router.get('/preferences/status', async (req, res) => {
       .status(200)
       .send({ active: activePreferencesIDs, inactive: inactivePreferencesIDs });
   } else {
-    res
-      .status(400)
-      .send({
-        error: { message: 'An error just happened.' },
-      });
+    res.status(400).send({
+      error: { message: 'An error just happened.' },
+    });
   }
 });
 
@@ -57,21 +57,24 @@ router.get('/info', async (req, res) => {
 // ----- Submit feedback preferences to db -----
 router.post('/preferences/update', async (req, res) => {
   const objectId = (await ExperienceInfoQuery(req.headers.username)).objectId;
-  const isUpdated = await UpdatePreferencesQuery(objectId, req.body.activeIDs)
+  const isUpdated = await UpdatePreferencesQuery(objectId, req.body.activeIDs);
   res.status(200).send(isUpdated);
 });
 
 // Submit experience information
 router.post('/submit', async (req, res) => {
   const objectID = (await ExperienceInfoQuery(req.headers.username)).objectId;
-  const isSubmitted = await SubmitExperienceQuery(objectID, req.body.formValues);
+  const isSubmitted = await SubmitExperienceQuery(
+    objectID,
+    req.body.formValues,
+  );
   res.status(200).send(isSubmitted);
 });
 
 // ----- Get possible claimed restaurant ------
-router.get('/similar', async(req, res) => {
+router.get('/similar', async (req, res) => {
   const results = await googleTextSearch(100, req.query.lat, req.query.lng);
   res.status(200).send(results.filter((res, index) => index < 3));
-})
+});
 
 module.exports = router;

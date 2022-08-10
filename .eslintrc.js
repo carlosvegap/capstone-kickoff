@@ -27,5 +27,7 @@ module.exports = {
     'react/no-array-index-key': 'off',
     'require-jsdoc': 'off',
     'new-cap': 'off',
+    'object-curly-spacing': 'off',
+    'indent': ['error', 2],
   },
 };
