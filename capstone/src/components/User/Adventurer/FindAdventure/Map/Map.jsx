@@ -47,7 +47,7 @@ export default function Map() {
       zoom={14}
       mapContainerStyle={{
         width: '80%',
-        height: '400px',
+        height: '700px',
         marginTop: '10px',
         marginLeft: '10%',
         borderRadius: '20px',

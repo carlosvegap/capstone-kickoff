@@ -6,6 +6,9 @@ import {
   Image,
   VStack,
   useToast,
+  Progress,
+  Text,
+  Box,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useContext, useEffect } from 'react';
@@ -38,12 +41,15 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
-  const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
+  const currentRestaurant =
+    restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
-  const feedbackAreas = feedbackInfo?.filter((feedback) =>
-    feedback.forExperience && currentRestaurant?.activeFeedback.includes(feedback.objectId),
+  const feedbackAreas = feedbackInfo?.filter(
+    (feedback) =>
+      feedback.forExperience &&
+      currentRestaurant?.activeFeedback.includes(feedback.objectId),
   );
   // find the photo reference of that restaurant
   const photoReference = currentRestaurant
@@ -96,9 +102,18 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
   function onSubmission() {
     submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
       if (res.data) {
-        restaurants[indexRestaurant] = { ...restaurants[indexRestaurant], review: newReview };
+        restaurants[indexRestaurant] = {
+          ...restaurants[indexRestaurant],
+          review: newReview,
+        };
         onUpdateRestaurants([...restaurants]);
-        toast(getToastOptions({ title: 'Successfully rated', description: 'Thanks for rating!', status: 'success' }));
+        toast(
+          getToastOptions({
+            title: 'Successfully rated',
+            description: 'Thanks for rating!',
+            status: 'success',
+          }),
+        );
       } else {
         toast(getToastOptions({ toast, status: 'error' }));
       }
@@ -107,7 +122,7 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
 
   if (currentRestaurant) {
     return (
-      <VStack width="50%">
+      <VStack width="50%" display="flex" justifyContent="flex-start">
         <Image
           height="300px"
           src={photoCall}
@@ -133,23 +148,45 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
             Next
           </Button>
         </HStack>
-        <VStack justifyContent="center" display="flex">
-          {!isRated ? (
-            <RateExperience
-              name={currentRestaurant.name}
-              feedbackAreas={feedbackAreas}
-              onChange={onNewReviewChange}
-              onReset={resetRatingForm}
-              onSubmit={onSubmission}
-            />
-          ) : (
-            <Badge colorScheme="teal">Rated</Badge>
-          )}
-          <Heading as="h2" size="lg">
-            {currentRestaurant.name}
+        {!isRated ? (
+          <RateExperience
+            name={currentRestaurant.name}
+            feedbackAreas={feedbackAreas}
+            onChange={onNewReviewChange}
+            onReset={resetRatingForm}
+            onSubmit={onSubmission}
+          />
+        ) : (
+          <Badge colorScheme="teal">Rated</Badge>
+        )}
+        <Heading as="h2" size="lg">
+          {currentRestaurant.name}
+        </Heading>
+        <Text>{currentRestaurant.formatted_address}</Text>
+        <Box  width="100%" mt="30px">
+          <Heading textAlign="center" size="md">
+            Statistics:
           </Heading>
-          <h4>{currentRestaurant.formatted_address}</h4>
-        </VStack>
+          <Text textAlign="center">Ordered according to your preferences</Text>
+        </Box>
+          <VStack width="60%" spacing="20px" m="10px">
+            {currentRestaurant.meanScores.map((meanScore) => (
+              <Box
+                width="80%"
+                display="flex"
+                flexDirection="column"
+                alignContent="center"
+              >
+                <Text>{meanScore.preferenceName}</Text>
+                <Progress
+                  height="20px"
+                  width="100%"
+                  value={meanScore.meanReviewScore}
+                  colorScheme="yellow"
+                />
+              </Box>
+            ))}
+          </VStack>
       </VStack>
     );
   }

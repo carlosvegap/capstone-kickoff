@@ -47,7 +47,6 @@ Additionally it includes if it is rated already by the user
 RETURNS: A list of Restaurants objects, including a matchScore
 if priorization wanted
 */
-// eslint-disable-next-line require-jsdoc
 async function filterAndRank(
   userPreference,
   allRestaurants,
@@ -58,18 +57,26 @@ async function filterAndRank(
   const restaurants = [];
   const maxPoints = getMaxPoints(userPreference.activePreferences.length);
   for (const restaurant of allRestaurants) {
+    const meanScores = [];
     let score = 0;
     let passesFilter = true;
     let indexPreference = 0;
     const reviewsNumber = await getReviews(restaurant.place_id);
     for (const preferenceID of userPreference.activePreferences) {
+      const feedbackMaxValue = allFeedbackInfo.find(
+        (feedback) => feedback.objectId === preferenceID,
+      ).maxValue;
+      const preferenceName = allFeedbackInfo.find(
+        (feedback) => feedback.objectId === preferenceID,
+      ).displayText;
       const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
+      meanScores.push({
+        preferenceName,
+        meanReviewScore: (meanReviewScore / feedbackMaxValue) * 100,
+      });
       // Find the matching score if the user has priorities
       if (priority) {
         // Find the max value of the current experience
-        const feedbackMaxValue = allFeedbackInfo.find(
-          (feedback) => feedback.objectId === preferenceID,
-        ).maxValue;
         score +=
           (meanReviewScore / feedbackMaxValue) *
           (userPreference.activePreferences.length - indexPreference);
@@ -100,6 +107,7 @@ async function filterAndRank(
           (review) => review.experienceId === restaurant.place_id,
         ),
         reviewsNumber: reviewsNumber,
+        meanScores,
       });
     }
   }
