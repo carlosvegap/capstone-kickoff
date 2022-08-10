@@ -33,16 +33,14 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
-export default function ExperienceInfo({ onUpdateRestaurants }) {
+export default function ExperienceInfo({ onUpdateRestaurants, indexRestaurant, onSelectRestaurant }) {
   const { username } = useContext(UserContext);
   const { restaurants } = useContext(AdventurerContext);
   // All feedback information (including distance, which is not rateable)
   const feedbackInfo = useContext(FeedbackContext);
-  const [indexRestaurant, setIndexRestaurant] = useState(0);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
-  const currentRestaurant =
-    restaurants.length > 0 ? restaurants[indexRestaurant] : null;
+  const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
@@ -88,13 +86,13 @@ export default function ExperienceInfo({ onUpdateRestaurants }) {
 
   function onNext() {
     if (indexRestaurant < restaurants.length - 1) {
-      setIndexRestaurant(indexRestaurant + 1);
+      onSelectRestaurant(indexRestaurant + 1);
     }
   }
 
   function onPrevious() {
     if (indexRestaurant > 0) {
-      setIndexRestaurant(indexRestaurant - 1);
+      onSelectRestaurant(indexRestaurant - 1);
     }
   }
 

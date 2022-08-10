@@ -32,6 +32,7 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [feedbackInfo, setFeedbackInfo] = useState([]);
+  const [indexRestaurant, setIndexRestaurant] = useState(0);
 
   // MEMO VALUES
   const mapData = useMemo(
@@ -103,8 +104,8 @@ export default function Adventurer({ setIsLoggedIn, isLoggedIn }) {
         <AdventurerContext.Provider value={mapData}>
           <FeedbackContext.Provider value={feedbackInfo}>
             <HStack height="100%">
-              <FindAdventure />
-              <ExperienceInfo onUpdateRestaurants={setRestaurants} />
+              <FindAdventure onSelectRestaurant={setIndexRestaurant}/>
+              <ExperienceInfo onUpdateRestaurants={setRestaurants} indexRestaurant={indexRestaurant} onSelectRestaurant={setIndexRestaurant} />
             </HStack>
           </FeedbackContext.Provider>
         </AdventurerContext.Provider>
