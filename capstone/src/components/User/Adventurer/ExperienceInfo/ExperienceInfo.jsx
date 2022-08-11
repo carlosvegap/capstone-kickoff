@@ -33,15 +33,24 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
+/*
+  After submitting a new review, find the new values for the statistics 
+  on a restaurant so the user doesn't have to reload the page
+  for meanReviewScore (the average score for each preference)
+  it finds the accumulated sum of all previous reviews (points out of a 100)
+  and later adds the new review value, to later find the new average.
+*/
 function calculateNewMeanReviews(meanScores, reviewsNumber, newReview) {
+  const maxValue = 5;
   return meanScores.map((scoreObject) => {
-    const newVal = (newReview.find(
+    const newVal = newReview.find(
       (review) => review.feedbackId === scoreObject.feedbackId,
-    )).score;
+    ).score;
     return {
       ...scoreObject,
       meanReviewScore:
-        ((newVal / 5 * 100) + scoreObject.meanReviewScore * reviewsNumber) /
+        ((newVal / maxValue) * 100 +
+          scoreObject.meanReviewScore * reviewsNumber) /
         (reviewsNumber + 1),
     };
   });
@@ -121,12 +130,13 @@ export default function ExperienceInfo({
       if (res.data) {
         restaurants[indexRestaurant] = {
           ...restaurants[indexRestaurant],
+          reviewsNumber: currentRestaurant.reviewsNumber + 1,
           review: newReview,
           meanScores: calculateNewMeanReviews(
             currentRestaurant.meanScores,
             currentRestaurant.reviewsNumber,
             newReview,
-          )
+          ),
         };
         onUpdateRestaurants([...restaurants]);
         toast(

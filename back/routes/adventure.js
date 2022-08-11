@@ -62,12 +62,18 @@ async function mergeAPIandAppData(restaurant) {
 }
 // ------- Get back4app restaurants -------
 async function getDatabaseRestaurants(distance, userLat, userLng) {
+  const minPreferencesNumber = 5;
   const allRestaurants = await ExperiencesQuery();
   const restaurants = [];
   // IDs that are not allowed to be repeated by google API
   const usedPlaceIDs = [];
   for (const restaurant of allRestaurants) {
-    if (!restaurant.address || restaurant.activeFeedback.length < 5) continue;
+    if (
+      !restaurant.address ||
+      restaurant.activeFeedback.length < minPreferencesNumber
+    ) {
+      continue;
+    }
     // find distance between adventurer and restaurant
     const config = {
       method: 'get',
