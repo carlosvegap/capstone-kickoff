@@ -5,6 +5,7 @@ import axios from 'axios';
 import Header from '../Header/Header';
 import RegisterExperience from './RegisterExperience/RegisterExperience';
 import Feedback from './Feedback/Feedback';
+import Performance from './Performance/Performance';
 
 // CONTEXTS
 import UserContext from '../../../Contexts/UserContext';
@@ -21,7 +22,7 @@ async function getAllFeedbackInfo() {
 }
 
 export default function Experience({ setIsLoggedIn, isLoggedIn }) {
-  const { firstName, username, userType } = useContext(UserContext);
+  const { username, userType } = useContext(UserContext);
   const [feedbackInfo, setFeedbackInfo] = useState([]);
   const [experienceData, setExperienceData] = useState({
     name: '',
@@ -63,10 +64,10 @@ export default function Experience({ setIsLoggedIn, isLoggedIn }) {
   const params = useParams();
   if (params.page === 'home' && !isLoading) {
     return (
-      <>
+      <Box>
         <Header userType={userType} onLogOutClick={setIsLoggedIn} />
-        <h2>Welcome Experience Maker: {firstName}</h2>
-      </>
+        <Performance />
+      </Box>
     );
   }
   if (params.page === 'myExperience' && !isLoading) {
