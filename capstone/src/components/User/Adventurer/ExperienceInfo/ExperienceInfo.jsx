@@ -33,14 +33,42 @@ function getPhotoReference(restaurant) {
   return restaurant.photos ? restaurant.photos[0].photo_reference : null;
 }
 
-export default function ExperienceInfo({ onUpdateRestaurants, indexRestaurant, onSelectRestaurant }) {
+/*
+  After submitting a new review, find the new values for the statistics 
+  on a restaurant so the user doesn't have to reload the page
+  for meanReviewScore (the average score for each preference)
+  it finds the accumulated sum of all previous reviews (points out of a 100)
+  and later adds the new review value, to later find the new average.
+*/
+function calculateNewMeanReviews(meanScores, reviewsNumber, newReview) {
+  const maxValue = 5;
+  return meanScores.map((scoreObject) => {
+    const newVal = newReview.find(
+      (review) => review.feedbackId === scoreObject.feedbackId,
+    ).score;
+    return {
+      ...scoreObject,
+      meanReviewScore:
+        ((newVal / maxValue) * 100 +
+          scoreObject.meanReviewScore * reviewsNumber) /
+        (reviewsNumber + 1),
+    };
+  });
+}
+
+export default function ExperienceInfo({
+  onUpdateRestaurants,
+  indexRestaurant,
+  onSelectRestaurant,
+}) {
   const { username } = useContext(UserContext);
   const { restaurants } = useContext(AdventurerContext);
   // All feedback information (including distance, which is not rateable)
   const feedbackInfo = useContext(FeedbackContext);
   const [newReview, setNewReview] = useState([]);
   // Get the restaurant viewing now
-  const currentRestaurant = restaurants.length > 0 ? restaurants[indexRestaurant] : null;
+  const currentRestaurant =
+    restaurants.length > 0 ? restaurants[indexRestaurant] : null;
   const isRated = currentRestaurant ? currentRestaurant.review != null : false;
   // Get the information for the active feedback areas
   // discarding distance (that is not to be rated forExperience)
@@ -98,11 +126,17 @@ export default function ExperienceInfo({ onUpdateRestaurants, indexRestaurant, o
 
   const toast = useToast();
   function onSubmission() {
-    submitRate(username, currentRestaurant.place_id, newReview).then((res) => {
+    submitRate(username, currentRestaurant.objectId, newReview).then((res) => {
       if (res.data) {
         restaurants[indexRestaurant] = {
           ...restaurants[indexRestaurant],
+          reviewsNumber: currentRestaurant.reviewsNumber + 1,
           review: newReview,
+          meanScores: calculateNewMeanReviews(
+            currentRestaurant.meanScores,
+            currentRestaurant.reviewsNumber,
+            newReview,
+          ),
         };
         onUpdateRestaurants([...restaurants]);
         toast(
@@ -161,30 +195,30 @@ export default function ExperienceInfo({ onUpdateRestaurants, indexRestaurant, o
           {currentRestaurant.name}
         </Heading>
         <Text>{currentRestaurant.formatted_address}</Text>
-        <Box  width="100%" mt="30px">
+        <Box width="100%" mt="30px">
           <Heading textAlign="center" size="md">
             Statistics:
           </Heading>
           <Text textAlign="center">Ordered according to your preferences</Text>
         </Box>
-          <VStack width="60%" spacing="20px" m="10px">
-            {currentRestaurant.meanScores.map((meanScore) => (
-              <Box
-                width="80%"
-                display="flex"
-                flexDirection="column"
-                alignContent="center"
-              >
-                <Text>{meanScore.preferenceName}</Text>
-                <Progress
-                  height="20px"
-                  width="100%"
-                  value={meanScore.meanReviewScore}
-                  colorScheme="yellow"
-                />
-              </Box>
-            ))}
-          </VStack>
+        <VStack width="60%" spacing="20px" m="10px">
+          {currentRestaurant.meanScores.map((meanScore) => (
+            <Box
+              width="80%"
+              display="flex"
+              flexDirection="column"
+              alignContent="center"
+            >
+              <Text>{meanScore.preferenceName}</Text>
+              <Progress
+                height="20px"
+                width="100%"
+                value={meanScore.meanReviewScore}
+                colorScheme="yellow"
+              />
+            </Box>
+          ))}
+        </VStack>
       </VStack>
     );
   }
