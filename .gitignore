@@ -4,6 +4,7 @@
 /capstone/node_modules
 /back/node_modules
 back/.env
+.env
 node_modules/
 capstone/.env
 /jsconfig.json
