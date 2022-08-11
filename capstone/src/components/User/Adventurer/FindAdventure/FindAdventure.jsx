@@ -3,7 +3,7 @@ import { Button, Heading, Box } from '@chakra-ui/react';
 import Map from './Map/Map';
 import List from './List/List';
 
-export default function FindAdventure() {
+export default function FindAdventure({ onSelectRestaurant }) {
   const [displayExperience, onSelectDisplay] = useState('map');
   return (
     <Box width="50%" height="100%" padding="20px" bg="gray.200" overflow="auto">
@@ -24,7 +24,9 @@ export default function FindAdventure() {
           onSelectDisplay={onSelectDisplay}
         />
       </Box>
-      {displayExperience === 'map' ? <Map /> : <List />}
+      {displayExperience === 'map' 
+        ? <Map onSelectRestaurant={onSelectRestaurant}/>
+        : <List onSelectRestaurant={onSelectRestaurant}/>}
     </Box>
   );
 }

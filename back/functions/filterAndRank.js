@@ -61,7 +61,7 @@ async function filterAndRank(
     let score = 0;
     let passesFilter = true;
     let indexPreference = 0;
-    const reviewsNumber = await getReviews(restaurant.place_id);
+    const reviewsNumber = await getReviews(restaurant.objectId);
     for (const preferenceID of userPreference.activePreferences) {
       const feedbackMaxValue = allFeedbackInfo.find(
         (feedback) => feedback.objectId === preferenceID,
@@ -69,9 +69,10 @@ async function filterAndRank(
       const preferenceName = allFeedbackInfo.find(
         (feedback) => feedback.objectId === preferenceID,
       ).displayText;
-      const meanReviewScore = await getMean(restaurant.place_id, preferenceID);
+      const meanReviewScore = await getMean(restaurant.objectId, preferenceID);
       meanScores.push({
         preferenceName,
+        feedbackId: preferenceID,
         meanReviewScore: (meanReviewScore / feedbackMaxValue) * 100,
       });
       // Find the matching score if the user has priorities
@@ -104,7 +105,7 @@ async function filterAndRank(
           allFeedbackInfo.map((feedback) => feedback.objectId),
         // set review from the user if existing, otherwise undefined
         review: userReviews.find(
-          (review) => review.experienceId === restaurant.place_id,
+          (review) => review.experienceId === restaurant.objectId,
         ),
         reviewsNumber: reviewsNumber,
         meanScores,

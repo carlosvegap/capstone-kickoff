@@ -18,7 +18,7 @@ import AdventurerContext from '../../../../../Contexts/AdventurerContext';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-export default function Map() {
+export default function Map({onSelectRestaurant}) {
   const { currentPosition, isDataFetched, restaurants } =
     useContext(AdventurerContext);
   const [activeRestaurant, setActiveRestaurant] = useState(null);
@@ -59,12 +59,13 @@ export default function Map() {
         minZoom: 12,
       }}
     >
-      {restaurants.map((restaurant) => (
+      {restaurants.map((restaurant, index) => (
         <Fragment key={restaurant.place_id}>
           <MarkerF
             position={restaurant.geometry.location}
             onMouseOver={() => setActiveRestaurant(restaurant.place_id)}
             onMouseOut={() => setActiveRestaurant(null)}
+            onClick={() => onSelectRestaurant(index)}
           >
             {activeRestaurant === restaurant.place_id ? (
               <InfoWindowF position={restaurant.geometry.location}>
