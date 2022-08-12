@@ -1,6 +1,7 @@
 import { VictoryChart, VictoryBar, VictoryLabel } from 'victory';
+import determineColor from '../../Experience/Performance/determineColor';
 
-export default function Graph({data, determineColor}) {
+export default function RatingGraph({ data }) {
   return (
     <VictoryChart domainPadding={40}>
       <VictoryBar
@@ -21,9 +22,7 @@ export default function Graph({data, determineColor}) {
           duration: 2000,
           onLoad: { duration: 1000 },
         }}
-        // data accessor for x values
         x="score"
-        // data accessor for y values
         y="count"
       />
     </VictoryChart>

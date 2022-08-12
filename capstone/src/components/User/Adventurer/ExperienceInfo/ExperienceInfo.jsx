@@ -59,7 +59,7 @@ function calculateNewMeanReviews(meanScores, reviewsNumber, newReview) {
           (reviewsNumber + 1),
       };
     }
-    return {...scoreObject};
+    return { ...scoreObject };
   });
 }
 

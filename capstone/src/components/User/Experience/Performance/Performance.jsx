@@ -1,6 +1,6 @@
 import { Box, HStack, Heading, Text, Badge } from '@chakra-ui/react';
-import Graph from './Graph';
-import Comment from './Comment';
+import RatingGraph from './RatingGraph';
+import CommentSection from './CommentSection';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
@@ -10,23 +10,6 @@ async function getStatistics(experienceID) {
   return axios.get(`${baseURL}/experience/performance`, {
     params: { experienceID },
   });
-}
-
-function determineColor(value) {
-  switch (value) {
-    case 1:
-      return '#E53E3E';
-    case 2:
-      return '#DD6B20';
-    case 3:
-      return '#ECC94B';
-    case 4:
-      return '#68D391';
-    case 5:
-      return '#38B2AC';
-    default:
-      return '#0000000';
-  }
 }
 
 export default function Performance({ experienceData }) {
@@ -46,14 +29,16 @@ export default function Performance({ experienceData }) {
           return (
             <Box shadow="md" mt="40px" width="100%" justifySelf="center">
               <Box width="100%" display="flex" justifyContent="center">
-                <Badge fontSize="1.2em" colorScheme="purple">{statistic.displayText}</Badge>
+                <Badge fontSize="1.2em" colorScheme="purple">
+                  {statistic.displayText}
+                </Badge>
               </Box>
               <Box display="flex" alignItems="center" width="100%">
                 <Box width="50%" padding="0% 4%">
-                  <Graph data={statistic.reviewSection} determineColor={determineColor} />
+                  <RatingGraph data={statistic.reviewSection} />
                 </Box>
                 <Box width="50%">
-                  <Comment data={statistic.reviewSection} determineColor={determineColor} />
+                  <CommentSection data={statistic.reviewSection} />
                 </Box>
               </Box>
             </Box>

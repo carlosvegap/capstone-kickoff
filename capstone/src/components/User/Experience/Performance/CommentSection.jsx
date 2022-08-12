@@ -1,7 +1,7 @@
 import { Box, Badge, Text } from '@chakra-ui/react';
+import determineColor from '../../Experience/Performance/determineColor';
 
-
-export default function Comment({data, determineColor}) {
+export default function CommentSection({ data }) {
   return data.map((commentSection) => {
     return (
       <Box
