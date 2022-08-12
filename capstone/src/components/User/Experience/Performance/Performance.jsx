@@ -1,6 +1,16 @@
-import { Box, HStack, Heading, Text } from '@chakra-ui/react';
+import { Box, HStack, Heading, Text, Badge } from '@chakra-ui/react';
 import Graph from './Graph';
 import Comment from './Comment';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+
+const baseURL = process.env.REACT_APP_BASE_URL;
+
+async function getStatistics(experienceID) {
+  return axios.get(`${baseURL}/experience/performance`, {
+    params: { experienceID },
+  });
+}
 
 function determineColor(value) {
   switch (value) {
@@ -19,18 +29,37 @@ function determineColor(value) {
   }
 }
 
-export default function Performance() {
+export default function Performance({ experienceData }) {
+  const [statistics, setStatistics] = useState([]);
+  useEffect(() => {
+    if (experienceData.objectId) {
+      getStatistics(experienceData.objectId).then((res) =>
+        setStatistics(res.data),
+      );
+    }
+  }, [experienceData]);
   return (
     <Box>
       <Information />
-      <HStack mt="20px">
-        <Box width="50%" padding="0% 4%">
-          <Graph determineColor={determineColor} />
-        </Box>
-        <Box width="50%">
-          <Comment determineColor={determineColor} />
-        </Box>
-      </HStack>
+      <Box mt="20px">
+        {statistics.map((statistic) => {
+          return (
+            <Box shadow="md" mt="40px" width="100%" justifySelf="center">
+              <Box width="100%" display="flex" justifyContent="center">
+                <Badge fontSize="1.2em" colorScheme="purple">{statistic.displayText}</Badge>
+              </Box>
+              <Box display="flex" alignItems="center" width="100%">
+                <Box width="50%" padding="0% 4%">
+                  <Graph data={statistic.reviewSection} determineColor={determineColor} />
+                </Box>
+                <Box width="50%">
+                  <Comment data={statistic.reviewSection} determineColor={determineColor} />
+                </Box>
+              </Box>
+            </Box>
+          );
+        })}
+      </Box>
     </Box>
   );
 }
@@ -47,7 +76,7 @@ function Information() {
       <HStack mt="20px">
         <Box width="50%">
           <Heading size="md" textAlign="center">
-            Feedback area
+            Statistics
           </Heading>
         </Box>
         <Box width="50%">

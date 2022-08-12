@@ -45,14 +45,21 @@ function calculateNewMeanReviews(meanScores, reviewsNumber, newReview) {
   return meanScores.map((scoreObject) => {
     const newVal = newReview.find(
       (review) => review.feedbackId === scoreObject.feedbackId,
-    ).score;
-    return {
-      ...scoreObject,
-      meanReviewScore:
-        ((newVal / maxValue) * 100 +
-          scoreObject.meanReviewScore * reviewsNumber) /
-        (reviewsNumber + 1),
-    };
+    );
+    /* An user only get statistics on their active feedback areas. 
+    But the user only rates a restaurant on the restaurants' active areas. 
+    This if catches if the user rated a restaurant on an area outside of
+    their active areas, so it avoids trying to modify a bargraph that isn't displayed*/
+    if (newVal) {
+      return {
+        ...scoreObject,
+        meanReviewScore:
+          ((newVal.score / maxValue) * 100 +
+            scoreObject.meanReviewScore * reviewsNumber) /
+          (reviewsNumber + 1),
+      };
+    }
+    return {...scoreObject};
   });
 }
 
@@ -202,22 +209,25 @@ export default function ExperienceInfo({
           <Text textAlign="center">Ordered according to your preferences</Text>
         </Box>
         <VStack width="60%" spacing="20px" m="10px">
-          {currentRestaurant.meanScores.map((meanScore) => (
-            <Box
-              width="80%"
-              display="flex"
-              flexDirection="column"
-              alignContent="center"
-            >
-              <Text>{meanScore.preferenceName}</Text>
-              <Progress
-                height="20px"
-                width="100%"
-                value={meanScore.meanReviewScore}
-                colorScheme="yellow"
-              />
-            </Box>
-          ))}
+          {currentRestaurant.meanScores.map((meanScore) => {
+            if (!meanScore) return null;
+            return (
+              <Box
+                width="80%"
+                display="flex"
+                flexDirection="column"
+                alignContent="center"
+              >
+                <Text>{meanScore.preferenceName ?? 'not found'}</Text>
+                <Progress
+                  height="20px"
+                  width="100%"
+                  value={meanScore.meanReviewScore}
+                  colorScheme="yellow"
+                />
+              </Box>
+            );
+          })}
         </VStack>
       </VStack>
     );

@@ -1,14 +1,7 @@
 import { Box, Badge, Text } from '@chakra-ui/react';
 
-const data = [
-  { score: 1, comment: ['really bad food'] },
-  { score: 2, comment: ['not that bad', 'ok if you are really hungry', 'need more work'] },
-  { score: 3, comment: ['can improve but ok'] },
-  { score: 4, comment: ['it was ok'] },
-  { score: 5, comment: ['my favorite place', 'it changed my life'] },
-];
 
-export default function Comment({determineColor}) {
+export default function Comment({data, determineColor}) {
   return data.map((commentSection) => {
     return (
       <Box
