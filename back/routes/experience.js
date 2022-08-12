@@ -5,6 +5,7 @@ const {
   ExperienceInfoQuery,
   UpdatePreferencesQuery,
   SubmitExperienceQuery,
+  ReviewsQuery,
 } = require('../queries/experience');
 const { googleTextSearch } = require('../functions/googleTextSearch');
 const router = express.Router();
@@ -46,8 +47,10 @@ router.get('/preferences/status', async (req, res) => {
   }
 });
 
-// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-// ----- Get the information of an experience that user X owns -----
+/* -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+----- Get the information of an experience that user X owns -----
+Used in Experience.jsx to determine if more information is needed
+to redirect to register page */
 router.get('/info', async (req, res) => {
   const experienceInfo = await ExperienceInfoQuery(req.headers.username);
   res.status(200).send(experienceInfo);
@@ -61,6 +64,7 @@ router.post('/preferences/update', async (req, res) => {
   res.status(200).send(isUpdated);
 });
 
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // Submit experience information
 router.post('/submit', async (req, res) => {
   const objectID = (await ExperienceInfoQuery(req.headers.username)).objectId;
@@ -71,10 +75,19 @@ router.post('/submit', async (req, res) => {
   res.status(200).send(isSubmitted);
 });
 
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 // ----- Get possible claimed restaurant ------
 router.get('/similar', async (req, res) => {
   const results = await googleTextSearch(100, req.query.lat, req.query.lng);
   res.status(200).send(results.filter((res, index) => index < 3));
+});
+
+/* -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+----- Get all reviews and comments for an experience -----
+Used in Performance.jsx, to display statistics */
+router.get('/performance', async (req, res) => {
+  const experienceReviews = await ReviewsQuery(req.query.experienceID);
+  res.status(200).send(experienceReviews);
 });
 
 module.exports = router;
