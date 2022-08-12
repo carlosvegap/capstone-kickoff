@@ -81,6 +81,8 @@ async function filterAndRank(
         score +=
           (meanReviewScore / feedbackMaxValue) *
           (userPreference.activePreferences.length - indexPreference);
+      } else {
+        score += meanReviewScore / feedbackMaxValue;
       }
       if (
         userPreference.hasMinimumValue[indexPreference] &&
@@ -96,7 +98,7 @@ async function filterAndRank(
         ...restaurant,
         matchScore: priority
           ? Math.round((100 * score) / maxPoints)
-          : undefined,
+          : Math.round((100 * score) / userPreference.activePreferences.length),
         /* activeFeedback was set in database restaurants.
         if it doesn't exist, it's a google restaurant,
         therefore all feedback applies */
@@ -112,11 +114,9 @@ async function filterAndRank(
       });
     }
   }
-  if (priority) {
-    restaurants.sort((a, b) => {
-      return b.matchScore - a.matchScore;
-    });
-  }
+  restaurants.sort((a, b) => {
+    return b.matchScore - a.matchScore;
+  });
   return restaurants;
 }
 
